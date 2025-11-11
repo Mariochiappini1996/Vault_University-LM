@@ -1,0 +1,274 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{exercise}[theorem]{Exercise}
+\setcounter{theorem}{122} % L'ultimo era 122, quindi il prossimo è 123
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{15 Stimatori Bayesiani}
+Ricordiamo innanzitutto la Formula di Bayes:
+
+\begin{theorem}[Bayes]
+Siano $H_{1},...H_{m}$ eventi disgiunti ed esaustivi, cioè $H_{i}\cap$
+$H_{j}=\emptyset$ per ogni $i\ne j$ e $\cup_{i=1}^{m} H_i = \Omega.$ Sia inoltre $E\in\mathfrak{S}$ un evento con probabilità
+strettamente positiva;
+allora
+\[
+Pr(H_{i}|E)=\frac{Pr(E|H_{i})Pr(H_{i})}{\sum_{j=1}^{m}Pr(E|H_{j})Pr(H_{j})}.
+\]
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Cos'è il Teorema di Bayes?}
+    
+    Questo teorema è la formula matematica per "aggiornare una credenza" in modo logico quando si ricevono nuove informazioni.
+    
+    \begin{itemize}
+        \item \textbf{$H_i$ (Ipotesi):} Le possibili "cause" o "stati del mondo" (es. $H_1=$"l'urna è la A", $H_2=$"l'urna è la B").
+        \item \textbf{$E$ (Evidenza):} Il "dato" o "effetto" che osserviamo (es. "ho estratto una pallina bianca").
+        \item \textbf{$Pr(H_i)$ (Probabilità "a priori"):} La nostra credenza iniziale sull'ipotesi $H_i$, \textit{prima} di vedere l'evidenza $E$.
+        \item \textbf{$Pr(E|H_i)$ (Verosimiglianza):} La probabilità di osservare l'evidenza $E$, \textit{supponendo} che l'ipotesi $H_i$ sia vera.
+        \item \textbf{$Pr(H_i|E)$ (Probabilità "a posteriori"):} La probabilità \textit{aggiornata} dell'ipotesi $H_i$, \textit{dopo} aver visto l'evidenza $E$.
+    \end{itemize}
+    
+    Il teorema ci dice come passare dalla credenza iniziale $P(H_i)$ a quella aggiornata $P(H_i|E)$.
+\end{spiegazione}
+
+La derivazione della formula di Bayes è matematicamente banale (si riduce
+essenzialmente a ricordare che $Pr(E)=\sum_{j=1}^{m}Pr(E|H_{j})Pr(H_{j})$; l'interpretazione
+però è molto importante, perché permette di combinare in modo matematicamente la probabilità a priori di m cause disgiunte $H_{j}$ e l'evidenza empirica sul
+fatto che E si sia verificato.
+
+\begin{example}
+L'approccio Bayesiano all'inferenza statistica è profondamente diverso da
+quello che abbiamo seguito finora.
+L'idea di fondo è che non esista un "vero"
+parametro da stimare $\theta=\theta_{0}$, ma che il parametro sia esso stesso una variabile
+(o un vettore) aleatorio la cui distribuzione, che rappresenta il nostro stato
+di conoscenza, viene aggiornata tramite la formula di Bayes alla luce delle osservazioni.
+In altre parole, oltre alla legge delle osservazioni $f(X_{1},...,X_{n}|\theta)$
+dobbiamo supporre di conoscere la legge $\pi(\theta)$ del parametro prima di aver effettuato osservazioni.
+Si noti come abbiamo scritto $f(X_{1},...,X_{n}|\theta)$ invece di
+$f(X_{1},...,X_{n};\theta)$ perché ora ha senso parlare della legge di $X_{1},...,X_{n}$ condizionatamente al valore $\theta$ del parametro.
+L'oggetto centrale dell'inferenza diviene
+quindi la legge a posteriori, che attraverso la formula di Bayes è data da
+\[
+\pi(\theta|X_{1},...,X_{n})=\frac{f(X_{1},...,X_{n}|\theta)\pi(\theta)}{\int_{\Theta}f(X_{1},...,X_{n}|\theta)\pi(\theta)d\theta}
+\]
+ed analogamente nel caso discreto.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{La Filosofia Bayesiana (Frequentista vs. Bayesiano)}
+    
+    Questo è il cambio di mentalità fondamentale dell'approccio Bayesiano.
+    
+    \begin{itemize}
+        \item \textbf{Approccio Classico (Frequentista):} Il parametro $\theta$ (es. la probabilità $p$ di una moneta) è un numero \textit{fisso} e sconosciuto. L'unica cosa casuale sono i \textit{dati} $X$. Il nostro obiettivo è "indovinare" quel numero.
+        
+        \item \textbf{Approccio Bayesiano:} Il parametro $\theta$ è \textit{esso stesso} una variabile aleatoria. Non ha un "solo" valore vero, ma una \textit{distribuzione di probabilità} $\pi(\theta)$ che esprime la nostra incertezza su di esso.
+    \end{itemize}
+    
+    L'inferenza Bayesiana consiste nell'usare i dati per "aggiornare" la nostra distribuzione di credenza.
+    
+    \begin{itemize}
+        \item \textbf{$\pi(\theta)$ (Priore):} È la distribuzione che $\theta$ ha \textit{prima} di vedere i dati (la nostra "credenza iniziale").
+        \item \textbf{$f(X|\theta)$ (Verosimiglianza):} È la probabilità dei dati, dato un certo $\theta$. È la stessa funzione $L(\theta)$ del Capitolo 11.
+        \item \textbf{$\pi(\theta|X)$ (Posteriore):} È la distribuzione (aggiornata) di $\theta$ \textit{dopo} aver visto i dati $X$. Questa è la nostra "risposta".
+    \end{itemize}
+    
+    La formula $\pi(\theta|X) = \frac{\text{Verosimiglianza} \times \text{Priore}}{\text{Costante}}$ è il Teorema di Bayes applicato ai parametri.
+\end{spiegazione}
+
+\begin{example}
+Consideriamo $X_{1},...,X_{n}$ variabili Bernoulliane di parametro p;
+per quest'ultimo, assumiamo che abbia una distribuzione a priori di tipo Beta
+con parametri $\alpha$, $\beta$, cioè
+\[
+\pi(p)=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{\alpha-1}(1-p)^{\beta-1}, \quad p\in[0,1].
+\]
+Ricordiamo innanzitutto i valori di valor medio e varianza
+\[
+E[p]=\frac{\alpha}{\alpha+\beta} \quad Var[p]=\frac{\alpha\beta}{(\alpha+\beta)^{2}(\alpha+\beta+1)}
+\]
+infatti
+\begin{align*}
+E[p] &= \int_{0}^{1}p\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{\alpha-1}(1-p)^{\beta-1}dp \\
+&= \frac{\Gamma(\alpha+1)\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\alpha+\beta+1)}\int_{0}^{1}\frac{\Gamma(\alpha+\beta+1)}{\Gamma(\alpha+1)\Gamma(\beta)}p^{\alpha}(1-p)^{\beta-1}dp \\
+&= \frac{\alpha}{\alpha+\beta}
+\end{align*}
+e
+\begin{align*}
+E[p^{2}] &= \int_{0}^{1}p^{2}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{\alpha-1}(1-p)^{\beta-1}dp \\
+&= \frac{\Gamma(\alpha+2)\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\alpha+\beta+2)}\int_{0}^{1}\frac{\Gamma(\alpha+\beta+2)}{\Gamma(\alpha+2)\Gamma(\beta)}p^{\alpha+1}(1-p)^{\beta-1}dp \\
+&= \frac{\alpha(\alpha+1)}{(\alpha+\beta+1)(\alpha+\beta)}
+\end{align*}
+\[
+Var[p]=\frac{\alpha(\alpha+1)}{(\alpha+\beta+1)(\alpha+\beta)}-\frac{\alpha^{2}}{(\alpha+\beta)^{2}}
+\]
+\[
+=\frac{\alpha(\alpha+1)(\alpha+\beta)-\alpha^{2}(\alpha+\beta+1)}{(\alpha+\beta+1)(\alpha+\beta)^{2}}=\frac{\alpha\beta}{(\alpha+\beta)^{2}(\alpha+\beta+1)}
+\]
+Abbiamo inoltre, scrivendo $y=\sum_{i=1}^{n}X_{i}$
+\begin{align*}
+f(y|p)\pi(p) &= \binom{n}{y}p^{y}(1-p)^{n-y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{\alpha-1}(1-p)^{\beta-1} \\
+&= \binom{n}{y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{y+\alpha-1}(1-p)^{n-y+\beta-1}.
+\end{align*}
+La marginale a denominatore si ottiene come segue:
+\begin{align*}
+f(y) &= \int_{0}^{1}\binom{n}{y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{y+\alpha-1}(1-p)^{n-y+\beta-1}dp \\
+&= \binom{n}{y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\frac{\Gamma(y+\alpha)\Gamma(n-y+\beta)}{\Gamma(n+\alpha+\beta)}
+\end{align*}
+Infine la distribuzione a posteriori è data da
+\begin{align*}
+\pi(p|y) &= \frac{\binom{n}{y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}p^{y+\alpha-1}(1-p)^{n-y+\beta-1}}{\binom{n}{y}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\frac{\Gamma(y+\alpha)\Gamma(n-y+\beta)}{\Gamma(n+\alpha+\beta)}} \\
+&= \frac{\Gamma(n+\alpha+\beta)}{\Gamma(y+\alpha)\Gamma(n-y+\beta)}p^{y+\alpha-1}(1-p)^{n-y+\beta-1},
+\end{align*}
+cioè è ancora una beta, con parametri aggiornati. Quando la distribuzioni a
+posteriori assume la stessa forma dell'a priori si parla di leggi coniugate.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio Pratico: "Beta-Binomiale" e Leggi Coniugate}
+    
+    Questo è l'esempio "classico" di inferenza Bayesiana.
+    
+    \begin{itemize}
+        \item \textbf{Verosimiglianza (Dati):} I dati sono lanci di moneta (Bernoulliani). La loro somma $y$ (numero di Teste) segue una distribuzione \textit{Binomiale}. $f(y|p) \propto p^y (1-p)^{n-y}$.
+        \item \textbf{Priore (Credenza Iniziale):} Scegliamo una distribuzione \textit{Beta} per la nostra credenza iniziale sul parametro $p$. La Beta è una distribuzione flessibile che vive solo tra 0 e 1, perfetta per una probabilità. I parametri $\alpha$ e $\beta$ "modellano" la nostra credenza (es. $\alpha=\beta=1$ significa "non so nulla", è una uniforme; $\alpha=10, \beta=1$ significa "sono quasi certo che $p$ sia vicino a 1").
+        \item \textbf{Posteriore (Risultato):} Dopo aver applicato la formula di Bayes e svolto l'algebra, la distribuzione posteriore $\pi(p|y)$ è \textit{ancora} una Beta!
+    \end{itemize}
+    
+    Questo è comodissimo. La distribuzione \textit{Posteriore} è una $Beta(y+\alpha, n-y+\beta)$. Non abbiamo dovuto fare integrali complicati, abbiamo solo "aggiornato" i parametri.
+    
+    \textbf{Leggi Coniugate:} Quando la distribuzione Priore (es. Beta) e la Verosimiglianza (es. Binomiale) sono "accoppiate" in modo tale che la Posteriore appartenga alla stessa famiglia della Priore, si parla di \textbf{leggi coniugate}. Questo rende i calcoli molto più facili.
+\end{spiegazione}
+
+\begin{remark}
+Una interpretazione rigorosa dell'approccio Bayesiano dovrebbe
+concludersi con la derivazione della distribuzione a posteriori: il calcolo di uno
+stimatore "puntuale "non ha strettamente senso, visto che il paramrto non ha un
+singolo valore.
+In pratica però il calcolo degli stimatori Bayesiani si conclude
+molto spesso con la derivazione di un singolo valore di sintesi, come ad esempio
+il valore che massimizza la distribuzione a posteriori o ancora più spesso il valore
+medio a posteriori.
+Nel caso della binomiale con a priori beta otteniamo
+\begin{align*}
+\hat{p}_{Bayes} &= \int_{0}^{1}p \cdot \pi(p|y) dp \quad \text{(calcolo della media della posteriore)} \\
+&= \frac{y+\alpha}{n+\alpha+\beta}=\frac{y}{n}\frac{n}{n+\alpha+\beta}+\frac{\alpha}{\alpha+\beta}\frac{\alpha+\beta}{n+\alpha+\beta}
+\end{align*}
+L'ultima espressione è illuminante, perchè rappresenta lo "stimatore Bayesiano"
+come una media ponderata di due elementi: lo stimatore classico di massima
+verosimiglianza (in questo caso, la semplice media aritmetica) ed il valore atteso
+a priori:
+\[
+\frac{y}{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}=\overline{X}_{n},\frac{\alpha}{\alpha+\beta}
+\]
+Il peso dello stimatore di massima verosimiglianza converge ad 1 quando la
+dimensione del campione n diverge all'infinito;
+intuitvamente, le nostre opinioni
+a priori sono schiacciate dalla forza dell'evidenza empirica.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Come si ottiene uno Stimatore Bayesiano?}
+    
+    Questo remark è cruciale. L'output "puro" Bayesiano non è un singolo numero, ma l'intera distribuzione posteriore $\pi(\theta|X)$ (che descrive la nostra incertezza aggiornata).
+    
+    Tuttavia, spesso serve un singolo numero (uno "stimatore puntuale"). La scelta più comune è la \textbf{media della distribuzione posteriore} (il suo valore atteso).
+    
+    Per l'esempio Beta-Binomiale, la media della distribuzione posteriore $Beta(y+\alpha, n-y+\beta)$ è:
+    
+    $\hat{p}_{Bayes} = \frac{y+\alpha}{n+\alpha+\beta}$
+    
+    \textbf{L'Interpretazione Illuminante:}
+    Il testo riscrive questa formula in un modo molto intelligente:
+    
+    $\hat{p}_{Bayes} = \left( \frac{y}{n} \right) \times \left( \frac{n}{n+\alpha+\beta} \right) + \left( \frac{\alpha}{\alpha+\beta} \right) \times \left( \frac{\alpha+\beta}{n+\alpha+\beta} \right)$
+    
+    Questa è una \textbf{media ponderata} tra:
+    \begin{itemize}
+        \item \textbf{La Stima dei Dati (MLE):} $\frac{y}{n}$ (la media campionaria)
+        \item \textbf{La Stima della Credenza Iniziale (Media Priore):} $\frac{\alpha}{\alpha+\beta}$
+    \end{itemize}
+    
+    I "pesi" sono $n$ (la quantità di dati reali) e $\alpha+\beta$ (la "quantità" di credenza iniziale).
+    
+    Se $n$ è piccolo (pochi dati), la stima Bayesiana è una via di mezzo tra i dati e la credenza iniziale.
+    Se $n$ è enorme, $n \to \infty$, il peso $\frac{n}{n+\alpha+\beta} \to 1$. Questo significa che \textit{l'evidenza empirica (i dati) "schiaccia" la credenza a priori}, e lo stimatore Bayesiano converge a quello classico (MLE).
+\end{spiegazione}
+
+\begin{exercise}
+Sia X una Gaussiana con valor medio $\theta$ e varianza $\sigma^{2}$, con $\theta$
+essa stessa Gaussiana di parametri $\mu,\tau^{2}$.
+Abbiamo che
+\[
+\pi(\theta|X)\sim N(\frac{\tau^{2}}{\tau^{2}+\sigma^{2}}X+\frac{\sigma^{2}}{\sigma^{2}+\tau^{2}}\mu,\frac{\sigma^{2}\tau^{2}}{\sigma^{2}+\tau^{2}}) .
+\]
+\end{exercise}
+
+\end{document}

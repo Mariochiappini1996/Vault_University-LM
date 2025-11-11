@@ -1,0 +1,724 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+% Il PDF sembra numerare tutto in modo progressivo (Definition 17, Remark 18, ...)
+% Impostiamo uno stile unificato
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+% La numerazione riparte da 1 all'inizio della nuova section
+\newtheorem{definition}{Definition}[section] 
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{example}[definition]{Example}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{proposition}[definition]{Proposition}
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\p}{\mathbb{P}}
+\newcommand{\I}{\mathbb{I}}
+\newcommand{\B}{\mathbb{B}}
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{2 \quad Modalità di convergenza}
+Gli strumenti fondamentali per studiare procedure e metodi statistici da un
+punto di vista matematico sono forniti dai teoremi di convergenza asintotica.
+Prima di poterli enunciare, è molto importante capire quali siano le principali
+modalità di convergenza per sequenze di varianili aleatorie, e studiare le relazioni
+che intercorrono tra loro.
+
+\begin{spiegazione}
+    \textbf{Cosa significa "Convergenza Asintotica"?}
+
+    "Asintotico" è un modo complicato per dire: "cosa succede quando $n$ (la dimensione del nostro campione, o il numero di esperimenti) diventa incredibilmente grande, tendendo all'infinito?".
+
+    Stiamo studiando come una successione di variabili aleatorie (ad esempio, la media di $n$ lanci di un dado) si "stabilizza" e "converge" verso un valore o una distribuzione finale. Capire questo ci permette di fidarci dei nostri metodi statistici quando abbiamo molti dati.
+\end{spiegazione}
+
+\begin{definition}[((1): Convergenza in Legge, o Convergenza in Distribuzione)]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie;
+diremo che la sequenza converge in legge alla variabile aleatoria X (scritto $X_{n}\rightarrow_{d}X)$ se e solo se si
+ha
+\[
+\lim_{n\rightarrow\infty}F_{X_{n}}(x)=F_{X}(x) \quad \text{per ogni punto di continuità di } F_{X}(.).
+\]
+
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa dice in parole povere?}
+    Questa è la forma più "debole" di convergenza.
+
+    \begin{itemize}
+        \item \textbf{Cosa NON dice:} Non dice che i *valori* di $X_n$ e $X$ sono vicini tra loro.
+        \item \textbf{Cosa DICE:} Dice che la *distribuzione di probabilità* di $X_n$ (pensa al suo "istogramma" o alla sua "curva a campana") assomiglia sempre di più alla distribuzione di $X$.
+        \item \textbf{$F_X(x)$ (Funzione di Ripartizione):} È la funzione che risponde alla domanda: "Qual è la probabilità che la mia variabile $X$ sia minore o uguale a $x$?". La convergenza richiede che il limite delle funzioni di ripartizione $F_{X_n}(x)$ sia uguale a $F_X(x)$.
+        \item \textbf{Il punto chiave:} La probabilità $\p(X_n \le x)$ diventa (quasi) la stessa di $\p(X \le x)$, per $n$ molto grande.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{remark}
+Nella definizione precedente non abbiamo specificato né lo spazio
+di probabilità su cui è definita la sequenza $\{X_{n}\}_{n\in\mathbb{N}}$ né quello su cui è definita
+X. Non è stata una dimenticanza: non è infatti necessario che tali spazi siano
+gli stessi, anzi lo spazio di probabilità può persino essere diverso al variare di n,
+cioè potremmo considerare v.a.
+definite su sequenze $\{\Omega_{n},\mathfrak{S}_{n},\mathbb{P}_{n}\}$.
+\end{remark}
+
+\begin{remark}
+Si potrebbe pensare di introdurre una definizione diversa di convergenza in probabilità, lasciando cadere il requisito che la convergenza avvenga solo
+nei punti di continuità della funzione di distribuzione $F_{X}(.)$.
+Si vede facilmnente
+che questo darebbe adito però ad alcuni gravi paradossi.
+Si consideri ad esempio la sequenza deterministica $X_{n}=\frac{1}{n}$ considerate come variabili aleatorie,
+le $X_{n}$ hanno funzione di ripartizione $F_{X_{n}}(x)=\mathbb{I}_{[\frac{1}{n},\infty)}(x)$. Prendiamo adesso
+la variabile aleatoria identicamente uguale a zero $X=0$, la cui funzione di
+distribuzione è $F_{X}(x)=\mathbb{I}_{[0,\infty)}(x)$; abbiamo che
+\[
+\lim_{n\rightarrow\infty}F_{X_{n}}(0)=\lim_{n\rightarrow\infty}0=0\ne F_{X}(0)=1 .
+\]
+
+Pertanto se richiedessimo la convergenza delle funzioni di continuità in ogni
+punto dovremmo concludere che la sequenza $\frac{1}{n}$ non converge in distribuzione a
+0, quando $n\rightarrow\infty$.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Perché la clausola "punti di continuità"?}
+    Questo esempio è la risposta.
+    \begin{itemize}
+        \item La successione $X_n = 1/n$ (che è $1, 1/2, 1/3, \dots$) *ovviamente* converge a $X=0$.
+        \item La funzione di ripartizione $F_X(x)$ della variabile $X=0$ ha un "salto" (una discontinuità) proprio in $x=0$.
+        \item Se guardiamo $F_{X_n}(0)$ (la probabilità che $1/n$ sia $\le 0$), questa è \textbf{sempre 0}.
+        \item Ma $F_X(0)$ (la probabilità che $0$ sia $\le 0$) è \textbf{1}.
+        \item Quindi, nel punto $x=0$, $0 \ne 1$, e la convergenza fallirebbe.
+    \end{itemize}
+    Per evitare questo paradosso, la definizione "ignora" questi specifici punti di salto.
+\end{spiegazione}
+
+
+\begin{example}
+Sia $X_{n}$ una sequenza di variabilie binomiali con funzione di probabilità discreta
+\[
+Pr\{X_{n}=k\}=\binom{n}{k}p_{n}^{k}(1-p_{n})^{n-k}, \quad k=0,1,2,...,n \text{ (0 altrimenti),}
+\]
+
+dove $p_{n}:=\frac{\lambda}{n}$ $\lambda>0$. Abbiamo che $X_{n}\rightarrow_{d}X,$ $X\sim Pois(\lambda)$. Infatti si verifica
+facilmente che
+\begin{align*}
+\lim_{n\rightarrow\infty}Pr\{X_{n}=k\} &= \lim_{n\rightarrow\infty}\binom{n}{k}p_{n}^{k}(1-p_{n})^{n-k} \text{} \\
+&= \lim_{n\rightarrow\infty}\frac{n!}{k!(n-k)!}\frac{\lambda^{k}}{n^{k}}(1-\frac{\lambda}{n})^{n}(1-\frac{\lambda}{n})^{-k} \text{} \\
+&= \frac{\lambda^{k}}{k!}\left(\lim_{n\rightarrow\infty}\frac{n!}{(n-k)!}\frac{1}{n^{k}}\right)\left(\lim_{n\rightarrow\infty}\left(1-\frac{\lambda}{n}\right)^{n}\right)\left(\lim_{n\rightarrow\infty}\left(1-\frac{\lambda}{n}\right)^{-k}\right) \text{} \\
+&= \frac{\lambda^{k}}{k!}e^{-\lambda}, \text{}
+\end{align*}
+usando limiti notevoli conosciuti dai primi corsi di Analisi.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio: Binomiale $\rightarrow$ Poisson}
+    Questo è un esempio classico:
+    \begin{itemize}
+        \item La \textbf{Binomiale} conta i successi su $n$ tentativi (es. quanti "Testa" su $n$ lanci).
+        \item La \textbf{Poisson} ($Pois(\lambda)$) conta "eventi rari" in un intervallo (es. quante telefonate arrivano a un call center in un'ora).
+    \end{itemize}
+    Se hai un numero $n$ \textit{altissimo} di tentativi (es. $n=1.000.000$), ma una probabilità $p_n$ \textit{bassissima} (es. $p_n = \lambda/n = 5/1.000.000$), la Binomiale (che è difficile da calcolare) si comporta in pratica come una Poisson con media $\lambda$. La convergenza in legge ci dà la base teorica per fare questa approssimazione.
+\end{spiegazione}
+
+\begin{definition}[((2): Convergenza in Probabilità o Convergenza Debole)]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}una$ successione di variabili aleatorie definita sullo spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia inoltre X, $X:\Omega\rightarrow\mathbb{R}$ Runa variabile aleatoria definita sullo
+stesso spazio di probabilità.
+Diremo che la sequenza converge in probabilità alla
+variabile aleatoria X (scritto $X_{n}\rightarrow_{p}X)$ se e solo se si ha
+\[
+\lim_{n\rightarrow\infty}\mathbb{P}\{|X_{n}-X|>\epsilon\}=0 \quad \text{per ogni } \epsilon>0.
+\]
+
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa dice in parole povere?}
+    Questa è una convergenza più "forte". Qui stiamo dicendo che i *valori* di $X_n$ e $X$ si avvicinano.
+
+    La formula $\mathbb{P}\{|X_n - X| > \epsilon\} \rightarrow 0$ si legge così:
+    "La probabilità ($\p$) che la \textit{distanza} ($|...|$) tra $X_n$ e $X$ sia più grande di un piccolo errore $\epsilon$ (non importa quanto piccolo, es. $\epsilon=0.001$)... tende a zero man mano che $n$ cresce".
+
+    In pratica: per $n$ grande, è quasi impossibile che $X_n$ e $X$ siano "lontani" tra loro.
+\end{spiegazione}
+
+
+\begin{lemma}[$((2)\Rightarrow(1))$]
+La convergenza in probabilità implica la convergenza
+in distribuzione, cioè $\{X_{n}\rightarrow_{p}X\}\Rightarrow\{X_{n}\rightarrow_{d}X\}$.
+\end{lemma}
+
+\begin{spiegazione}
+    Se i valori di $X_n$ e $X$ tendono a essere "vicini" (Convergenza in Probabilità, la 2), è logico che anche le loro distribuzioni (i loro "istogrammi") debbano assomigliarsi (Convergenza in Legge, la 1).
+
+    La (2) è un requisito più stringente della (1). Se vale la (2), la (1) vale automaticamente.
+\end{spiegazione}
+
+\begin{proof}
+Abbiamo che
+\begin{align*}
+F_{X_{n}}(x) &= \mathbb{P}\{X_{n}\le x\} \text{} \\
+&= \mathbb{P}\{X_{n}\le x,|X_{n}-X|>\epsilon\}+\mathbb{P}\{X_{n}\le x,|X_{n}-X|\le\epsilon\} \text{} \\
+&\le\mathbb{P}\{|X_{n}-X|>\epsilon\}+F_{X}\{X\le x+\epsilon\}. \text{}
+\end{align*}
+Similmente
+\begin{align*}
+F_{X}(x-\epsilon) &= \mathbb{P}\{X\le x-\epsilon\} \text{} \\
+&= \mathbb{P}\{X\le x-\epsilon,|X_{n}-X|>\epsilon\}+\mathbb{P}\{X\le x-\epsilon,|X_{n}-X|\le\epsilon\} \text{} \\
+&\le\mathbb{P}\{|X_{n}-X|>\epsilon\}+F_{X_{n}}\{X\le x\} \text{}
+\end{align*}
+e dunque
+\[
+F_{X}(x-\epsilon)-\mathbb{P}\{|X_{n}-X|>\epsilon\}\le F_{X_{n}}\{X\le x\}. \text{}
+\]
+Di conseguenza
+\begin{align*}
+F_{X}(x-\epsilon) &= \lim \inf_{n\rightarrow\infty}[F_{X}(x-\epsilon)-\mathbb{P}\{|X_{n}-X|>\epsilon\}] \text{} \\
+&\le \lim_{n\rightarrow\infty}F_{X_{n}}\{X\le x\} \text{} \\
+&\le \lim \sup_{n\rightarrow\infty}F_{X_{n}}\{X\le x\} \text{} \\
+&\le \lim \sup_{n\rightarrow\infty}[\mathbb{P}\{|X_{n}-X|>\epsilon\}+F_{X}\{X\le x+\epsilon\}] \text{} \\
+&= F_{X}(x+\epsilon) . \text{}
+\end{align*}
+Dato che $\epsilon$ è arbitrario, la convergenza segue immediatamente per tutti i punti
+di continuità di $F_{X}(.)$.
+\end{proof}
+
+\begin{remark}
+E' immediato verificare che l'implicazione inversa non vale in generale;
+strettamente parlando, non avrebbe nemmeno senso porre la domanda,
+visto che (2) richiede che le variabili siano definite tutte sullo stesso spazio di
+probabilità, mentre (1) no.
+Comunque a fini esplicativi si possono prendere banali controesempi: sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie Gaussiane
+standard indipendenti, e sia X una altra Gaussiana standard indipendente da
+questa sequenza: è ovvio che $X_{n}\triangleq X$ pertanto $X_{n}\rightarrow_{d}X;$ mentre invece
+\[
+Pr\{|X_{n}-X|>\epsilon\}=Pr\{|X|>\frac{\epsilon}{\sqrt{2}}\}\not\rightarrow0,
+\]
+
+dove abbiamo usato $X_{n}-X\triangleq N(0,2)$. Una parziale implicazione inversa esiste
+però nel caso in cui sia abbia convergenza in distribuzione ad una costante.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Contro-esempio: (1) NON implica (2)}
+    Questo è un contro-esempio cruciale. Immagina $X_n$ come il risultato di una Gaussiana standard (curva a campana) e $X$ come il risultato di *un'altra* Gaussiana standard, indipendente dalla prima.
+
+    \begin{itemize}
+        \item \textbf{Convergono in Legge (1)?} Sì! Hanno la stessa identica distribuzione. L'istogramma di $X_n$ è già uguale all'istogramma di $X$.
+        \item \textbf{Convergono in Probabilità (2)?} No! La probabilità che la loro differenza sia grande (es. $|X_n - X| > \epsilon$) non va a zero. Poiché sono indipendenti, $X_n$ e $X$ possono essere molto diversi a ogni estrazione. La loro differenza $X_n - X$ è a sua volta una variabile aleatoria (una $N(0,2)$) e la probabilità che sia "lontana da zero" non svanisce.
+    \end{itemize}
+    Il fatto che le distribuzioni siano le stesse non significa che i valori estratti in un dato momento siano vicini.
+\end{spiegazione}
+
+
+\begin{lemma}
+Sia $X_{n}$ una successione di variabili aleatorie tali per cui $X_{n}\rightarrow_{d}c$
+dove $c\in\mathbb{R}$ una qualsiasi costante.
+Allora esiste uno spazio di probabilità
+$\{\Omega, \mathfrak{S}, \p\}$ ed una successione di variabili aleatorie $\{X_{n}^{\prime}\}$ definite su questo spazio
+tali per cui $X_{n}^{\prime}\underline{d}X_{n}$ per ogni $n$ e $X_{n}^{\prime}\rightarrow_{p}c$.
+\end{lemma}
+
+\begin{spiegazione}
+    \textbf{L'eccezione: la costante}
+    L'implicazione (1) $\Rightarrow$ (2) è falsa in generale, *tranne* in un caso speciale: se il limite è una costante $c$ (un numero, non una variabile aleatoria).
+
+    Se la distribuzione di $X_n$ "collassa" su un singolo numero $c$ (es. la varianza della media campionaria va a zero), allora la convergenza in legge e la convergenza in probabilità diventano la stessa cosa.
+\end{spiegazione}
+
+\begin{proof}
+Notiamo innanzitutto che $F_{c}(x)=\mathbb{I}_{[c,\infty)}(x),$ da cui
+\begin{align*}
+Pr\{|X_{n}^{\prime}-c|>\epsilon\} &= Pr\{X_{n}^{\prime}>c+\epsilon\}+Pr\{X_{n}^{\prime}<c-\epsilon\} \text{} \\
+&= 1-F_{X_{n}}(c+\epsilon)+F_{X_{n}}(c-\epsilon) \text{} \\
+&\rightarrow 1-\mathbb{I}_{[c,\infty)}(c+\epsilon)+\mathbb{I}_{[c,\infty)}(c-\epsilon)=0 . \text{}
+\end{align*}
+\end{proof}
+
+\begin{remark}
+Intuitivamente, la (1) sta richiedendo che $X_{n}$ e X "tendano a
+dare gli stessi numeri con la stessa probablità", mentre la (2) sta richiedendo
+che "in una singola estrazione, il valore di $X_{n}$ e X tende ad essere vicino".
+E'
+quindi naturale che la (2) sia una richiesta più forte della (1).
+\end{remark}
+
+\begin{definition}[((3): Convergenza in Media r-esima)]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie definita sullo spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia
+inoltre X, $X:\Omega\rightarrow\mathbb{R}$ Runa variabile aleatoria definita sullo stesso spazio di
+probabilità.
+Diremo che la sequenza converge in media r-esima alla variabile
+aleatoria X (scritto $X_{n}\rightarrow_{r}X)$ se e solo se si ha
+\[
+\lim_{n\rightarrow\infty}\mathbb{E}|X_{n}-X|^{r}=0 .
+\]
+
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa dice in parole povere?}
+    Questa è una convergenza ancora più forte. Non chiede solo *che la probabilità* dell'errore vada a zero, ma che il \textit{valore medio} (atteso) dell'errore (elevato alla $r$) vada a zero.
+
+    \begin{itemize}
+        \item \textbf{Caso $r=1$ (Media):} $\mathbb{E}[|X_n - X|] \rightarrow 0$. La media dell'errore assoluto va a zero.
+        \item \textbf{Caso $r=2$ (Media Quadratica):} $\mathbb{E}[(X_n - X)^2] \rightarrow 0$. Questo è lo "Scarto Quadratico Medio" (MSE) usato ovunque in statistica. È un requisito molto forte perché "punisce" molto gli errori grandi (elevandoli al quadrato).
+    \end{itemize}
+\end{spiegazione}
+
+\begin{remark}
+Affinchè la definizione abbia senso stiamo implicitamente richiedendo
+che tutte le variabili aleatorie coinvolte abbiano momenti r-esimi finiti.
+\end{remark}
+
+\begin{remark}
+I casi più importanti sono quelli che corrispondono ar $r=2$ (Convergenza in Media Quadratica) er $r=1$.
+\end{remark}
+
+\begin{lemma}
+La convergenza in media r-esima implica la convergenza in probabilità, cioè $\{X_{n}\rightarrow_{r}X\}\Rightarrow\{X_{n}\rightarrow_{p}X\}$.
+\end{lemma}
+
+\begin{spiegazione}
+    Questo passaggio è logico e si basa sulla Disuguaglianza di Markov (vista nel Capitolo 1).
+    Se la \textit{media} del tuo errore (es. $\mathbb{E}[|X_n-X|^r]$) sta andando a zero, allora la \textit{probabilità} che quell'errore sia più grande di un numero $\epsilon$ deve per forza andare a zero anche lei.
+
+    La (3) è più forte della (2).
+\end{spiegazione}
+
+\begin{proof}
+La dimostrazione è una immediata conseguenza della disuguaglianza di
+Markov:
+\[
+\lim_{n\rightarrow\infty}Pr\{|X_{n}-X|>\epsilon\}\le \lim_{n\rightarrow\infty}\frac{\mathbb{E}[|X_{n}-X|^{r}]}{\epsilon^{r}}
+\]
+
+\end{proof}
+
+\begin{remark}
+L'implicazione opposta è falsa in generale; in effetti, la convergenza in probabilità non implica nemmeno l'esistenza di momenti di un ordine
+qualsiasi $r>0$. Un controesempio più interessante è fornito dalla seguente sequenza:
+\[
+X_{n}=\begin{cases}0 \quad \text{con probabilità } 1-\frac{1}{n} \\ n \quad \text{con probabilità } \frac{1}{n}\end{cases}
+\]
+
+Questa sequenza ha valor medio finito e costante $\mathbb{E}[X_{n}]=1)$, ma converge in
+probabilità alla variabile aleatoria identicamente pari a zero, che ha ovviamente
+valor medio nullo.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Contro-esempio: (2) NON implica (3)}
+    Questo è un contro-esempio fantastico. $X_n$ vale 0 quasi sempre, ma con una probabilità piccolissima $1/n$ "esplode" e vale $n$.
+
+    \begin{itemize}
+        \item \textbf{Converge in Probabilità (2) a 0?} Sì. La probabilità che $X_n$ sia "lontano" da 0 (cioè che sia $n$) è $\mathbb{P}(|X_n - 0| > \epsilon) = 1/n$. Man mano che $n \rightarrow \infty$, questa probabilità va a 0.
+        \item \textbf{Converge in Media r=1 (3) a 0?} No. Calcoliamo la media:
+        $\mathbb{E}[|X_n - 0|] = \left(0 \times \left(1-\frac{1}{n}\right)\right) + \left(n \times \frac{1}{n}\right) = 0 + 1 = 1$.
+        La media dell'errore è \textit{costante} e non va a 0.
+    \end{itemize}
+    La (2) è "ingannata" dal fatto che l'evento $X_n=n$ è sempre più raro. Ma la (3) "vede" che quell'evento, per quanto raro, è così "disastroso" (un errore di $n$) da mantenere la media dell'errore alta.
+\end{spiegazione}
+
+
+\begin{remark}
+C'è una parziale freccia inversa tra la convergenza in probabilità e
+quella in mediar-esima.
+Intutivamente la convergenza in probabilità non implica
+la convergenza in media r-esima perché può capitare che con probabilità sempre
+più piccola vengano assunti valori sempre più grandi, come nel contro-esempio
+precedente;
+se però imponiamo che le variabili siano limitate, la possibilità di
+questi contro-esempi cade.
+In aprticolare, abbiamo il Lemma che segue.
+\end{remark}
+
+\begin{lemma}
+Sia $\{X_{n}\}$ una successione di variabili aleatorie limitate $|X_{n}|\le$
+$M\in\mathbb{R}$ definite sullo spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$ e tale per cui $X_{n}\rightarrow_{p}X$
+($X$ è evidentemente definita sullo stesso spazio di probabilità;
+si noti che $|X|\le M$
+con probabilità 1). Allora $X_{n}\rightarrow_{r}X$ per ogni $r\in\mathbb{R}$.
+\end{lemma}
+
+\begin{proof}
+Abbiamo che
+\begin{align*}
+E|X_{n}-X|^{r} &= E|X_{n}-X|^{r}I_{\{|X_{n}-X|>\epsilon\}}+E|X_{n}-X|^{r}I_{\{|X_{n}-X|\le\epsilon\}} \text{} \\
+&\le(2M)^{r}E[I_{\{|X_{n}-X|>\epsilon\}}]+\epsilon^{r}=(2M)^{r}Pr\{|X_{n}-X|>\epsilon\}+\epsilon^{r}, \text{}
+\end{align*}
+e la dimostrazione è conclusa per l'arbitrarietà di $\epsilon$ e l'ipotesi sulla convergenza
+in probabilità.
+\end{proof}
+
+\begin{example}[Legge debole dei grandi numeri]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di
+variabili aleatorie indipendenti ed identicamente distribuite definita sullo spazio
+di probabilità $\{\Omega, \mathfrak{S}, \p\}$, con $\mathbb{E}[X]=\mu$ e $\mathbb{E}[(X-\mu)^{2}]=\sigma^{2}<\infty.$. Allora
+\[
+\overline{X}_{n}:=\frac{1}{n}\sum_{i=1}^{n}X_{i}\rightarrow_{2}\mu.
+\]
+
+Infatti
+\begin{align*}
+\mathbb{E}[(\overline{X}_{n}-\mu)^{2}] &= Var[\frac{1}{n}\sum_{i=1}^{n}X_{i}] \text{} \\
+&= \frac{1}{n^{2}}\sum_{i=1}^{n}Var[X_{i}] \text{} \\
+&= \frac{\sigma^{2}}{n} \text{}
+\end{align*}
+\end{example}
+
+\begin{spiegazione}
+    La Legge Debole dei Grandi Numeri (che nel Capitolo 1 abbiamo visto come conseguenza di Chebyshev) è un esempio di convergenza in media quadratica (e quindi anche in probabilità).
+
+    Lo scarto quadratico medio della media campionaria $\overline{X}_n$ dalla media vera $\mu$ è $\mathbb{E}[(\overline{X}_{n}-\mu)^{2}] = \frac{\sigma^2}{n}$.
+    Dato che $\lim_{n \to \infty} \frac{\sigma^2}{n} = 0$, abbiamo la convergenza in media quadratica ($r=2$).
+\end{spiegazione}
+
+
+\begin{remark}
+Le ipotesi della legge debole dei grandi numeri possono essere
+grandemente generalizzate.
+Ad esempio, si può sostituire l'indipendenza con
+l'incorrelazione, e l'identica distribuzione con l'ipotesi che il valor medio sia
+costante e la varianza uniformemente limitata.
+\end{remark}
+
+\begin{remark}
+E' importante ricordare la relazione che esiste tra la convergenza in media
+di ordini diversi.
+\end{remark}
+
+\begin{lemma}
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie definita sullo
+spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia inoltre X, $X:\Omega\rightarrow\mathbb{R}$ una variabile aleatoria
+definita sullo stesso spazio di probabilità. Allora $\{X_{n}\rightarrow_{r_{2}}X\}\Rightarrow\{X_{n}\rightarrow_{r_{1}}X\}$
+per ogni $0<r_{1}<r_{2}$.
+\end{lemma}
+
+\begin{proof}
+Per la dimostrazione, basta considerare la funzione convessa $f(x):=$
+$|x|^{r_{2}/r_{1}}$ e notare che, per la disuguaglianza di Jensennn
+\[
+f(\mathbb{E}|X_{n}-X|^{r_{1}})=(\mathbb{E}|X_{n}-X|^{r_{1}})^{r_{2}/r_{1}}\le\mathbb{E}[f(|X_{n}-X|^{r_{1}})]=(\mathbb{E}|X_{n}-X|^{r_{2}})
+\]
+
+e quindi
+\[
+(\mathbb{E}|X_{n}-X|^{r_{1}})^{1/r_{1}}\le(\mathbb{E}|X_{n}-X|^{r_{2}})^{1/r_{2}},
+\]
+
+\[
+\{\lim_{n\rightarrow\infty}\mathbb{E}|X_{n}-X|^{r_{2}}=0\}\Rightarrow\{\lim_{n\rightarrow\infty}\mathbb{E}|X_{n}-X|^{r_{1}}=0\} .
+\]
+
+\end{proof}
+
+\begin{spiegazione}
+    La convergenza in media quadratica ($r=2$) è più forte della convergenza in media ($r=1$). Se vale la prima, vale anche la seconda. In generale, più $r$ è alto, più la convergenza è "forte".
+\end{spiegazione}
+
+\begin{definition}[((4). Convergenza quasi certa)]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di
+variabili aleatorie definita sullo spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia inoltre X,
+$X:\Omega\rightarrow\mathbb{R}$ Runa variabile aleatoria definita sullo stesso spazio di probabilità.
+Diciamo che $X_{n}$ converge quasi certamente a X, scritto $X_{n}\rightarrow_{q.c.}X,$ se e solo
+se
+\[
+\mathbb{P}\{\omega:\lim_{n\rightarrow\infty}X_{n}(\omega)=X(\omega)\}=\mathbb{P}\{\lim_{n\rightarrow\infty}X_{n}=X\}=1 .
+\]
+
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa dice in parole povere?}
+    Questa è la forma più "forte" di convergenza. È la più intuitiva ma la più difficile da dimostrare.
+
+    \begin{itemize}
+        \item \textbf{$\omega$ (omega):} Pensa a $\omega$ come a un "universo" o un "esperimento completo". È un singolo, infinito lancio di monete, per esempio.
+        \item \textbf{$X_n(\omega)$:} È il valore della variabile $X_n$ in quello specifico universo (es. la media dei primi $n$ lanci \textit{di quella specifica sequenza infinita}).
+        \item \textbf{La formula:} $\mathbb{P}\{\omega: \lim X_n(\omega) = X(\omega)\} = 1$ si legge:
+        "La probabilità di (ri)trovarsi in un universo $\omega$ dove la successione di numeri $X_n(\omega)$ converge \textit{esattamente} al numero $X(\omega)$ (nel senso classico dell'Analisi 1) è 1 (cioè è il 100\%)".
+    \end{itemize}
+    Ignora un set di "universi sfortunati" (es. una sequenza di infinite "Teste") che hanno probabilità 0 di accadere. Per tutti gli altri (probabilità 1), la successione $X_n$ converge a $X$.
+
+    La Legge *Forte* dei Grandi Numeri usa questa convergenza.
+\end{spiegazione}
+
+
+\begin{remark}
+Notiamo che l'evento $\{\omega:\lim_{n\rightarrow\infty}X_{n}(\omega)=X(\omega)\}$ può essere scritto
+come
+\[
+\{\omega:\lim_{n\rightarrow\infty}X_{n}(\omega)=X(\omega)\}=\cap_{k=1}^{\infty}\cup_{n=1}^{\infty}\cap_{m=n}^{\infty}\{\omega:|X_{m}(\omega)-X(\omega)|<\frac{1}{k}\}
+\]
+
+cioè l'insieme di quegli $\omega$ tali per cui, per scelto $\frac{1}{k}$ piccolo quanto si vuole,
+$|X_{m}(\omega)-X(\omega)|<\frac{1}{k}$ definitivamente.
+Possiamo quindi definire la convergenza
+quasi certa imponendo che il complementare di questo evento abbia probabilità
+nulla, cioè
+\begin{align*}
+0 &= \mathbb{P}\left(\left[\cap_{k=1}^{\infty}\cup_{n=1}^{\infty}\cap_{m=n}^{\infty}\{\omega:|X_{m}(\omega)-X(\omega)|<\frac{1}{k}\}\right]^{c}\right) \text{} \\
+&= \mathbb{P}\left(\cup_{k=1}^{\infty}\cap_{n=1}^{\infty}\cup_{m=n}^{\infty}\{\omega:|X_{m}(\omega)-X(\omega)|\ge\frac{1}{k}\}\right) \text{} \\
+&= \lim_{n\rightarrow\infty}\mathbb{P}\left(\cup_{m=n}^{\infty}\{\omega:|X_{m}(\omega)-X(\omega)|\ge\frac{1}{k}\}\right) \quad \text{per ogni } k=1,2,... \text{}
+\end{align*}
+Da quest'ultima riga è immediato vedere che la convergenza quasi certa implica
+la convergenza debole, $(4)\Rightarrow(2)$.
+\end{remark}
+
+\begin{spiegazione}
+    Se la successione $X_n$ converge a $X$ "quasi certamente" (cioè, tranne che in casi sfortunati con probabilità 0), allora la probabilità che $X_n$ e $X$ siano lontani deve per forza andare a zero.
+
+    La (4) è più forte della (2).
+\end{spiegazione}
+
+\begin{remark}
+La convergenza debole al contrario non implica la convergenza
+quasi certa.
+Un controesempio può essere costruito come segue: sia U una variabile aleatoria uniforme in [0,1], definita su uno spazio di probabilità adeguato.
+Consideriamo la sequenza $\{X_{n}\}_{n\in\mathbb{N}}$ definita come
+\begin{align*}
+X_{1} &= \mathbb{I}_{[0,\frac{1}{2})}(U) , \quad X_{2}=\mathbb{I}_{[\frac{1}{2},1]}(U) \text{} \\
+X_{3} &= \mathbb{I}_{[0,\frac{1}{4})}(U) , \quad X_{4}=\mathbb{I}_{[\frac{1}{4},\frac{2}{4})}(U), \quad X_{5}=\mathbb{I}_{[\frac{2}{4},\frac{3}{4})}(U), \quad X_{6}=\mathbb{I}_{[\frac{3}{4},1]}(U) \dots \text{} \\
+X_{7} &= \mathbb{I}_{[0,\frac{1}{8})}(U) , \quad X_{8}=\mathbb{I}_{[\frac{1}{8},\frac{2}{8})}(U), \dots, X_{14}=\mathbb{I}_{[\frac{7}{8},1]}(U), \text{} \\
+X_{15} &= \mathbb{I}_{[0,\frac{1}{16})}(U) , \quad X_{16}=\mathbb{I}_{[\frac{1}{16},\frac{2}{16})}(U), \dots, X_{30}=\mathbb{I}_{[\frac{15}{16},1]}(U), \text{} \\
+X_{2^{q}-1} &= \mathbb{I}_{[0,\frac{1}{2^{q}})}(U) , \quad X_{2^{q}}=\mathbb{I}_{[\frac{1}{2^{q}},\frac{2}{2^{q}})}(U), \dots \text{}
+\end{align*}
+Si ha che
+\[
+\lim_{n\rightarrow\infty}Pr\{|X_{n}|>0\}=0 , \quad \lim_{n\rightarrow\infty}Pr\{\cup_{m=n}^{\infty}|X_{m}|>0\}=1 ,
+\]
+
+quindi la sequenza converge in probabilità a zero, anche se assume infinitamente
+spesso il valore 1 e pertanto non può convergervi quasi certamente.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Contro-esempio: (2) NON implica (4)}
+    Questo è il contro-esempio più famoso. Immagina una "luce" che "spazza" l'intervallo [0,1].
+    \begin{itemize}
+        \item Prima $X_1$ illumina [0, 1/2], $X_2$ illumina [1/2, 1].
+        \item Poi $X_3$ illumina [0, 1/4], $X_4$ illumina [1/4, 2/4], $X_5$ illumina [2/4, 3/4], ...
+        \item Poi con intervalli di 1/8, 1/16, e così via.
+        \item $X_n$ vale 1 se il punto $U$ è "illuminato", 0 altrimenti.
+    \end{itemize}
+    \begin{itemize}
+        \item \textbf{Converge in Probabilità (2) a 0?} Sì. Per ogni $n$ grande, la "luce" è strettissima (es. larga 1/1000). La probabilità di essere "illuminati" ($\mathbb{P}(|X_n| > 0)$) tende a 0.
+        \item \textbf{Converge Quasi Certo (4) a 0?} No. Qualsiasi punto $U$ tu scelga (es. $U=0.5$), la "luce" continuerà a spazzare e a "colpirlo" \textit{infinite volte}. La successione $X_n(0.5)$ sarà 0, 0, 1, 0, 0, 1, 0, 0, 1... e \textbf{non converge} a 0.
+    \end{itemize}
+\end{spiegazione}
+
+
+\begin{definition}[((5). Convergenza completa)]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di
+variabili aleatorie definita sullo spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia inoltre X,
+$X:\Omega\rightarrow\mathbb{R}$ Runa variabile aleatoria definita sullo stesso spazio di probabilità.
+Diciamo che $X_{n}$ converge completamente a X, scritto $X_{n}\rightarrow_{c.c.}X$, se e solo se
+\[
+\sum_{n=1}^{\infty}\mathbb{P}\{|X_{n}-X|>\epsilon\}<\infty , \quad \text{per ogni } \epsilon>0.
+\]
+
+\end{definition}
+
+\begin{spiegazione}
+    Questa è una forma di convergenza super-forte, usata per lo più nelle dimostrazioni. Non chiede solo che $\mathbb{P}\{|X_n-X|>\epsilon\}$ tenda a 0, ma che tenda a 0 \textit{così velocemente} che la sua serie (la somma infinita di tutti i termini) \textit{converga} a un numero finito (come fa $\sum 1/n^2$).
+\end{spiegazione}
+
+
+\begin{remark}
+La convergenza completa implica quella quasi certa $((5)\Rightarrow(4))$;
+infatti, per la subadditività della misura di probabilità abbiamo che
+\[
+\lim_{n\rightarrow\infty}\mathbb{P}(\cup_{m=n}^{\infty}\{\omega:|X_{m}(\omega)-X(\omega)|\ge\frac{1}{k}\})
+\le \lim_{n\rightarrow\infty}\sum_{m=n}^{\infty}\mathbb{P}(\{\omega:|X_{m}(\omega)-X(\omega)|\ge\frac{1}{k}\})=0 ,
+\]
+
+perchè il resto n-esimo di una serie convergente va a zero.
+Il vice versa non è
+vero: consideriamo ad esempio una variabile uniforme in [0,1] U, ed introduciamo la sequenza
+\[
+X_{n}:=\mathbb{I}_{[0,\frac{1}{n}]}(U).
+\]
+
+Chiaramente
+\[
+\sum_{n=1}^{N}Pr\{X_{n}>0\}=\sum_{n=1}^{N}\frac{1}{n}\rightarrow\infty \quad \text{per } N\rightarrow\infty
+\]
+
+d'altra parte però per ogni $\omega$ tale che $U(\omega)\ne0$ abbiamo $\lim_{n\rightarrow\infty}\mathbb{I}_{[0,\frac{1}{n}]}(U)=0$.
+\end{remark}
+
+\begin{remark}
+Come abbiamo visto, in generale la convergenza in probabilità è molto più
+debole della convergenza quasi certa, e quindi a maggior ragione di quela completa.
+E' comunque possibile trovare una parziale controimplicazione, come nel
+Lemma che segue.
+\end{remark}
+
+\begin{lemma}
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie definita sullo
+spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$;
+sia inoltre X, $X:\Omega\rightarrow\mathbb{R}$ Runa variabile aleatoria
+definita sullo stesso spazio di probabilità, e si abbia la convergenza in probabilità
+$X_{n}\rightarrow_{p}X$. Allora esiste una sottosuccessione $X_{n_{k}}$ tale che $X_{n_{k}}\rightarrow_{c.c.}X$.
+\end{lemma}
+
+\begin{proof}
+Per la dimostrazione, è sufficiente scegliere la sottosuccessione $X_{n_{k}}$ tale
+per cui
+\[
+Pr\{|X_{n_{k}}-X|>\frac{1}{k}\}\le\frac{1}{2^{k}}
+\]
+
+in modo che si abbia, per ogni $\epsilon>0$
+\begin{align*}
+\sum_{n_{k}=1}^{\infty}Pr\{|X_{n_{k}}-X|>\epsilon\}
+&\le\sum_{n_{k}=1}^{\lceil\frac{1}{\epsilon}\rceil}Pr\{|X_{n_{k}}-X|>\epsilon\}+\sum_{n_{k}=\lceil\frac{1}{\epsilon}\rceil+1}^{\infty}Pr\{|X_{n_{k}}-X|>\frac{1}{k}\} \text{} \\
+&\le\lceil\frac{1}{\epsilon}\rceil+\sum_{n_{k}=1}^{\infty}\frac{1}{2^{k}}<\infty . \text{}
+\end{align*}
+\end{proof}
+
+\begin{remark}
+Si può verificare che non esiste implicazione, né in un senso né
+nell'altro, tra la convergenza completa e la convergenza in media r-esima.
+Si
+consideri infatti la sequenza:
+\[
+X_{n}=\begin{cases}0 \quad \text{con probabilità } 1-\frac{1}{n^{2}} \text{} \\ n \quad \text{con probabilità } \frac{1}{n^{2}} \text{}\end{cases}
+\]
+Le $X_{n}$ convergono completamente (e quindi quasi certamente) alla variabile
+aleatoria che vale identicamente zero, ma non convergono nemmeno in media
+prima;
+infatti $\mathbb{E}[X_{n}]=1$ per ogni n.
+\end{remark}
+
+\begin{spiegazione}
+    Questo Remark mostra che non c'è legame tra la convergenza forte (completa) e la convergenza in media (r-esima).
+    Dà un esempio: $X_n = n$ con probabilità $1/n^2$, e 0 altrimenti.
+    \begin{itemize}
+        \item \textbf{Converge completamente (5)?} Sì. La somma delle probabilità $\sum \p(|X_n|>\epsilon) = \sum 1/n^2$ è una serie convergente (fa $\pi^2/6$).
+        \item \textbf{Converge in media r=1 (3)?} No. Il testo afferma che $\E[X_n]=1$ per ogni $n$ (quindi non tende a 0). (Nota: c'è un'apparente discrepanza tra l'esempio $X_n=n$ con prob $1/n^2$ che darebbe $\E[X_n]=1/n$, e l'affermazione $\E[X_n]=1$. L'esempio del Remark 30, $X_n=n$ con prob $1/n$, ha $\E[X_n]=1$. La conclusione del Remark 42 si basa sul fatto che l'aspettativa non converge a 0).
+    \end{itemize}
+\end{spiegazione}
+
+
+Abbiamo quindi stabilito le implicazioni
+\[
+(5)\Rightarrow(4)\Rightarrow(2)\Rightarrow(1),
+\]
+\[
+(3)\Rightarrow(2)\Rightarrow(1);
+\]
+
+concludiamo mostrando una implicazione tra (1) e (4).
+
+\begin{spiegazione}
+    \textbf{Riassunto delle Implicazioni}
+
+    Ecco la gerarchia delle convergenze:
+
+    \begin{itemize}
+        \item \textbf{Completa (5)} $\implies$ **Quasi Certa (4)** $\implies$ **In Probabilità (2)** $\implies$ **In Legge (1)**
+        \item \textbf{In Media r-esima (3)} $\implies$ **In Probabilità (2)**
+    \end{itemize}
+    Nessun'altra freccia è vera in generale! Ad esempio, la "quasi certa" (4) non implica la "media r-esima" (3), e viceversa.
+\end{spiegazione}
+
+
+\begin{proposition}[Skorohod]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie
+definita sullo spazio di probabilità tale per cui $X_{n}\rightarrow_{d}$ X. Allora esiste uno
+spazio di probabilità $\{\Omega, \mathfrak{S}, \p\}$ su cui sono definite variabili aleatorie $X_{n}^{\prime}$, $X^{\prime}$ tali
+per cui $X_{n}\underline{d}X_{n}^{\prime}$, $X\underline{d}X^{\prime}$, e
+\[
+\mathbb{P}\{\lim_{n\rightarrow\infty}X_{n}^{\prime}=X^{\prime}\}=1.
+\]
+
+\end{proposition}
+
+\begin{spiegazione}
+    Questo è un teorema molto tecnico ma affascinante. Dice che anche se la convergenza in legge (1) è debolissima, possiamo *sempre* "ricostruire" le variabili $X_n$ e $X$ su un nuovo spazio di probabilità "magico" (chiamiamole $X_n'$ e $X'$) in modo tale che:
+    \begin{enumerate}
+        \item Le nuove variabili $X_n'$ e $X'$ abbiano le stesse identiche distribuzioni di quelle vecchie ($X_n$ e $X$).
+        \item Su questo nuovo spazio, le variabili $X_n'$ convergano a $X'$ nel senso più forte possibile, quello "quasi certo" (4).
+    \end{enumerate}
+    È uno strumento potentissimo che permette ai matematici di "trasformare" una convergenza debole in una forte, per facilitare le dimostrazioni.
+\end{spiegazione}
+
+\begin{proof}
+Per semplicità consideriamo il caso in cui le funzioni di distribuzione
+$F_{X_{n}}(.)$ $F_{X}(.)$ siano crescenti e continue.
+Prendiamo $\{\Omega,\mathfrak{A},\mathbb{P}\}=\{[0,1],\mathbb{B}[0,1],Leb\}$
+con la variabile aleatoria identità $U(\omega)=\omega,$ cioè l'uniforme in [0, 1]. Definiamo
+\[
+X_{n}^{\prime}=F_{X_{n}}^{-1}(U), \quad X^{\prime}=F_{X}^{-1}(U);
+\]
+
+queste inverse sono ben poste per le ipotesi sulla funzione di ripartizione ed il
+risultato segue immediatamente perchè
+\[
+Pr(X_{n}^{\prime}\le x)=Pr(F_{X_{n}}^{-1}(U)\le x)=Pr(U\le F_{X_{n}}(x))=F_{X_{n}}(x),
+\]
+
+e similmente per $X^{\prime}$. La convergenza quasi certa è una conseguenza della convergenza (quasi) ovunque delle funzioni di distribuzione e delle loro inverse.
+\end{proof}
+
+\end{document}

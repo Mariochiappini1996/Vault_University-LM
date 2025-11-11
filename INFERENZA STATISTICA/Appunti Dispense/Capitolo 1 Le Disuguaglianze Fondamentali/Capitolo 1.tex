@@ -1,0 +1,449 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+\newtheorem{corollary}{Corollary}
+
+% --- INFORMAZIONI SUL DOCUMENTO ---
+\title{APPUNTI DI STATISTICA MATEMATICA}
+\author{Domenico Marinucci \\ \small Dipartimento di Matematica, Università di Roma Tor Vergata}
+\date{December 12, 2024}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Note di un corso di Statistica Matematica, con particolare enfasi sulla
+Teoria Asintotica
+\end{abstract}
+
+\section{Disuguaglianze Fondamentali}
+In questo capitolo richiamiamo le disuguaglianze fondamentali che costituiscono
+gli strumenti principali per lo sviluppo di tutta la teoria asintotica.
+
+\begin{proposition}[Disuguaglianza di Markov]
+Sia $X:\Omega\rightarrow\mathbb{R}$ una variabile
+aleatoria a valori non-negativi (cioè $X(\omega)\ge0$ con probabilità 1) e con valor
+medio finito (cioè $\mathbb{E}[|X|]=\mathbb{E}[X]<\infty).$ Allora $\forall t>0$ abbiamo
+\[
+\mathbb{P}(X\ge t)\le\frac{\mathbb{E}[X]}{t}
+\]
+\end{proposition}
+
+\begin{proof}
+E' sufficiente osservare che
+\begin{align*}
+\mathbb{P}(X\ge t) &= \mathbb{E}[\mathbb{I}_{[t,\infty)}(X)]=\int_{t}^{\infty}dF_{X}(x) \\
+&\le\int_{t}^{\infty}\frac{x}{t}dF_{X}(x)\le\frac{1}{t}\int_{0}^{\infty}xdF_{X}(x) \\
+&=\frac{\mathbb{E}[X]}{t}
+\end{align*}
+\end{proof}
+
+\begin{proposition}[Disuguaglianza di Markov generalizzata]
+Sia $g:\mathbb{R}\rightarrow\mathbb{R}^{+}$ crescente e X: $\Omega \rightarrow \mathbb{R}$ una variabile aleatoria tale che $\mathbb{E}[g(X)]<\infty$.
+Allora
+\[
+Pr(X\ge t)\le\frac{\mathbb{E}[g(X)]}{g(t)}
+\]
+\end{proposition}
+
+\begin{proof}
+La dimostrazione è praticamente identica a quella già vista della disuguaglianza di Markov. In particolare, chiamando $Y=g(X)$ otteniamo
+\begin{align*}
+\mathbb{P}(X\ge t) &= \mathbb{P}(g(X)\ge g(t))=\mathbb{E}[\mathbb{I}_{[g(t),\infty)}(Y)] \\
+&= \int_{g(t)}^{\infty}dF_{Y}(y)\le\int_{g(t)}^{\infty}\frac{Y}{g(t)}dF_{Y}(y) \\
+&= \int_{t}^{\infty}\frac{g(x)}{g(t)}dF_{X}(x)\le\frac{1}{g(t)}\int_{0}^{\infty}g(x)dF_{X}(x) \\
+&= \frac{\mathbb{E}[g(X)]}{g(t)}
+\end{align*}
+\end{proof}
+
+\begin{remark}
+La disuguaglianza di Markov e la sua versione generalizzata sono
+il primo esempio di disuguaglianze di concentrazione;
+in pratica, implicano che
+tanto più una variabile aleatoria ammette momenti finite, tanto più le code
+della sua distribuzione vanno a zero velocemente.
+Ad esempio, consideriamo
+una variabile aleatoria che ammetta funzione generatrice dei momenti finita in
+un intorno dell'origine, cioè tale per cui
+\[
+m_{X}(u):=\mathbb{E}[\exp(uX)]<\infty \quad \text{per } u\in[0,T], T>1.
+\]
+Segue immediatamente che
+\[
+Pr(X\ge t)\le\frac{\mathbb{E}[\exp(X)]}{\exp(t)}=\frac{m_{X}(1)}{\exp(t)}
+\]
+cioè le code della distribuzione di X devono decadere almeno esponenzialmente.
+\end{remark}
+
+\begin{proposition}[Disuguaglianza di Chebyshev]
+Sia $X:\Omega\rightarrow\mathbb{R}$ una variabile
+aleatoria con momento secondo finito (cioè $\mathbb{E}[X^{2}]<\infty)$. Allora $\forall t>0$ abbiamo
+\[
+\mathbb{P}(|X-\mathbb{E}[X]|\ge t)\le\frac{Var[X]}{t^{2}}
+\]
+\end{proposition}
+
+\begin{proof}
+E' sufficiente osservare che, utilizzando la disuguaglianza di Markov per
+$Y=|X-\mathbb{E}[X]|^{2}$
+\[
+\mathbb{P}(|X-\mathbb{E}[X]|\ge t)=\mathbb{P}(|X-\mathbb{E}[X]|^{2}\ge t^{2})
+=\frac{\mathbb{E}[|X-\mathbb{E}[X]|^{2}]}{t^{2}}
+\]
+\end{proof}
+
+\begin{remark}
+Come discusso nei cenni storici più avanti, la disuguaglianza di
+Chebyshev è precedente a quella di Markov;
+in effetti Markov è stato un alunno
+di Chebyshev a San Pietroburgo.
+\end{remark}
+
+\begin{example}[Legge debole dei grandi numeri]
+Anticipando un poco la discussione nei prossimi capitoli, possiamo illustrare immediatamente l'applicazione
+più importante della disuguaglianza di Chebyshev.
+Siano infatti $X_{i}:\Omega\rightarrow\mathbb{R}$
+variabili aleatorie indipendenti con momento secondo finito, e definiamo come
+al solito valor medio e varianza $\mu:=\mathbb{E}[X]$, $\sigma^{2}:=\mathbb{E}[(X-\mu)^{2}]$.
+Introduciamo
+altresì la media aritmetica $\overline{X}_{n}:=\frac{1}{n}\sum_{i=1}^{n}X_{i};$ dalla disuguaglianza di Chebyshev
+abbiamo immediatamente che, per ogni $\epsilon>0$
+\[
+Pr\{|\overline{X}_n - \mu| > \epsilon\} \le \frac{Var\{\overline{X}_n\}}{\epsilon^2} = \frac{\sigma^2}{n\epsilon^2} \rightarrow 0 \quad \text{per } n\rightarrow\infty.
+\]
+E' immediato verificare che l'ipotesi di indipendenza può essere generalizzata
+a quella di incorrelazione;
+anche le ipotesi di identica distribuzione può essere
+facilmente abbandonata, come vedremo nei prossimi capitoli.
+\end{example}
+
+Nelle precedenti disuguaglianze abbiamo mostrato che per variabili aleatorie che ammettono un numero di momenti maggiore le code della funzione di
+distribuzione decadono più velocemente.
+E' pertanto naturale chiedersi se si possano ottenere risultati più stringenti focalizzandosi su classi di variabili aleatorie
+che abbiano supporto compatto, risultando quindi uniformemente limitate.
+La
+risposta è affermativa, come mostrato nel prossimo risultato.
+
+\begin{proposition}[Disuguaglianza di Hoeffding]
+Sia $X_{1},...,X_{n}$ una successione
+di variabili aleatorie indipendenti e tali che esistano due sequenze di numeri
+reali $a_{i}$, $b_{i}$ $i=1,2,..,n$ per cui valga $a_{i}\le X_{i}\le b_{i}$ per ogni i;
+assumiamo inoltre
+che $\mathbb{E}[Y_{i}]=0$ per $i=1,...,n.$ Per ogni $t>0$ vale la disuguaglianza
+\[
+Pr\{\sum_{i=1}^{n}X_{i}\ge t\}\le \inf_{u\ge0}\{e^{-ut}\prod_{i=1}^{n}e^{u^{2}(b_{i}-a_{i})^{2}/8}\}
+\]
+\end{proposition}
+
+\begin{proof}
+Per la disuguaglianza di Markov abbiamo, quale che sia $u>0$
+\begin{align*}
+Pr\{\sum_{i=1}^{n}X_{i}\ge t\} &= Pr\{\sum_{i=1}^{n}uX_{i}\ge ut\} \\
+&= Pr\{e^{u\sum_{i=1}^{n}X_{i}}\ge e^{ut}\} \\
+&\le e^{-ut}\mathbb{E}[e^{u\sum_{i=1}^{n}X_{i}}] \\
+&= e^{-ut}\prod_{i=1}^{n}\mathbb{E}[e^{uX_{i}}] .
+\end{align*}
+Scriviamo ora
+$Y_{i}=\alpha b_{i}+(1-\alpha)a_{i}$, $\alpha=\frac{Y_{i}-a_{i}}{b_{i}-a_{i}}$
+per la convessità della funzione esponenziale, si ha che
+\begin{align*}
+e^{uX_{i}} &\le \frac{Y_{i}-a_{i}}{b_{i}-a_{i}}e^{ub_{i}}+(1-\frac{Y_{i}-a_{i}}{b_{i}-a_{i}})e^{ua_{i}} \\
+&= \frac{Y_{i}-a_{i}}{b_{i}-a_{i}}e^{ub_{i}}+\frac{b_{i}-Y_{i}}{b_{i}-a_{i}}e^{ua_{i}}
+\end{align*}
+da cui, ricordando che $\mathbb{E}[Y_{i}]=0$
+\[
+\mathbb{E}[e^{uX_{i}}]\le-\frac{a_{i}}{b_{i}-a_{i}}e^{ub_{i}}+\frac{b_{i}}{b_{i}-a_{i}}e^{ua_{i}}
+\]
+Scriviamo ora
+\[
+-\frac{a_{i}}{b_{i}-a_{i}}e^{ub_{i}}+\frac{b_{i}}{b_{i}-a_{i}}e^{ua_{i}}=e^{g_{i}(v_{i})}
+\]
+dove
+\[
+g_{i}(v_{i}):=-\gamma_{i} v_{i} + \log(1-\gamma_{i}+\gamma_{i}e^{v_i}), \quad \gamma_{i}=\frac{-a_i}{b_i-a_i}, \quad v_i = u(b_i-a_i);
+\]
+notiamo infatti che
+\begin{align*}
+e^{g_{i}(v_{i})} &= e^{-\gamma_{i}v_{i}}(1-\gamma_{i}+\gamma_{i}e^{v_{i}}) \\
+&= e^{ua_{i}}(1+\frac{a_{i}}{b_{i}-a_{i}}-\frac{a_{i}}{b_{i}-a_{i}}e^{u(b_{i}-a_{i})}) \\
+&= (\frac{b_{i}-a_{i}}{b_{i}-a_{i}}e^{ua_{i}}+\frac{a_{i}}{b_{i}-a_{i}}e^{ua_{i}}-\frac{a_{i}}{b_{i}-a_{i}}e^{ub_{i}}) \\
+&= \frac{b_{i}}{b_{i}-a_{i}}e^{ua_{i}}-\frac{a_{i}}{b_{i}-a_{i}}e^{ub_{i}}.
+\end{align*}
+Notiamo che $g_{i}(0)=0$ ed inoltre
+\[
+g_{i}^{\prime}(0)=-\gamma_{i}+\frac{\gamma_{i}e^{v_{i}}}{(1-\gamma_{i}+\gamma_{i}e^{v_{i}})}|_{v_{i}=0}=0 ,
+\]
+\[
+g_{i}^{\prime \prime}(v_i) = \frac{\gamma_i e^{v_i}(1-\gamma_i+\gamma_i e^{v_i}) - \gamma_i e^{v_i}(\gamma_i e^{v_i})}{(1-\gamma_i+\gamma_i e^{v_i})^2} = \frac{\gamma_i (1-\gamma_i) e^{v_i}}{(1-\gamma_i+\gamma_i e^{v_i})^2}
+\]
+Infatti, poiché $v>0$
+\[
+g_{i}^{\prime \prime}(v_i) = \frac{\gamma_i (1-\gamma_i)}{( (1-\gamma_i)e^{-v_i/2} + \gamma_i e^{v_i/2} )^2} \le \frac{\gamma_i(1-\gamma_i)}{(1-\gamma_i+\gamma_i)^2} \le \frac{1}{4}
+\]
+(l'ultima disuguaglianza segue da $\gamma_i(1-\gamma_i) \le 1/4$ per ogni $\gamma_i$).
+
+Per il teorema del valor medio di Lagrange, esiste $\xi\in(0,v_{i})$ tale per cui
+\[
+g_{i}(v_{i})=g_{i}(0)+g_{i}^{\prime}(0)v_{i}+g_{i}^{\prime\prime}(\xi)\frac{v_{i}^{2}}{2}
+=g_{i}^{\prime\prime}(\xi)\frac{v_{i}^{2}}{2}\le\frac{u^{2}(b_{i}-a_{i})^{2}}{8}.
+\]
+Ne segue che
+\[
+\mathbb{E}[e^{uX_i}] \le e^{g_i(v_i)} \le e^{u^2(b_i-a_i)^2/8},
+\]
+ed la Proposizione è dimostrata.
+\end{proof}
+
+\begin{corollary}[Media aritmetica di variabili aleatorie di Bernoulli]
+Siano $Y_{1},...,Y_{n}$
+variabili aleatorie indipendenti identicamente distribuite con legge di Bernoulli
+Ber(p).
+Per ogni $\epsilon>0$, abbiamo che
+\[
+Pr\{|\overline{Y}_{n}-p|>\epsilon\}\le2e^{-2n\epsilon^{2}}.
+\]
+\end{corollary}
+
+\begin{proof}
+Si prenda $X_{i}:=\frac{1}{n}(Y_{i}-p)$. E' immediato verificato che $\mathbb{E}[X_{i}]=0$ e
+$a_{i}\le X_{i}\le b_{i}$ per ogni $i=1,...,n$, con $a_{i}=-\frac{p}{n}$ $b_{i}=\frac{1-p}{n}.$ da cui $(b_{i}-a_{i})^{2}=\frac{1}{n^{2}}$
+Applicando la disuguaglianza di Hoeffding si ha
+\[
+Pr\{\overline{Y}_{n}-p>\epsilon\} \le \inf_{u}\{e^{-u\epsilon}\prod_{i=1}^{n}e^{u^{2}/8n^{2}}\} = \inf_{u}\{e^{-u\epsilon}e^{u^{2}/8n}\}
+\]
+e prendendo $u=4n\epsilon$ otteniamo
+\[
+\inf_{u}\{e^{-u\epsilon}e^{u^{2}/8n}\}\le e^{-4n\epsilon\times\epsilon}e^{16n^{2}\epsilon^{2}/8n}=e^{-2n\epsilon^{2}}.
+\]
+La dimostrazione è completata ripetendo lo stesso ragionamento per $Pr \{\overline{Y}_{n}-p<-\epsilon\}$.
+\end{proof}
+
+\begin{remark}[Un confronto tra la disuguaglianza di Chebyshev e quella di Hoeffding]
+Nel caso di variabili aleatorie limitate, la disuguaglianza di Hoeffding
+è enormemente più efficiente della disuguaglianza di Chebyshev.
+Ad esempio,
+nel caso di variabili Bernoulliane di parametro $p=\frac{1}{2}$ conn $n=100$ ed $\epsilon=0.2$ la
+disuguaglianza di Chebyshev ci dà il seguente limite limite superiore:
+\[
+Pr\{|\overline{Y}_{n}-p|>0.2\}\le\frac{Var\{\overline{Y}_{n}\}}{\epsilon^{2}}=\frac{1}{4n\epsilon^{2}}\simeq0.0625
+\]
+mentre con la disuguaglianza di Hoeffding si ottiene
+\[
+Pr\{|\overline{Y}_{n}-p|>0.2\}\le2e^{-2\times100\times(0.2)^{2}}\simeq0.00067.
+\]
+\end{remark}
+
+\begin{remark}[Concentrazione del volume di un ipercubo]
+La disuguaglianza
+di Hoeffding ammette una interessante intepretazione geometrica quando viene
+applicata al comportmanto de volume di un ipercubo $[0,1]^{n}$, nel limite in cui
+$n\rightarrow\infty.$ Consideriamo infatti l'iperpiano $\Gamma_{n}:=\{x_{i}:x_{1}+x_{2}+...x_{n}=n/2\}$;
+definitamo un "Tubo" di raggio $\epsilon$ intorno a $\Gamma_{n}$ come
+\[
+Tub_{\epsilon}(\Gamma_{n}):=\{x\in\mathbb{R}^{n}:dist\{x,\Gamma_{n}\}\le\epsilon\}.
+\]
+Per ogni $\epsilon>0,$ il volume dell'intersezione tra $Tub_{\epsilon}(\Gamma_{n})$ e $[0,1]^{n}$ converge esponenzialmente a 1 quando n diverge all'infinito;
+in altre parole, la massa del
+cubo si concentra esponenzialmente in un intorno arbitrariamente piccolo della
+diagonale principale.
+\end{remark}
+
+Le precedenti disuguaglianze ci permettono di avere dei limiti superiori per
+il comportamento delle code di variabili aleatorie generiche.
+E' interessante confrontare il loro comportamento con quello delle code di una variabile Gaussiana
+standard;
+a questo scopo introduciamo la prossima proposizione.
+
+\begin{proposition}[Disuguaglianza di Mill-Gordon]
+Sia $Z\sim N(0,1)$ una variabile Gaussiana standard. Si ha che
+\[
+\sqrt{\frac{1}{2\pi}}\frac{t}{1+t^{2}}\exp(-\frac{t^{2}}{2})\le Pr\{Z>t\}\le\sqrt{\frac{1}{2\pi}}\frac{1}{t}\exp(-\frac{t^{2}}{2}) .
+\]
+\end{proposition}
+
+\begin{proof}
+La disuguaglianza di destra può essere stabilita con un semplice cambio
+di variabile; abbiamo:
+\begin{align*}
+Pr\{Z>t\} &= \int_{t}^{\infty}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx \\
+&\le\int_{t}^{\infty}\frac{x}{t}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx \\
+&= \frac{1}{t}\frac{1}{\sqrt{2\pi}}\int_{t^{2}/2}^{\infty}\exp(-y)dy \quad (\text{dopo il cambio di variabile } y=\frac{x^{2}}{2}) \\
+&= \frac{1}{t}\frac{1}{\sqrt{2\pi}}\exp(-\frac{t^{2}}{2}) .
+\end{align*}
+Per il limite inferiore, possiamo ragionare
+come segue:
+\begin{align*}
+Pr\{Z>t\} &= \int_{t}^{\infty}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx \\
+&\ge\int_{t}^{\infty}\frac{x^{4}+2x^{2}-1}{x^{4}+2x^{2}+1}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx \\
+&= \int_{t}^{\infty}\frac{x^{2}(x^{2}+1)+x^{2}-1}{(x^{2}+1)^{2}}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx \\
+&= \int_{t}^{\infty}\{\frac{x^{2}}{(x^{2}+1)} + \frac{x^{2}-1}{(x^{2}+1)^{2}}\}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx
+\end{align*}
+Chiamiamo ora
+\[
+\psi(x)=\frac{x}{1+x^{2}}\exp(-\frac{x^{2}}{2})
+\]
+e notiamo che
+\begin{align*}
+\psi^{\prime}(x) &= \frac{d\psi(x)}{dx}=\frac{1(1+x^{2})-x(2x)}{(1+x^{2})^{2}}\exp(-\frac{x^{2}}{2}) + \frac{x}{1+x^{2}}\exp(-\frac{x^{2}}{2})(-x) \\
+&= \frac{1-x^2}{(1+x^2)^2}\exp(-\frac{x^{2}}{2}) - \frac{x^2(1+x^2)}{(1+x^2)^2}\exp(-\frac{x^{2}}{2}) \\
+&= \frac{1-x^2-x^2-x^4}{(1+x^2)^2}\exp(-\frac{x^{2}}{2}) = -\frac{x^4+2x^2-1}{(x^2+1)^2}\exp(-\frac{x^{2}}{2})
+\end{align*}
+(Nota: C'è un'apparente discrepanza tra la derivata $\psi'(x)$ e l'integrando. Seguendo la logica del testo, l'integrale della derivata deve restituire la funzione. L'integrando è $A+B$ dove $A=\frac{x^2}{(x^2+1)}\exp(-x^2/2)$ e $B = \frac{x^2-1}{(x^2+1)^2}\exp(-x^2/2)$. La derivata di $\psi(x)$ è $\psi'(x) = \frac{1-x^2}{(1+x^2)^2}\exp(-x^2/2) - \frac{x^2(1+x^2)}{(1+x^2)^2}\exp(-x^2/2)$.
+L'espressione nel PDF sembra essere $\int_t^\infty \{-\psi'(x)\} dx$.
+La derivata calcolata nel PDF [source 130] è:
+\[
+\psi^{\prime}(x) = \dots = -\{\frac{x^{2}}{(x^{2}+1)^{2}}+\frac{x^{2}-1}{(x^{2}+1)^{2}}\}\exp(-\frac{x^{2}}{2})
+\]
+Questa espressione non sembra corretta. La derivata corretta è:
+\[
+\psi^{\prime}(x) = \frac{1-x^2}{(1+x^2)^2}e^{-x^2/2} - \frac{x^2}{1+x^2}e^{-x^2/2} = \frac{(1-x^2) - x^2(1+x^2)}{(1+x^2)^2}e^{-x^2/2} = - \frac{x^4+2x^2-1}{(1+x^2)^2}e^{-x^2/2}
+\]
+L'integrando nel PDF [source 128] è $\frac{x^4+2x^2-1}{(x^2+1)^2} \frac{1}{\sqrt{2\pi}} \exp(-x^2/2) = -\psi'(x) / \sqrt{2\pi}$.
+Quindi, la dimostrazione è completata dal Teorema Fondamentale del Calcolo:)
+\[
+\frac{1}{\sqrt{2\pi}}\int_{t}^{\infty} \left(-\psi^{\prime}(x)\right) dx = -\frac{1}{\sqrt{2\pi}}[\psi(x)]_{t}^{\infty} = -\frac{1}{\sqrt{2\pi}}[0 - \psi(t)] = \sqrt{\frac{1}{2\pi}}\frac{t}{1+t^{2}}\exp(-\frac{t^{2}}{2}) .
+\]
+\end{proof}
+
+\begin{remark}
+Queste due disuguglianze sono piuttosto efficienti; ad esempio, per
+$t=2$ abbiamo
+\[
+Pr\{Z>2\}=\int_{2}^{\infty}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx=0.02275
+\]
+mentre le stime di Mill danno
+\[
+\frac{1}{\sqrt{2\pi}}\frac{t}{1+t^{2}}\exp(-\frac{t^{2}}{2})|_{t=2}=0.021596\le Pr\{Z>2\}\le\frac{1}{\sqrt{2\pi}}\frac{1}{t}\exp(-\frac{t^{2}}{2})|_{t=2}=0.027
+\]
+Per $t=3$ il risulta diventa ancora più preciso; otteniamo
+\[
+Pr\{Z>3\}=\int_{3}^{\infty}\frac{1}{\sqrt{2\pi}}\exp(-\frac{x^{2}}{2})dx=0.001349
+\]
+mentre le stime di Mill danno
+\begin{align*}
+\frac{1}{\sqrt{2\pi}}\frac{t}{1+t^{2}}\exp(-\frac{t^{2}}{2})|_{t=3} &= 0.001329 \\
+\le Pr\{Z>3\} &\le \frac{1}{\sqrt{2\pi}}\frac{1}{t}\exp(-\frac{t^{2}}{2})|_{t=3}=0.0014773 .
+\end{align*}
+\end{remark}
+
+\begin{remark}
+Vediamo quale risultato otterremo per la somma di variabili Bernoulliane considerando l'approssimazione asintotica che segue dal teorema del Limte
+Centrale;
+prendendo per semplicità $p=\frac{1}{2}$ abbiamo:
+\[
+\overline{Y}_{n}-\mathbb{E}[\overline{Y}_{n}]\simeq\mathcal{N}(0,\frac{p(1-p)}{n})=\mathcal{N}(0,\frac{1}{4n})
+\]
+ed utilizzando la disuguaglianza di Mill abbiamo dunque
+\begin{align*}
+Pr\{|\overline{Y}_{n}-\frac{1}{2}|>0.2\} &= Pr\{|\mathcal{N}(0,\frac{1}{4n})|>0.2\}+o_{n\rightarrow\infty}(1) \\
+&= Pr\{|\mathcal{N}(0,1)|>0.2\times2\sqrt{n}\} \\
+&\le\frac{2}{\sqrt{2\pi}}\frac{1}{0.2\times2\sqrt{n}}e^{-4\times n\times(0.2)^{2}/2}.
+\end{align*}
+Per $n=100$ otteniamo
+\[
+\frac{2}{\sqrt{2\pi}}\frac{1}{0.2\times20}e^{-2\times100\times(0.2)^{2}}=6.6915\times10^{-5};
+\]
+un valore circa 10 volte inferiore a quello ottenuto dalla disuguaglianza di Hoeffding.
+Il risultato però non deve ingannare: la disuguaglianza di Hoeffding vale
+in senso stretto, mentre qui stiamo trovando un limite superiore alla probabilità
+Gaussiana, tralasciando il fatto che il termine di approssimazione $o_{n\rightarrow\infty}(1)$ è
+molto più grande della maggiorazione ottenuta: si può dimostrare solo l'ordine
+$O(n^{-1/2})$.
+In altre parole, il Teorema del Limite Centrale NON può essere
+sfruttato per ottenere un limite così efficiente per la probabilità sulle code della
+variabile $\overline{Y}_{n}$
+\end{remark}
+
+La prossima disuguaglianza dovrebbe essere ben nota dai corsi di Geometria
+ed Analisi.
+
+\begin{proposition}[Disuguaglianza di Cauchy-Schwartz]
+Siano $X,Y:\Omega\rightarrow\mathbb{R}$
+variabili aleatorie con momento secondo finito. Abbiamo che
+\[
+|\mathbb{E}[XY]|^{2}\le\mathbb{E}[X^{2}]\mathbb{E}[Y^{2}].
+\]
+La disuguaglianza è stretta, a meno che le variabili aleatorie siano tra loro in
+relazione lineare con probabilità 1, cioè esista un numero reale $t^{*}$ tale per cui
+\[
+\mathbb{E}[(Y-t^{*}X)^{2}]=0.
+\]
+\end{proposition}
+
+\begin{proof}
+Consideriamo la funzione quadratica (in t)
+\[
+g(t):\mathbb{E}[(Y-tX)^{2}]=\mathbb{E}[Y^{2}]-2t\mathbb{E}[XY]+t^{2}\mathbb{E}[X^{2}]\ge0.
+\]
+L'equazione $g(t)=0$ ovviamente ammette al più una radice reale di molteplicità
+due;
+quindi il discriminante deve avere valore non-positivo, in particolare
+\[
+4(\mathbb{E}[XY])^{2}-4\mathbb{E}[X^{2}]\mathbb{E}[Y^{2}]\le0
+\]
+da cui segue la disuguaglianza, che diviene una ugualianza se e solo se esiste $t^{*}$
+tale per cui $g(t^{*})=0.$
+\end{proof}
+
+\begin{remark}
+Il richiamo alla geometria ci anticipa una idea che avrà grande
+importanza nei corsi di probabilità più avanzati: lo spazio delle variabili aleatorie
+di momento secondo finito può essere visto come uno spazio vettoriale dotato di
+un proodtto interno (prodotto scalare) definito da
+\[
+\langle X,Y\rangle:=\mathbb{E}[XY].
+\]
+Nel caso particolare di variabili con valor medio nullo questo prodotto interno è
+la covarianza.
+\end{remark}
+
+Per la prossima disuguaglianza ricordiamo innanzitutto che una funzione
+$g(.):\mathbb{R}\rightarrow\mathbb{R}$ si dice convessa se per ogni $\alpha\in(0,1)$ e per ogni $x_{1}$ e $x_{2}$ nel suo
+dominio (connesso), si ha che
+\[
+g(\alpha x_{1}+(1-\alpha)x_{2})\le\alpha g(x_{1})+(1-\alpha)g(x_{2}).
+\]
+Data una funzione convessa per ogni punto $x_{0}$ esiste una costante $L=L_{x_{0}}$ tale
+per cui
+\[
+g(x)\ge g(x_{0})+L(x-x_{0});
+\]
+la costante non è necessariamente unica (se la funzione è derivabile, coincide
+con il valore della derivata in quel punto).
+
+\begin{proposition}[Disuguaglianza di Jensen]
+Sia X una variabile aleatoria con
+valor medio finito e $g(.)$ una funzione convessa.
+Abbiamo che
+\[
+\mathbb{E}[g(X)] \ge g(\mathbb{E}[(X)]),
+\]
+dove la grandezza a sinistra della disuguaglianza può essere infinita.
+\end{proposition}
+
+\begin{proof}
+E' sufficiente osservare che, per la monotonia del valor medio e prendendo $x_{0}=\mathbb{E}[(X)]$
+\begin{align*}
+\mathbb{E}[g(X)] &\ge \mathbb{E}[g(x_{0})+L(X-x_{0})] = \mathbb{E}[g(x_{0})]+\mathbb{E}[L(X-x_{0})] \\
+&= g(\mathbb{E}[(X)])+L\mathbb{E}[(X-\mathbb{E}[(X)])]=g(\mathbb{E}[(X)]).
+\end{align*}
+\end{proof}
+
+\end{document}

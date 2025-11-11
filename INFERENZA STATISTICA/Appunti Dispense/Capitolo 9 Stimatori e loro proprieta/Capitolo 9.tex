@@ -1,0 +1,169 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{example}[definition]{Example}
+\newtheorem{exercise}[definition]{Exercise}
+\setcounter{definition}{77} % L'ultimo era 77 (implicito), quindi il prossimo è 78
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{9 Stimatori e loro proprietà}
+
+\begin{definition}
+Dediniamo campione aleatorio (random sample) un insieme di
+variabili aleatorie indipendenti ed identicamente distribuite $X_{1},...,X_{n}$ definite
+su uno spazio di probabilità $\{\Omega, \mathfrak{S}, \mathbb{P}\}$.
+\end{definition}
+
+\begin{remark}
+In realtà né l'ipotesi di indipendenza né quella di identica distribuzione sono necessarie e saranno entrambe abbandonate più avanti;
+partiamo
+da queste condizioni super-semplificate per necessità.
+\end{remark}
+
+Supponiamo ora che la misura di probabilità P sia nota solo a meno del
+valore di un certo parametro $\theta$. In genere, si definisce Statistica Parametrica la
+disciplina che studia le tecniche per risalire al valore di $\theta$ nel caso in cui esso
+appartenga ad uno spazio di dimensione finita, $\theta\in\mathbb{R}^{p}$, $p\in\mathbb{N};$ si parla invece di
+Statistica NonParametrica la disciplina che studia il caso in cui $\theta$ ha dimensione
+infinita.
+Ad esempio, se sappiamo che P è una legge Gaussiana ma ne ignoriamo
+valor medio e varianza siamo nell'ambito della Statistica Parametrica;
+se sappiamo che P ammette una densità e cerchiamo di ricavarla senza sapere che tipo
+di legge sia, siamo nell'ambito della Statistica Nonparametrica.
+Per distinguere
+un valore generico del parametro dal valore "vero" che caratterizza la legge da
+cui è stato estratto un certo campione aleatorio, puòà essere conveniente scrivere
+$\theta_{0}$ in questo ultimo caso.
+
+\begin{definition}[Stimatore]
+Uno stimatore di un certo parametro $\theta\in\mathbb{R}^{p}$ è una
+funzione (o meglio una successione di funzioni) misurabile $T_{n}:\mathbb{R}^{n}\rightarrow\mathbb{R}^{p}$ di un
+campione aleatorio;
+scriveremo equivalentemente
+\[
+T_n = \hat{\theta}_n = T_n(X_1, ..., X_n).
+\]
+\end{definition}
+
+\begin{remark}
+La definizione è volutamente molto generica: qualsiasi funzione
+misurabile può essere considerata uno stimatore, quindi il punto cruciale sarà
+determinare quali siano le proprietà che consentono di valutare la bontà della
+scelta fatta.
+\end{remark}
+
+\begin{example}
+L'esempio più ovvio di stimatore (per il valore medio $\mu=E[X_{i}])$
+è la media aritmetica, cioè
+\[
+\tilde{X}_{n}=\tilde{\mu}_{n}:=\frac{1}{n}\sum_{i=1}^{n}X_{i}
+\]
+Altro stimatore naturale è la cosiddetta varianza empirica (che stima $\sigma^{2}=$
+$Var[X_{i}]),$ cioè
+\[
+S_{n}^{2}=\tilde{\sigma}_{n}^{2}=\frac{1}{n}\sum_{i=1}^{n}(X_{i}-\tilde{\mu}_{n})^{2}.
+\]
+\end{example}
+
+\subsection*{9.1 Criteri per Valutare gli stimatori}
+\begin{itemize}
+    \item Non-distorsione/asintotica non distorsione
+    \item Consistenza (in probabilità, in media r-esima, quasi certa, completa)
+    \item Efficienza (assoluta e relativa)
+    \item Asintotica Gaussianità
+\end{itemize}
+
+\begin{example}
+Media aritmetica banale mostrare non-distorsione, consistenza
+ed asintotica Gaussianità;
+si può mostrare con Cramer-Rao (vedi dopo) che
+efficiente in senso assoluto nel caso Gaussiano, nel caso non-Gaussiano, si
+consideri un altro stimatore lineare
+\[
+\sum_{i=1}^{n}c_{i}X_{i},\sum_{i=1}^{n}c_{i}=1
+\]
+(dove la condizione che la somma dei pesi sia 1 garantisce la non-distorsione).
+La varianza è evidentemente $\sum_{i=1}^{n}c_{i}^{2}Var[X_{i}],$ e pertanto nel caso di variabili
+incorrelate ed identicamente distribuite possiamo porcil problema di massimo
+vincolato
+\[
+\min_{c_i} \sum_{i=1}^n c_i^2 \quad \text{s.t.} \sum_{i=1}^n c_i = 1.
+\]
+Con i moltiplicatori di Lagrange troviamo
+\[
+\psi(c_{1},...,c_{n};\lambda)=\sum_{i=1}^{n}c_{i}^{2}+\lambda\{\sum_{i=1}^{n}c_{i}-1\}
+\]
+con derivate prime
+\[
+\frac{\partial\psi(c_{1},...,c_{n};\lambda)}{\partial c_{i}}=2c_{i}+\lambda .
+\]
+Ne segue che il problema di minimo sarà risolto imponendo che i coefficienti $c_i$
+siano tutti uguali e pertanto pari a $n^{-1}$;
+questo rende la media aritmetica uno
+stimatore BLUE (Best Linear Unbiased Estimator).
+\end{example}
+
+\begin{example}[Varianza Campionaria]
+In questo caso possiamo scrivere
+\begin{align*}
+S_{n}^{2} &= \frac{1}{n}\sum_{i=1}^{n}(X_{i}-\tilde{\mu}_{n})^{2}=\frac{1}{n}\sum_{i=1}^{n}X_{i}^{2}-\tilde{\mu}_{n}^{2} \\
+E[S_{n}^{2}] &= \frac{1}{n}\sum_{i=1}^{n}E[X_{i}^{2}]-(E[\tilde{\mu}_{n}])^{2}-Var[\tilde{\mu}_{n}] \\
+&= \frac{1}{n}\sum_{i=1}^{n}(\sigma^2 + \mu^2) - \mu^2 - \frac{\sigma^2}{n} \\
+&= (\sigma^2 + \mu^2) - \mu^2 - \frac{\sigma^2}{n} = \sigma^2 - \frac{\sigma^2}{n} = \frac{n-1}{n}\sigma^{2}.
+\end{align*}
+(Nota: il testo originale presenta $\frac{1}{n}(\sum_{i=1}^{n}\{E[X_{i}^{2}]-\mu^{2}\}-\sigma^{2})$ che porta allo stesso risultato $\frac{n-1}{n}\sigma^2$)
+
+La varianza campionaria risulta quindi distorta, anche se asintoticamente non-
+distorta;
+in un certo senso è come se perdessimo un grado di liberta centrando
+le osservazioni sulla media empirica invece di quella teorica (per $n=1$ la varianza campionaria è identicamente nulla).
+Per quello che riguarda la consistenza
+debole, è una semplice conseguenza del Lemma di Slutzky;
+se le $X_{i}$ hanno momenti quarti finiti, si può dimostrare la convergenza in media quadratica usando
+la disuguaglianza di Chebyshev.
+\end{example}
+
+\begin{exercise}
+Determinare opportune condizioni per dimostrare la convergenza
+quasi certa della varianza campionaria al valore della varianza $\sigma^{2};$ sotto quali
+condizioni vale il teorema del limte centrale?
+\end{exercise}
+
+\end{document}

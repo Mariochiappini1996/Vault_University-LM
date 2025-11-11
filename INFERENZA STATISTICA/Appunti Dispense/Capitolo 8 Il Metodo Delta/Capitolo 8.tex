@@ -1,0 +1,155 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{bm} % Per il grassetto matematico (es. \bm{\mu})
+\usepackage{cases} % Per l'ambiente cases
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}[lemma]{Theorem}
+\newtheorem{example}[lemma]{Example}
+\setcounter{lemma}{72} % L'ultimo era 72 (implicito), quindi il prossimo è 73
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{8 Il Metodo Delta}
+Il Continuous Mapping Theorem ci garantice che se $a_{n}(X_{n}-E[X_{n}])$ è una
+sequenza di variabili aleatorie che converge in distribuzione ad un limite Z e g
+è una funzione continua, allora $g(a_{n}(X_{n}-E[X_{n}]))$ converge in distribuzione a
+$g(Z)$; ad esempio, se $a_{n}(X_{n}-E[X_{n}])$ converge ad una Gaussiana standard e
+$g(x)=x^{2}$, allora $g(a_{n}(X_{n}-E[X_{n}]))$ converge in distribuzione ad una Gaussiana
+con un grado di libertà.
+Ci poniamo ora una domanda diversa; se applichiamo
+la trasformazione direttamente a $X_{n}$ invece che alla sua versione standardizzata,
+cosa possiamo concludere sulla convergenza?
+In altre parole, cosa possiamo dire
+sulla convergenza in distribuzione di $a_{n}(g(X_{n})-E[g(X_{n})])$? A questa domanda
+risponde il cosiddetto metodo delta.
+
+\begin{lemma}
+Sia G una funzione definita in un intorno dell'origine (da $\mathbb{R}^k$ in
+$\mathbb{R}^m$) e ivi continua e tale che $G(h)=o(||h||)$. Allora
+\[
+X_{n}\rightarrow_{p}0\Rightarrow G(X_{n})=o_{p}(||X_{n}||) \text{, cioè } \frac{G(X_{n})}{||X_{n}||}=o_{p}(1) .
+\]
+\end{lemma}
+
+\begin{proof}
+E' sufficiente definire la funzione continua
+\[
+g(h)=\begin{cases}\frac{G(h)}{||h||}, & se \quad ||h||\ne0 \\ 0, & se \quad ||h||=0\end{cases}
+\]
+Se $X_{n}\rightarrow_{p}0$, $g(X_{n})\rightarrow_{p}0$ per il Lemma di Slutzky.
+\end{proof}
+
+\begin{theorem}[Metodo Delta]
+Sia $g:\mathbb{R}^{k}\rightarrow\mathbb{R}^{m}$ differenziabile, con matrice
+Jacobiana limitata in $\bm{\mu}\in\mathbb{R}^{k}$.
+Supponiamo che la sequenza di vettori aleatori
+$X_{n}$ sia tale per cui
+\[
+a_{n}(X_{n}-\bm{\mu})\rightarrow_{d}X,
+\]
+per $a_{n}$ sequenza deterministica che diverge all'infinito. Allora
+\[
+a_{n}(g(X_{n})-g(\bm{\mu}))\rightarrow_{d}(J(g(\bm{\mu}))X
+\]
+dove il vettore X ha dimensioni $k\times1$ e la matrice Jacobiana $(J(g(\bm{\mu}))$ ha dimensioni $m\times k$,
+\[
+J(g(\bm{\mu}))=\begin{pmatrix}\frac{\partial g_{1}}{\partial x_{1}}&...&\frac{\partial g_{1}}{\partial x_{k}}\\ ...&...\\ \frac{\partial g_{m}}{\partial x_{1}}&...&\frac{\partial g_{m}}{\partial x_{k}}\end{pmatrix}
+\]
+\end{theorem}
+
+\begin{proof}
+Per il teorema di Taylor multivariato abbiamo che
+\[
+g(\bm{\mu}+y)-g(\bm{\mu})=(J(g(\bm{\mu}))^{T}y+G(y),
+\]
+con $G(y)=o(||y||)$. Prendendo $y=X_{n}-\bm{\mu}$ abbiamo
+\[
+g(X_{n})-g(\bm{\mu})=(J(g(\bm{\mu}))(X_{n}-\bm{\mu})+G(X_{n}-\bm{\mu}),
+\]
+e per il precedente Lemma sappiamo che
+\begin{align*}
+a_{n}G(X_{n}-\bm{\mu}) &= a_{n}||X_{n}-\bm{\mu}||\frac{G(X_{n}-\bm{\mu}))}{||X_{n}-\bm{\mu}||} \\
+&= ||a_{n}(X_{n}-\bm{\mu})||\frac{G(X_{n}-\bm{\mu}))}{||X_{n}-\bm{\mu}||} \\
+&= O_{p}(1)o_{p}(1)=o_{p}(1) .
+\end{align*}
+Segue che
+\[
+a_{n}(g(X_{n})-g(\bm{\mu}))=a_{n}(J(g(\bm{\mu}))(X_{n}-\bm{\mu})+a_{n}G(X_{n}-\bm{\mu})
+\]
+\[
+=(J(g(\bm{\mu}))a_{n}(X_{n}-\bm{\mu})+o_{p}(1)\rightarrow_{d}(J(g(\bm{\mu}))X.
+\]
+\end{proof}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di variabili IID, per le quali si ha
+\[
+\sqrt{n}\frac{\overline{X}_{n}-\mu}{\sigma}\rightarrow_{d}Z\sim N(0,1) .
+\]
+Allora
+\[
+\sqrt{n}(e^{\overline{X}_{n}}-e^{\mu})\rightarrow_{d}N(0,e^{2\mu}\sigma^{2}).
+\]
+\end{example}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di variabili IID, per le quali si ha
+\[
+\sqrt{n}\frac{\overline{X}_{n}-\mu}{\sigma}\rightarrow_{d}Z\sim N(0,1) .
+\]
+Allora
+\[
+\sqrt{n}(\overline{X}_{n}^{2}-\mu^{2})\rightarrow_{d}2\mu\sigma Z \sim N(0, 4\mu^2\sigma^2).
+\]
+(Nota: il testo originale riporta $2\mu Z$, che è corretto, ma $2\mu Z = 2\mu\sigma (\frac{Z}{\sigma})$ non è $N(0,1)$, è $N(0, 4\mu^2\sigma^2)$ se $Z \sim N(0,1)$. La forma $2\mu\sigma Z$ è più precisa se $Z \sim N(0,1)$.)
+\end{example}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di vettori aleatori IID, per i quali si
+ha
+\[
+\sqrt{n}(\overline{\bm{X}}_{n}-\bm{\mu})=\sqrt{n}\left\{\begin{pmatrix}\overline{X}_{1n}-\mu_{1}\\ \overline{X}_{2n}-\mu_{2}\end{pmatrix}\right\}\rightarrow d\begin{pmatrix}Z_{1}\\ Z_{2}\end{pmatrix}\sim N\left(0,\begin{pmatrix}\sigma_{1}^{2}&\sigma_{12}\\ \sigma_{12}&\sigma_{2}^{2}\end{pmatrix}\right) .
+\]
+Allora
+\[
+\sqrt{n}(\overline{X}_{1n}\overline{X}_{2n}-\mu_{1}\mu_{2})\rightarrow_{d} \mu_2 Z_1 + \mu_1 Z_2.
+\]
+(Nota: il testo originale riporta: $\sqrt{n}(\overline{X}_{1n}\overline{X}_{2n}-\mu_{1}\mu_{2}) \rightarrow_d (\mu_2 \quad \mu_1) \begin{pmatrix} Z_1 \\ Z_2 \end{pmatrix} = \mu_2 Z_1 + \mu_1 Z_2$.)
+\end{example}
+
+\end{document}

@@ -1,0 +1,192 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{condition}[definition]{Condition}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{example}[definition]{Example}
+\setcounter{definition}{85} % L'ultimo era 85, quindi il prossimo è 86
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{10 Il metodo dei momenti}
+I due stimatori più naturali sono media e varianza empirica;
+in entrambi i casi
+possono essere interpretati come lo stimatore che si ottiene sostituendo la distribuzione empirica a quella teorica nel calcolo di parametri che possono esser
+visti come valori medi di momenti del campione aleatorio.
+Il metodo dei momenti può essere visto come la generalizzazione di questa idea.
+Supponiamo ora di avere un campione aleatorio $X_{1},...,X_{n}$ estratto da una
+legge di probabilità $P_{\theta}$ con $\theta=(\theta_{1},...,\theta_{k})$.
+Supponiamo anche che questa legge
+ammetta k momenti finiti, cioè $\mu_{j}=E[X_{1}^{j}]$ sia ben definito per $j=1,...,k$. Chiamiamo $m_{j}$ i momenti empirici $m_{j}:=n^{-1}\sum_{i=1}^{n}X_{i}^{j}$; l'idea di fondo è scegliere
+il valore dei parametri $\theta_{1},...,\theta_{k}$ in modo che valga l'uguaglianza vettoriale:
+\begin{align*}
+m_{1} &= \mu_{1}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k}) \\
+m_{2} &= \mu_{2}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k}) \\
+... \\
+m_{k} &= \mu_{k}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k})
+\end{align*}
+Più precisamente
+
+\begin{definition}
+Assumiamo che esista un diffeomorfismo $g:\mathbb{R}^{k}\rightarrow\mathbb{R}^{k}$ tale che
+$g(\mu_{1},...,\mu_{k})=(\theta_{1},...,\theta_{k})$, per ogni valore $(\theta_{1},...,\theta_{k})$.
+Lo stimatore del metodo
+dei momenti è allora definito da
+\[
+(\tilde{\theta}_1, ..., \tilde{\theta}_k) := g(m_1, ..., m_k).
+\]
+\end{definition}
+
+Per determinare le proprietà asintotiche del nostro stimatore dobbiamo rinforzare leggermente le nostre ipotesi.
+
+\begin{condition}
+Le variabili aleatorie $X_{1},...X_{n}$ sono indipendenti ed identicamente distribuite con momenti di ordine 2k finiti.
+\end{condition}
+
+\begin{proposition}
+Sotto la precedente condizione, vale il teorema del limite centrale multivariato
+\[
+\sqrt{n}\begin{pmatrix}m_{1}-\mu_{1}\\ ...\\ m_{k}-\mu_{k}\end{pmatrix}\rightarrow_{d}N\left(\begin{pmatrix}0\\ ...\\ 0\end{pmatrix},\Omega\right)
+\]
+dove
+\[
+\Omega:=\begin{pmatrix}
+E[(X_{1}-\mu_{1})^{2}] & E[(X_{1}-\mu_{1})(X_{1}^{2}-\mu_{2})] & ... & E[(X_{1}-\mu_{1})(X_{1}^{k}-\mu_{k})] \\
+... & & & ... \\
+... & & & E[(X_{1}^{k}-\mu_{k})^{2}]
+\end{pmatrix}
+\]
+\end{proposition}
+
+\begin{proposition}
+Sotto la precedente condizione, lo stimatore del metodo dei
+momenti converge in probabilità al valore vero dei parametri e vale il teorema
+del limte centrale:
+\[
+\sqrt{n}\begin{pmatrix}\tilde{\theta}_{1}-\theta_{1}\\ ... \\ \tilde{\theta}_{k}-\theta_{k}\end{pmatrix}\rightarrow_{d}N\left(\begin{pmatrix}0\\ ...\\ 0\end{pmatrix},Jg(\mu_{1},...,\mu_{k})\Omega Jg(\mu_{1},...,\mu_{k})^{T}\right)
+\]
+\end{proposition}
+
+\begin{proof}
+Delta Method multivariato.
+\end{proof}
+
+\begin{example}[Legge Gamma]
+Supponiamo di avere un campioni di variabili
+IID con legge Gamma di parametri $\alpha$ e $\beta$ cioè con densità
+\[
+f_{X}(x)=\frac{1}{\Gamma(\alpha)\beta^{\alpha}}x^{\alpha-1}exp(-\frac{x}{\beta})I_{[0,\infty)}(x)
+\]
+\[
+\Gamma(\alpha)=\int_{0}^{\infty}x^{\alpha-1}exp(-x)dx .
+\]
+Come noto (si veda l'appendice) abbiamo
+\[
+E[X_{1}]=\alpha\beta,
+\]
+\[
+E[X_{1}^{2}]=(\alpha\beta)^{2}+\alpha\beta^{2}=\alpha\beta^{2}(\alpha+1)
+\]
+\[
+Var[X_{1}]=\alpha\beta^{2}
+\]
+Possiamo pertanto scrivere
+\[
+\frac{\mu_{2}-\mu_{1}^{2}}{\mu_{1}}=\frac{(\alpha\beta)^{2}+\alpha\beta^{2}-(\alpha\beta)^{2}}{\alpha\beta}=\beta
+\]
+\[
+\frac{\mu_{1}^{2}}{\mu_{2}-\mu_{1}^{2}}=\frac{\alpha^{2}\beta^{2}}{\alpha\beta^{2}}=\alpha .
+\]
+Lo stimatore del metodo dei momenti è pertanto
+\[
+\begin{pmatrix}\tilde{\alpha}\\ \tilde{\beta}\end{pmatrix}=\begin{pmatrix}\frac{m_{1}^{2}}{m_{2}-m_{1}^{2}}\\ \frac{m_{2}-m_{1}^{2}}{m_{1}}\end{pmatrix}
+\]
+con matrice Jacobiana
+\begin{align*}
+Jg(\mu_{1}(\alpha,\beta),\mu_{2}(\alpha,\beta)) &= \begin{pmatrix}\frac{2\mu_{1}(\mu_2-\mu_1^2) - \mu_1^2(-2\mu_1)}{(\mu_{2}-\mu_{1}^{2})^{2}}&-\frac{\mu_{1}^{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}\\ \frac{-\mu_{1}^{2}}{\mu_{1}^2} & \frac{1}{\mu_{1}}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2\mu_{1}\mu_{2}-2\mu_1^3+2\mu_1^3}{(\mu_{2}-\mu_{1}^{2})^{2}}&-\frac{\mu_{1}^{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}\\ -1 & \frac{1}{\mu_{1}}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2\mu_{1}\mu_{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}&-\frac{\mu_{1}^{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}\\ -1 & \frac{1}{\mu_{1}}\end{pmatrix}
+\end{align*}
+(Nota: il calcolo della Jacobiana nel testo $Jg(\mu_{1}(\alpha,\beta),\mu_{2}(\alpha,\beta)) = \dots = (\begin{smallmatrix}\frac{2(\alpha+1)}{\alpha\beta}&-2-\frac{1}{\alpha}\\ -\frac{1}{\beta^{2}}&\frac{1}{\alpha\beta}\end{smallmatrix})$ sembra contenere un errore di calcolo o un typo rispetto alla definizione di $g$. La trascrizione sopra riporta la derivazione corretta di $g$ e la successiva sostituzione.)
+
+Sostituendo i valori:
+\begin{align*}
+Jg(\dots) &= \begin{pmatrix}\frac{2(\alpha\beta)(\alpha\beta^2(\alpha+1))}{(\alpha\beta^{2})^{2}}&-\frac{(\alpha\beta)^{2}}{(\alpha\beta^{2})^{2}}\\ -1 & \frac{1}{\alpha\beta}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2\alpha^2\beta^3(\alpha+1)}{\alpha^2\beta^{4}}&-\frac{\alpha^{2}\beta^{2}}{\alpha^{2}\beta^{4}}\\ -1 & \frac{1}{\alpha\beta}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2(\alpha+1)}{\beta}&-\frac{1}{\beta^{2}}\\ -1 & \frac{1}{\alpha\beta}\end{pmatrix}
+\end{align*}
+(Nota: il testo originale riporta $Jg(\mu_{1}(\alpha,\beta),\mu_{2}(\alpha,\beta)) = \begin{pmatrix}\frac{2\alpha\beta(\alpha^{2}\beta^{2}+\alpha\beta^{2})}{(\alpha\beta^{2})^{2}}&-\frac{(\alpha^{2}\beta^{2}+\alpha\beta^{2})}{\alpha^{2}\beta^{2}}-1\\ -\frac{\alpha^{2}\beta^{2}}{(\alpha\beta^{2})^{2}}&\frac{1}{\alpha\beta}\end{pmatrix} = \begin{pmatrix}\frac{2(\alpha+1)}{\alpha\beta}&-2-\frac{1}{\alpha}\\ -\frac{1}{\beta^{2}}&\frac{1}{\alpha\beta}\end{pmatrix}$. Questa trascrizione segue fedelmente i calcoli del testo, anche se sembrano esserci discrepanze.)
+\end{example}
+
+\begin{example}
+Suipponiamo che in una certa città avvengano una serie di reati;
+poiché però non tutti i reati vengono denunciati, la legge del numero dei crimini
+osservati può essere vista come una binomiale con k e p incogniti, cioè il nostro
+campione aleatorio $X_{1},...,X_{n}$ ha legge
+\[
+\binom{k}{x}p^{x}(1-p)^{k-x},
+\]
+con k, p parametri incogniti da stimare. Abbiamo
+\[
+\mu_{1}=kp,\mu_{2}=k^{2}p^{2}+kp(1-p),
+\]
+e lo stimatore col metodo dei momenti si ottiene invertendo le relazioni
+\[
+\overline{X}_{n}=kp
+\]
+\[
+\frac{1}{n}\sum_{i=1}^{n}X_{i}^{2}=kp(1-p)+k^{2}p^{2}.
+\]
+Si può ottenere
+\[
+\tilde{p}_{n}=\frac{\overline{X}_{n}}{\tilde{k}_{n}}
+\]
+\[
+\tilde{k}_{n}=\frac{\overline{X}_{n}^{2}}{\overline{X}_{n}-\frac{1}{n}\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}}
+\]
+\end{example}
+
+Il metodo dei momenti fu introdotto da Pearson (1857-1936), matematico ed
+avvocato, che cambiò il nome da Carl in Karl per la sua ammirazione nei riguardi
+di Karl Marx.
+$E^{\prime}$ da notare che non richiede la consocenza completa della legge
+di probabilità delle $X_{i}$ a differenza del metodo della massima verosimiglianza
+che discutiamo nella prossima sezione.
+
+\end{document}

@@ -1,0 +1,241 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}[theorem]{Remark}
+\setcounter{theorem}{112} % L'ultimo era 112, quindi il prossimo è 113
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{12 Il limite inferiore di Cramér-Rao}
+Un risultato notevole riguarda la determinazione della varianza minima degli stimatori non-distorti, sotto condizioni di regolarità;
+in particolare, emerge che tale
+varianza minima coincide con quella degli stimatori di massima verosimiglianza,
+sotto condizioni di regolarità.
+Per tale motivo, gli stimatori di massima verosimiglianza
+sotto opportune ipotesi (che coprono gran parte delle distribuzioni di uso comune, almeno nei casi più semplici) risultano essere non solo consistenti ed
+asinotitcamente Gaussiani, ma anche efficienti in senso assoluto.
+
+\begin{spiegazione}
+    \textbf{Cos'è il Limite di Cramér-Rao (CRLB)?}
+    
+    Questo capitolo introduce un concetto fondamentale: l'efficienza.
+    
+    \begin{itemize}
+        \item Abbiamo visto nel Capitolo 9 che uno stimatore "buono" deve essere \textit{non-distorto} (onesto, la sua media è il valore vero) e avere una \textit{varianza piccola} (preciso, i suoi valori non "ballano" molto).
+        \item La domanda è: "Quant'è piccola la varianza più piccola che possiamo mai sperare di ottenere?"
+    \end{itemize}
+    
+    Il limite di Cramér-Rao (CRLB) è la risposta. È un \textbf{limite di velocità teorico} per la precisione.
+    Dice che, per una data distribuzione, \textit{nessun} stimatore non-distorto può essere più preciso (avere una varianza più bassa) di un certo numero. Questo numero è $I_n(\theta_0)^{-1}$, l'inverso dell'Informazione di Fisher (vista nel Cap. 11).
+    
+    Il testo anticipa che lo stimatore di Massima Verosimiglianza (MLE) è "efficiente in senso assoluto" perché, per $n$ grande, \textbf{raggiunge} questo limite di velocità teorico.
+\end{spiegazione}
+
+\begin{remark}
+E' evidente che porsi la questione sulla varianza minima ha senso
+solo per stimatori che siano non-distorti;
+altrimenti qualsiasi stimatore con valore identicamente costante non potrebbe essere migliorato, avendo varianza identicamente pari a zero.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Perché solo "Non-Distorti"?}
+    
+    Questa nota è importante. Se volessimo solo "minimizzare la varianza", avremmo uno stimatore perfetto: $T_n = 5$.
+    
+    Se il vero valore $\theta$ fosse 7, il nostro stimatore $T_n=5$ sarebbe sempre 5. La sua varianza è 0 (non "balla" affatto). È il più preciso possibile! Ma è anche terribilmente \textit{sbagliato} (è distorto, o "biased").
+    
+    Il limite di Cramér-Rao si applica solo alla "gara" degli stimatori \textit{onesti} (non distorti): tra tutti quelli che "in media ci azzeccano" (cioè $\mathbb{E}[W_n] = \theta$), qual è il più preciso (con varianza minima)?
+\end{spiegazione}
+
+Consideriamo ora uno stimatore generico di un parametro $\theta\in\mathbb{R},$
+\[
+W_{n}=W_{n}(X_{1},...,X_{n})
+\]
+e supponiamo che la funzione $\psi(\theta):=E_{f_{\theta}}[W(X_{1},...,X_{n})]$ sia di classe $C^{1}$ per
+ogni n;
+assumiamo inoltre che la densità congiunta $f_{\theta}$ sia tale per cui, per ogni
+$h\in C^{1}$ $h:\mathbb{R}^{n}\rightarrow\mathbb{R}$ con $E_{\theta}[|h(X_{1},...,X_{n})|]<\infty$ valga la scambiabilità
+\[
+\frac{d}{d\theta}E_{\theta}[h(X_{1},...,X_{n})]=\int_{\mathbb{R}^{n}}h(x_{1},...,x_{n})\frac{\partial}{\partial\theta}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}
+\]
+Chiamiamo ora $b(\theta)=E[W_{n}]-\theta$ il bias della nostra statistica, e $b^{\prime}(.)$ la sua
+derivata rispetto a $\theta$. Abbiamo allora il seguente
+
+\begin{theorem}[Cramér-Rao]
+Per $\theta\in\mathbb{R}$
+\[
+Var[W_{n}]\ge\frac{\{1+b^{\prime}(\theta_{0})\}^{2}}{I_{n}(\theta_{0})}
+\]
+(Nota: il testo originale riporta $\{b^{\prime}(\theta_{0})\}^{2}$, ma la forma standard include $1+b^{\prime}(\theta)$ per la stima di $\theta$, derivando $E[W_n] = \theta + b(\theta)$ rispetto a $\theta$).
+\end{theorem}
+
+\begin{remark}
+Per semplicità, abbiamo enunciato e dimostreremo il teorema
+solo nel caso $p=1.$ La generalizzazione a p generico è comunque abbastanza
+semplice;
+consideriamo lo stimatore $W_{n}$ come un vettore colonna $p\times1,$ con
+valor medio $\Psi(\theta)$ che ha matrice Jacobiana $p\times p$ denotata con $J\Psi()$.
+Allora la
+matrice di varianza e covarianza di $W_{n}$ soddisfa la disuguaglianza
+\[
+Var[W_{n}]\ge J\Psi(\theta_{0})I_{n}^{-1}(\theta_{0})J\Psi(\theta_{0})^{T}.
+\]
+La disuguaglianza va intesa none solito senso di disuguaglianza tra matrici simmetriche e non-negative definite: la loro differenza deve essere non-negativa
+definita.
+\end{remark}
+
+\begin{proof}
+(caso $p=1)$. L'idea di fondo è utilizzare la disuguaglianza di Cauchy-Schwartz, scrivendola come
+\[
+Var[Y]\ge\frac{Cov^{2}(X,Y)}{Var[X]}
+\]
+Prendiamo come X la funzione punteggio $\frac{d}{d\theta}\log L(\theta;X_{1},...,X_{n})|_{\theta=\theta_{0}}$; sappiamo
+che $E[X]=0$ da cui $Cov(X,Y)=E[XY]$. Prendiamo quindi $Y=W_{n},$ e
+osserviamo che
+\begin{align*}
+E[XY] &= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{d}{d\theta}\log L(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{\frac{d}{d\theta}f(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}}{f(x_{1},...,x_{n};\theta_{0})}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{d}{d\theta}f(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}dx_{1}...dx_{n} \\
+&= \frac{d}{d\theta}\int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})f(\theta;x_{1},...,x_{n})dx_{1}...dx_{n}|_{\theta=\theta_{0}} \\
+&= \frac{d}{d\theta}E_{\theta}[W_{n}]|_{\theta=\theta_{0}}
+\end{align*}
+Questo conclude la dimostrazione nel caso con densità; il caso discreto è identico.
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{Come funziona la dimostrazione (in breve)?}
+    
+    La dimostrazione è un trucco matematico molto elegante che usa la disuguaglianza di Cauchy-Schwarz (vista nel Capitolo 1).
+    
+    Questa disuguaglianza lega la covarianza tra due variabili $Y$ e $X$ alla loro varianza: $Var[Y] \ge Cov(X,Y)^2 / Var[X]$.
+    
+    L'idea della prova è scegliere $Y$ e $X$ in modo furbo:
+    \begin{itemize}
+        \item $Y = W_n$ (lo stimatore che stiamo valutando).
+        \item $X = s_n(\theta_0)$ (la Funzione Punteggio, cioè la derivata della log-verosimiglianza, vista nel Cap. 11).
+    \end{itemize}
+    
+    La prova consiste nel calcolare i due pezzi del lato destro:
+    \begin{enumerate}
+        \item $Var[X]$: Per definizione (Def. 109), la varianza dello Score è l'Informazione di Fisher, $I_n(\theta_0)$. (Questo è il denominatore).
+        \item $Cov(X,Y)$: Con un po' di algebra (scambiando derivata e integrale), si dimostra che questa covarianza è uguale alla derivata della media dello stimatore, $\frac{d}{d\theta}\mathbb{E}_\theta[W_n]$. (Questo è il numeratore).
+    \end{enumerate}
+    
+    Mettendo insieme i pezzi, si ottiene $Var[W_n] \ge (\frac{d}{d\theta}\mathbb{E}_\theta[W_n])^2 / I_n(\theta_0)$, che è la tesi (nel teorema, $\frac{d}{d\theta}\mathbb{E}_\theta[W_n] = \frac{d}{d\theta}(\theta + b(\theta)) = 1 + b'(\theta)$).
+\end{spiegazione}
+
+\begin{remark}
+$E^{\prime}$ interessante studiare cosa succede nel caso in cui le condizioni di regolarità, ed in particolare la possibilità di scambiare la derivata
+con l'integrale nel valor medio, non siano soddisfatte.
+Prendiamo ad esempio
+un campione di variabili i.i.d., uniformi in $[0,\theta]$;
+si verifica facilmente che la
+funzione di verosimiglianza prende la forma
+\[
+L(\theta;X_{1},...,X_{n})=\prod_{i=1}^{n}\frac{1}{\theta}I_{[0,\theta]}(X_{i})=\frac{1}{\theta^{n}}I_{[0,\theta]}(X_{(n)})
+\]
+dove $X_{(n)}$ indica la più grande delle n osservazioni; abbiamo inoltre
+\[
+\hat{\theta}_{ML;n}=X_{(n)}.
+\]
+Ora, si vede anche facilmente che, per ogni $\epsilon>0$
+\begin{align*}
+Pr\{\theta_{0}-X_{(n)}>\epsilon\} &= \prod_{i=1}^{n}Pr\{\theta_{0}-X_{i}>\epsilon\} \\
+&= \{Pr\{\theta_{0}-\epsilon>X_{1}\}\}^{n} \\
+&= \{\frac{1}{\theta_{0}}(\theta_{0}-\epsilon)\}^{n}=(1-\frac{\epsilon}{\theta_{0}})^{n}.
+\end{align*}
+Poichè queste probabilità sono sommabili, abbiamo che lo stimatore è completamente convergente (e pertanto converge quasi certamente).
+Inoltre abbiamo
+che
+\begin{align*}
+Pr\{n(\theta_{0}-X_{(n)})>\epsilon\} &= \{Pr\{\theta_{0}-\frac{\epsilon}{n}>X_{1}\}\}^{n} \\
+&= (1-\frac{\epsilon}{n\theta_{0}})^{n}\rightarrow \exp(-\frac{\epsilon}{\theta_{0}})
+\end{align*}
+per $n\rightarrow\infty$; abbiamo quindi una forma di superconsistenza, perché la convergenza avviene a velocità $n^{-1}$ invece che $n^{-1/2}$ come nel teorema precedente.
+D'altra parte la distribuzione limite è esponenziale invece che Gaussiana.
+Questo
+esempio mostra come, quando le condizioni di regolarità vengono a mancare,
+non necessariamente le proprietà degli stimatori di massima verosimiglianza
+debbano peggiorare: possono addirittura essere superiori, sia come modalità che
+come velocità di convergenza.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Cosa succede se le "regole" non valgono? (Esempio di Superconsistenza)}
+    
+    Il limite di Cramér-Rao e l'Asintotica Gaussianità dell'MLE (Cap. 11) funzionano solo sotto "condizioni di regolarità" (essenzialmente, la distribuzione $f(x;\theta)$ deve essere "liscia" e non avere "salti" o "spigoli" che dipendono da $\theta$).
+    
+    Questo esempio usa la distribuzione Uniforme $U[0, \theta]$. Qui, il punto finale $\theta$ \textit{dipende} dal parametro. Le condizioni di regolarità \textbf{non} valgono (non si può scambiare derivata e integrale).
+    
+    Cosa succede?
+    \begin{itemize}
+        \item \textbf{Lo stimatore MLE:} Lo stimatore di massima verosimiglianza per $\theta$ è $\hat{\theta}_{ML} = X_{(n)}$, cioè il valore \textit{massimo} osservato nel campione. (Intuitivo: se il massimo che ho visto è 8.5, la mia stima migliore per $\theta$ è 8.5).
+        
+        \item \textbf{Velocità di convergenza:} Il CLT (Teorema 110) dice che gli stimatori "regolari" convergono con velocità $\sqrt{n}$ (o $n^{-1/2}$). Questo stimatore, invece, converge con velocità $n$ (o $n^{-1}$). È \textit{molto più veloce}. Questa è chiamata \textbf{superconsistenza}.
+        
+        \item \textbf{Distribuzione limite:} L'errore "zoomato" $n(\theta_0 - X_{(n)})$ non converge a una Gaussiana, ma a una distribuzione Esponenziale.
+    \end{itemize}
+    Morale: quando le condizioni di regolarità falliscono, il framework "standard" (Gaussiana, limite di Cramér-Rao) crolla, e possono succedere cose diverse, a volte (come in questo caso) persino migliori.
+\end{spiegazione}
+
+\end{document}

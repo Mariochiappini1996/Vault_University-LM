@@ -1,0 +1,391 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{bm} % Per il grassetto \bm
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{exercise}{Exercise}
+\newtheorem{condition}[exercise]{Condition}
+\newtheorem{proposition}[exercise]{Proposition}
+\newtheorem{remark}[exercise]{Remark}
+\newtheorem{lemma}[exercise]{Lemma}
+\newtheorem{example}[exercise]{Example}
+\setcounter{exercise}{127} % L'ultimo era 127, quindi il prossimo è 128
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{16 Il Modello lineare multivariato}
+Nella pratica, è estremamente comune la situazione in cui si cerchi di stimare
+la relazione esistente tra una particolare variabile (che chiameremo genericamente Y) ed un gruppo di altre (che chiameremo genericamente $X_{1},...,X_{k}),$
+dove queste ultime sono considerate esplicative del comportamento della Y. Si
+tratta di un caso particolare di un ambito di ricerca al momento estremamente
+attivo, e che viene spesso indicato come Supervise Learning;
+in generale, lo studio di relazioni come $Y=f(X)$ va anche sotto il nome di Machine Learning
+o Statistical Learning.
+In questo corso, ci limiteremo a trattare il caso più comune, che è anche il più semplice;
+quello in cui assumiamo che $f(.)$ abbia una
+forma lineare in un vettore di parametri $\beta$.
+In particolare, supponiamo che valga
+la seguente relazione, per $i=1,2,...,n$:
+\[
+y_{i}=x_{1i}\beta_{1}+x_{2i}\beta_{2}+...+x_{ki}\beta_{k}+\epsilon_{i}
+\]
+dove le variabili $\epsilon_{i}$ sono considerate dei "residui" o degli "errori" e catturano
+tutto quello che non è spiegato dalla relazione lineare tra le y e le $x_{i}$.
+In forma
+matriciale, possiamo scrivere
+\begin{equation}
+Y=X\beta+\epsilon,
+\end{equation}
+dove Y è un vettore $n\times1$ della forma $Y=(y_{1},...,y_{n})^{T}$, X è una matrice $n\times k$
+le cui colonne sono costituite da $(x_{j1},...,x_{jn})^{T}$ e $\epsilon$ è un vettore di residui;
+iniziamo
+supponendo che si tratti di residui Gaussiani, con valor medio nullo e matrice
+di varianza/covarianza $E[\epsilon\epsilon^{T}]=\Omega$.
+Comunemente la prima colonna di X viene
+scelta come il vettore di costanti $(1,1,...,1)$ così ad esempio per $k=2$ abbiamo
+\[
+y_{i}=\beta_{1}+\beta_{2}x_{i}+\epsilon_{i}.
+\]
+Abbiamo bisogno di una condizione ulteriore sulle variabili X:
+
+\begin{condition}
+Le variabili X sono deterministiche ed il rango della matrice
+è esattamente pari a k.
+\end{condition}
+
+Ambedue le condizioni possono essere rimosse ed effettivamente lo sono nella
+ricerca più recente;
+si tratta però di ipotesi semplificatrici che costituiscono un
+punto di partenza naturale.
+Si noti che questa condizione implica immediatamente $k\le n;$ questa ipotesi in particolare viene abbandonata negli studi più
+recenti (high-dimensional statistics/big data).
+
+\begin{proposition}
+Lo stimatore di massima verosimiglianza nel modello 1 ha la
+seguente forma:
+\[
+\hat{\beta}_{MLE}=(X^{T}X)^{-1}X^{T}Y
+\]
+\[
+\hat{\sigma}_{MLE}^{2}=\frac{1}{n}(\hat{\epsilon}^{T}\hat{\epsilon}) \quad \hat{\epsilon}=Y-\hat{Y}=Y-X\hat{\beta}
+\]
+Si ha inoltre che
+\[
+\hat{\beta}_{MLE}\triangleq N(\beta,\sigma^{2}(X^{T}X)^{-1}),
+\]
+\[
+n\times\frac{\hat{\sigma}_{MLE}^{2}}{\sigma^{2}} \sim \chi_{n-k}^{2}
+\]
+\end{proposition}
+
+\begin{proof}
+Notiamo innanzitutto che la funzione di verosimiglianza prende la forma
+\[
+L(\beta,\sigma^{2};Y,X)=\frac{1}{(2\pi)^{n/2}}\frac{1}{(\sigma^{2})^{n/2}}exp\{-\frac{1}{2\sigma^{2}}(Y-X\beta)^{T}(Y-X\beta)\} ,
+\]
+\[
+\log L(\beta,\sigma^{2};Y,X)=-\frac{n}{2}\log(2\pi)-\frac{n}{2}\log \sigma^{2}-\frac{1}{2\sigma^{2}}(Y-X\beta)^{T}(Y-X\beta) .
+\]
+Il calcolo del gradiente ci dà facilmente
+\[
+\nabla_{\beta}\log L(\beta,\sigma^{2};Y,X) = -\frac{1}{2\sigma^2}(-2X^{T}Y+2X^{T}X\beta)
+\]
+\[
+\frac{\partial}{\partial \sigma^2} \log L(\beta,\sigma^{2};Y,X) = -\frac{n}{2\sigma^{2}}+\frac{1}{2\sigma^{4}}(Y-X\beta)^{T}(Y-X\beta)
+\]
+(Nota: il testo originale presenta le derivate in modo frammentato. $E[...]$ è stato corretto in $-\frac{1}{2\sigma^2}$, e il gradiente rispetto a $\beta$ è stato completato.)
+
+and setting these quantities to zero leads to the previous expressions for $\hat{\beta}_{MLE}$ $\hat{\sigma}_{MLE}^{2}$ .
+It is also immediate to see that
+\[
+\hat{\beta}_{MLE}=(X^{T}X)^{-1}X^{T}Y
+\]
+\[
+=(X^{T}X)^{-1}X^{T}(X\beta+\epsilon)
+\]
+\[
+=\beta+(X^{T}X)^{-1}X^{T}\epsilon
+\]
+whence
+\begin{align*}
+E[(\hat{\beta}_{MLE}-\beta)(\hat{\beta}_{MLE}-\beta)^{T}] &= E[(X^{T}X)^{-1}X^{T}\epsilon((X^{T}X)^{-1}X^{T}\epsilon)^{T}] \\
+&= E[(X^{T}X)^{-1}X^{T}\epsilon\epsilon^{T}X(X^{T}X)^{-1}] \\
+&= (X^{T}X)^{-1}X^{T}E[\epsilon\epsilon^{T}]X(X^{T}X)^{-1} \\
+&= (X^{T}X)^{-1}X^{T}\sigma^{2}I_{n}X(X^{T}X)^{-1} \\
+&= \sigma^{2}(X^{T}X)^{-1}X^{T}X(X^{T}X)^{-1} \\
+&= \sigma^{2}(X^{T}X)^{-1} .
+\end{align*}
+La dimostrazione del risultato sullo stimatore della varianza richiede alcune
+ulteriori discussioni e sarà riportata più avanti.
+\end{proof}
+
+\begin{remark}
+Lo stimatore $\hat{\beta}_{MLE}$ è anche noto come OLS (Ordinary Least
+Squares).
+\end{remark}
+
+\subsection*{16.1 Il rapporto con i teoremi di proiezione}
+Lo stimatore di massima verosimiglianza nel modello lineare multivariato si
+presta ad una importante interpretazione usando gli strumenti dell'algebra lineare.
+In particolare, notiamo che il valor medio di Y dato X è dato da $E[Y]=$
+$X\beta;$
+il valore di $\beta$ è ignoto, ma è naturale definire il valore $\hat{Y}:=X\hat{\beta}$ come il
+valore "previsto" per il vettore Y sulla base delle stime $\hat{\beta}$ e del valore dei regressori X. Analogamente, il vettore degli "errori" $\epsilon=Y-X\beta$ si può stimare
+\[
+\hat{\epsilon}=Y-X\hat{\beta}.
+\]
+Notiamo ora che
+\[
+\hat{Y}:=X\hat{\beta}=X(X^{T}X)^{-1}X^{T}Y=P_{X}Y ,
+\]
+\[
+P_{X}:=X(X^{T}X)^{-1}X^{T} .
+\]
+E' immediato verificare che $P_{X}$ è una matrice di proiezione, cioè è simmetrica
+ed idempotente; infatti
+\[
+P_{X}^{2}=X(X^{T}X)^{-1}X^{T}X(X^{T}X)^{-1}X^{T}=X(X^{T}X)^{-1}X^{T}
+\]
+In particolare, l'azione della matrice $P_{X}$ (che ha dimensioni $n\times n$) corrisponde
+a proiettare il vettore Y sullo spazio vettoriale di dimensione k generato dalle
+colonne di X (ricordiamo che queste colonne sono linearmente indipendenti per
+ipotesi). Analogamente abbiamo
+\[
+\hat{\epsilon}=Y-X\hat{\beta}=M_{X}Y
+\]
+\[
+M_{X}=I-P_{X}=I-X(X^{T}X)^{-1}X^{T} .
+\]
+Anche $M_{X}$ è simmetrica ed idempotente:
+\[
+M_{X}^{2}=(I-P_{X})^{2}=I-2P_{X}+P_{X}^{2}=I-2P_{X}+P_{X}=M_{X}
+\]
+In particolare, l'azione di $M_{X}$ consiste nel proiettare Y nello spazio ortogonale
+a quello generato dalle colonne di X. Questo ha alcune conseguenze importanti;
+si ha infatti
+\[
+M_{X}P_{X}=P_{X}M_{X}=0,
+\]
+dove intendiamo con 0 la matrice $n\times n$ costituita da tutti zeri. Come ulteriore
+conseguenza, notiamo che
+\[
+X^{T}\hat{\epsilon}=0,
+\]
+ed in particolare il vettore dei residui stimati è ortogonale a qualsiasi vettore
+che giaccia nello spazio generato dalle colonne di X.
+
+\begin{remark}
+Supponiamo che la matrice X contenga un termine costante, cioè
+una colonna della forma $e=(1,...,1)^{T}$.
+Allora abbiamo $e^{T}\hat{\epsilon}=0$, cioè $\sum_{i=1}^{n}\hat{\epsilon}_{i}=$
+0; in altre parole, la somma dei residui di regressione è sempre nulla se tra i
+regressori è incluso un termine costante.
+\end{remark}
+
+\begin{remark}
+Il fatto che lo stimatore di massima verosimiglianza nel modello
+lineare multivariato coincida con la soluzione di un problema puramente geometrico di proiezione su sottospazi vettoriali è assolutamente degno di nota.
+Si
+tratta dell'ennesima sorprendente proprietà della legge Gaussiana.
+\end{remark}
+
+Possiamo ora enunciare le seguenti ulteriori proprietà delle matrici $P_{X}$ $M_{X}$
+
+\begin{lemma}
+Le matrici $P_{X},M_{X}$ hanno tutti autovalori pari a zero o uno e
+rango k, $n-k$ rispettivamente.
+\end{lemma}
+
+\begin{proof}
+Poichè le matrici sono reali e simmetriche, possiamo diagonalizzarle
+come
+\[
+P_{X}=Q\Lambda Q^{T} , \text{ con } QQ^{T}=Q^{T}Q=I_{n}
+\]
+\[
+\Lambda=\begin{pmatrix}\lambda_{1}&0&...&0\\ 0&\lambda_{2}&0&...\\ ...&0&...&0\\ 0&...&0&\lambda_{n}\end{pmatrix}
+\]
+Si ha allora
+\[
+P_{X}^{2}=Q\Lambda Q^{T}Q\Lambda Q^{T}=Q\Lambda^{2}Q^{T}=Q\Lambda Q^{T},
+\]
+da cui segue che necessariamente $\lambda_{i}=0$ o 1, per $i=1,2,...,n;$ ragionamento
+identico si applica a $M_{X}$.
+Per quello che riguarda il rango, notiamo che esso
+eguaglia il numero di autovalori diversi da zero (con molteplicità), quindi nel
+caso di matrici di proiezioni la traccia (cioè la sommadi autovalori, uguale al
+numero di quelli che valgono 1).
+Ricordando che $Tr(AB)=Tr(BA)$, possiamo
+scrivere
+\[
+Tr(P_{X})=Tr(X(X^{T}X)^{-1}X^{T})=Tr((X^{T}X)^{-1}X^{T}X)=Tr(I_{k})=k=Rg(P_{X}).
+\]
+La dimostrazione per $M_{X}$ è identica.
+\end{proof}
+
+Siamo ancora in grado di concludere la dimostrazionne sul comportamento
+dello stimatore di massima verosimiglianza della varianza.
+Ricordiamo innanzitutto la densità delle variabili aleatorie $\Gamma(\alpha,\beta)$ :
+\[
+f_{\Gamma}(t)=\frac{1}{\Gamma(\alpha)\beta^{\alpha}}t^{\alpha-1}exp(-\frac{t}{\beta})\mathbb{I}_{[0,\infty)}(t),
+\]
+(Nota: $\beta^{\alpha-1}$ nel testo originale è stato corretto in $\beta^{\alpha}$ per la forma standard della Gamma)
+
+a cui corrisponde un valor medio pari a $\alpha\beta$ ed una varianza pari a $\alpha\beta^{2}$. Ricordiamo che la variabile chi-quadro con p gradi di libertà corrisponde ad una
+Gamma di parametri $\alpha=\frac{p}{2}$ , $\beta=2,$ e quindi con valor medio p e varianza 2p.
+La
+proprietà fondamentale dellle chi-quadro e che esse sono uguali in distribuzioni
+alla somma di p Gaussiane standard indipendneti elevate al quadrato:
+\[
+\chi_p^2 = Z_1^2 + ... + Z_p^2, \quad Z_{i}\triangleq N(0,1).
+\]
+Poniamo ora senza perdita di generalita $\sigma^{2}=1$, e notiamo che
+\[
+\hat{\epsilon}^{T}\hat{\epsilon}=(M_{X}\epsilon)^{T}M_{X}\epsilon=\epsilon^{T}M_{X}^{2}\epsilon=\epsilon^{T}M_{X}\epsilon.
+\]
+Ricordiamo ora la diagonalizzazione $M_{X}=Q\tilde{\Lambda}Q^{T}$, dove $\tilde{\Lambda}$ ha $n-k$ elementi
+pari ad uno sulla diagonale principale ed i restanti tutti nulli.
+Otteniamo quindi
+\[
+\epsilon^{T}M_{X}\epsilon=\epsilon^{T}Q\tilde{\Lambda}Q^{T}\epsilon
+\]
+\[
+=u^{T}\tilde{\Lambda}u \quad ,con~u:=Q^{T}\epsilon \sim N(0,I_{n}) ,
+\]
+\[
+=\sum_{i=1}^{n}\tilde{\lambda}_{i}u_{i}^{2}
+\]
+\[
+=\sum_{i=1}^{n-k}u_{i}^{2}
+\]
+(Nota: il testo originale presenta $\sum_{i=1}^{n-k}\tilde{\lambda}_{i}u_{i}^{2}$, ma dato $\tilde{\Lambda}$ e $\lambda_i=1$, questo si semplifica in $\sum_{i=1}^{n-k}u_{i}^{2}$)
+
+perchè la legge Gaussiana standard è invariante per rotazioni. L'ultimo termine ha una legge chi-quadro per quanto scritto sopra, il che completa la dimostrazione.
+\end{example}
+
+\begin{example}
+Si noti che anche il problema della stima del valor medio per
+variabili indipendenti $Y_{i}\sim N(\mu,\sigma^{2})$ può essere riletta in termini di regressione.
+Possiamo infatti scrivere
+\[
+Y=\begin{pmatrix}1\\ 1\\ ...\\ ...\\ 1\end{pmatrix}\mu+\epsilon. \quad \epsilon=Y-\begin{pmatrix}1\\ ...\\ ...\\ 1\end{pmatrix}\mu;
+\]
+lo stimatore diventa
+\[
+\hat{\mu}=(e^{T}e)^{-1}e^{T}Y=(\sum_{i=1}^{n}1)^{-1}\times\sum_{i=1}^{n}(1\cdot Y_{i})=\overline{Y}_{n}
+\]
+con
+\[
+\hat{\mu}\sim N(\mu,\sigma^{2}(e^{T}e)^{-1})=N(\mu,\frac{\sigma^{2}}{n})
+\]
+Nel caso $k=2$ (con costante) il modello diviene
+\[
+Y_{i}=\beta_{1}+\beta_{2}X_{i}+\epsilon_{i}
+\]
+ed un poco di algebra mostra che
+\[
+\hat{\beta}_{1}=\overline{Y}_{n}-\hat{\beta}_{2}\overline{X}_{n}
+\]
+\[
+\hat{\beta}_{2}=\frac{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})(Y_{i}-\overline{Y}_{n})}{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}}
+\]
+con
+\[
+\hat{\beta}_{2}\sim N(\beta_{2},\frac{\sigma^{2}}{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}})
+\]
+\end{example}
+
+\subsection*{16.2 Lo stimatore GLS (Generalized Least Squares)}
+Possiamo ora generalizzare il modello che abbiamo studiato sinora, immaginando che i residui $\epsilon$ abbiano una struttura di dipendenza molto più complessa
+di variabili indipendenti.
+In particolare, ipotizziamo che $E[\epsilon\epsilon^{T}]=\Omega$ con matrice positiva definita di rango (pieno) n.
+La funzione di verosimiglianza prende
+la forma
+\[
+L(\beta;Y,X)=\frac{1}{(2\pi)^{n/2}}\frac{1}{\sqrt{det(\Omega)}}exp\{-\frac{1}{2}(Y-X\beta)^{T}\Omega^{-1}(Y-X\beta)\}
+\]
+(Nota: il testo originale presenta $\Omega^{-1/2}$ e $(Y-X\beta)^T$ due volte, è stato corretto)
+
+Potremmo procedere come nel Caso ordinario, ma c'è una strategia più semplice.
+La matrice $\Omega$ si può diagonalizzare come $\Omega=Q\Lambda_{\Omega}Q^{T}$ per qualche matrice
+ortonormale Q che non corrisponde a quelle che abbiamo introdotto prima.
+Possiamo definire quindi $\Omega^{-1/2}=Q\Lambda_{\Omega}^{-1/2}Q^{T}$ con l'ovvia proprietà che
+\begin{align*}
+\Omega^{-1/2}\Omega\Omega^{-1/2} &= Q\Lambda_{\Omega}^{-1/2}Q^{T}Q\Lambda_{\Omega}Q^{T}Q\Lambda_{\Omega}^{-1/2}Q^{T} \\
+&= Q\Lambda_{\Omega}^{-1/2}\Lambda_{\Omega}\Lambda_{\Omega}^{-1/2}Q^{T} \\
+&= QQ^{T} \\
+&= I_{n}
+\end{align*}
+Possiamo dunque definire il vettore $\tilde{\epsilon}:=\Omega^{-1/2}\epsilon$ che (si verifica facilmente) ha
+matrice di varianza/covarianza pari all'identità. Quindi
+\[
+Y=X\beta+\epsilon\mapsto\Omega^{-1/2}Y=\Omega^{-1/2}X\beta+\Omega^{-1/2}\epsilon\mapsto\tilde{Y}=\tilde{X}\beta+\tilde{\epsilon},
+\]
+con
+\[
+\tilde{Y}:=\Omega^{-1/2}Y, \quad \tilde{X}:=\Omega^{-1/2}X \quad \tilde{\epsilon}:=\Omega^{-1/2}\epsilon.
+\]
+(Nota: il testo originale riporta $X:=\Omega^{-1/2}X$ e $\tilde{\epsilon}:=\Omega^{-1/2}\tilde{\epsilon}$, corretti in $\tilde{X}$ e $\tilde{\epsilon}$ per coerenza)
+
+Lo stimatore diventa quindi
+\[
+\tilde{\beta}_{GLS}=(\tilde{X}^{T}\tilde{X})^{-1}\tilde{X}^{T}\tilde{Y}=(X^{T}\Omega^{-1}X)^{-1}X^{T}\Omega^{-1}Y,
+\]
+che è uno stimatore non distorto con legge Gaussiana e matrice di varianza e
+covarianza
+\[
+E[(\tilde{\beta}_{GLS}-\beta)(\tilde{\beta}_{GLS}-\beta)^{T}]=(X^T\Omega^{-1}X)^{-1}.
+\]
+(Nota: il testo originale riporta $\Omega^{-1}$, la forma corretta è $(X^T\Omega^{-1}X)^{-1}$)
+
+\begin{remark}
+Lo stimatore GLS può essere visto come i coefficienti di proiezione
+su un sottospazio generato dalle colonen di X quando la proiezione sia effettuata
+con una metrica Riemanniana indotta dalla matrice positive definita $\Omega^{-1}$.
+\end{remark}
+
+\begin{exercise}
+Calcolare la forma dello stimatore GLS quando la matrice $\Omega$ sia
+nulla al di fuori della diagonale, nel caso $k=1$.
+\end{exercise}
+
+\begin{exercise}
+Calcolare la matrice di varianza e covarianza dello stimatore
+OLS (non GLS) quando la matrice di varianza di $\epsilon$ sia $\Omega$ non diagonale (cioè
+quando lo stimatore OLS sia applicato assumendo ipotesi in realtà non soddisfatte).
+\end{exercise}
+
+\end{document}

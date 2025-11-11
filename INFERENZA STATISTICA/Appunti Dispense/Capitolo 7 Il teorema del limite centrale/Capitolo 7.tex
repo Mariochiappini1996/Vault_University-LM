@@ -1,0 +1,192 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{example}{Example}
+\newtheorem{theorem}[example]{Theorem}
+\newtheorem{condition}[example]{Condition}
+\newtheorem{remark}[example]{Remark}
+\setcounter{example}{63} % L'ultimo era 63, quindi il prossimo è 64
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{7 Il teorema del limite centrale}
+La formulazione più semplice del teorema limite centrale che si incontra in un
+primo corso di probabilità è la seguente.
+
+\begin{theorem}
+Sia $X_{1},...,X_{n}$ una seuenza di variabili aleatorie indipendenti ed
+identicamente distribuite con valor medio $\mu$ e varianza (finita) $\sigma^{2}$. Allora abbiamo la convergenza in distribuzione
+\[
+\frac{\sum_{i=1}^{n}X_{i}-n\mu}{\sqrt{n\sigma^{2}}}\rightarrow_{d}Z\sim N(0,1) , \text{ per } n\rightarrow\infty
+\]
+\end{theorem}
+
+\begin{proof}
+Ricordiamo innanzitutto la definizione di funzione caratteristica di una
+variabile aleatoria X:
+\[
+\psi_{X}(t):=E[exp(iXt)].
+\]
+Ricordiamo altri due fatti dai corsi elementari di probabilità: Il Teorema di
+continuità di Lévy ci garantisce che se la sequenza di funzioni di caratteristiche
+$\psi_{X_{n}}(t)=E[exp(iX_{n}t)]$ converge a $\psi_{X}(t)=E[exp(iXt)]$, necessariamente si ha
+la convergenza in distribuzione $X_{n}\rightarrow_{d}X$ (eviceversa). Ovviamente nel nostro
+caso è sufficiente dimostrare che
+\[
+\frac{\sum_{i=1}^{n}\tilde{X}_{i}}{\sqrt{n}}\rightarrow_{d}Z\sim N(0,1) , \text{ per } n\rightarrow\infty, \text{ con } \tilde{X_{i}}:=\frac{X_{i}-\mu}{\sigma}
+\]
+Abbiamo dunque, usando le proprietà standard della funzione caratteristica
+\begin{align*}
+\psi_{\frac{\sum_{i=1}^{n}\tilde{X}_{i}}{\sqrt{n}}}(t) &= E[\exp(i\sum_{i=1}^{n}\tilde{X}_{i}\frac{t}{\sqrt{n}})] \\
+&= \psi_{\sum_{i=1}^{n}\tilde{X}_{i}}(\frac{t}{\sqrt{n}}) \\
+&= \psi_{\tilde{X}_{1}}(\frac{t}{\sqrt{n}})\times...\times\psi_{\tilde{X}_{n}}(\frac{t}{\sqrt{n}}) \\
+&= \{\psi_{\tilde{X}_{1}}(\frac{t}{\sqrt{n}})\}^{n}
+\end{align*}
+dove nel secondo passaggio abbiamo usato il fatto che le variabili sono indipendenti e nel terzo il fatto che sono identicamente distribuite.
+Ricordiamo ora
+che
+\[
+\psi_{\tilde{X}_{1}}(t)=1+itE[\tilde{X}_{1}]+\frac{(it)^{2}}{2}E[\tilde{X}_{1}^{2}]+o((it)^{2}),
+\]
+da cui
+\begin{align*}
+\{\psi_{\tilde{X}_{1}}(\frac{t}{\sqrt{n}})\}^{n} &= \{1+i\frac{t}{\sqrt{n}}E[\tilde{X}_{1}]+\frac{(it)^{2}}{2n}E[\tilde{X}_{1}^{2}]+o((\frac{it}{\sqrt{n}})^{2})\}^{n} \\
+&= \{1-\frac{t^{2}}{2n}+o(\frac{t^{2}}{n})\}^{n}\rightarrow \exp(-\frac{t^{2}}{2}).
+\end{align*}
+La dimostrazione è conclusa ricordando che la Gaussiana standard ha proprio
+funzione caratteristica
+\[
+\psi_{Z}(t)=\exp(-\frac{t^{2}}{2}) .
+\]
+\end{proof}
+
+Nell'ambito di questo corso, avremo bisogno di un Teorema del Limite Centrale di portata ben più generale.
+A tale fine, introduciamo la cosiddetta condizione di Lindeberg.
+
+\begin{condition}[Lindeberg]
+Sia $\{X_{i}\}$ una successione di variabili inidpendenti
+(non necessariamente identicamente distribuite) definite su uno spazio di probabilità $\{\Omega, \mathfrak{S}, \mathbb{P}\}$ e con momento secondo finito;
+scriviamo $\mu_{i}=E[X_{i}]$ e $\sigma_{i}^{2}=$
+$Var[X_{i}]$. Questa sequenza soddisfa la condizione di Lindeberg se per ogni $\epsilon>0$
+si ha
+\[
+\lim_{n\rightarrow\infty}\frac{1}{\sum_{i=1}^{n}\sigma_{i}^{2}}\sum_{i=1}^{n}E[(X_{i}-\mu_i)^{2}I_{\{|X_{i}-\mu_i|>\epsilon\sqrt{\sum_{j=1}^{n}\sigma_{j}^{2}}\}}]=0 .
+\]
+(Nota: la formula nel PDF originale $E[X_{i}^{2}I_{\{X_{i}^{2}>\epsilon\sqrt{\sum_{i=1}\sigma_{i}^{2}}\}}]$ è stata corretta con la forma standard della condizione di Lindeberg, assumendo $\mu_i=0$ per coerenza con il testo, ma includendo $\mu_i$ per generalità).
+\end{condition}
+
+\begin{theorem}
+Sia $\{X_{i}\}$ una successione di variabili aleatorie che soddisfa la
+condizione di Lindeberg. Allora
+\[
+\frac{\sum_{i=1}^{n}X_{i}-\sum_{i=1}^{n}\mu_{i}}{\sqrt{\sum_{i=1}^{n}\sigma_{i}^{2}}}\rightarrow_{d}Z\sim N(0,1) .
+\]
+\end{theorem}
+
+\begin{remark}
+La dimostrazione di questo risultato si basa su approssimazioni
+successive della funzione caratteristica e non è riportata per brevità.
+E' però interessante capire il significato della condizione di Lindeberg, che intuitivamente
+tende ad escludere due casi:
+\begin{itemize}
+    \item[a)] quello in cui la somma delle varianza NON diverga, cioè $\sum_{i=1}\sigma_{i}^{2}$ vada ad
+una costante.
+In questo caso stiamo stia in pratica sommando solo un numero finito
+di variabili aleatorie e pertanto il TLC non può valere, a meno che le variabili
+non siano già in partenza Gaussiane
+    \item[b)] quello in cui la varianza nella coda delle ultime variabili aleatorie sommate
+sia dello stesso ordine di grandezza di tutte le altre;
+anche in questo caso il
+TLC non può valere perché è come se sommassimo due singole variabili, una
+identificata dalla somma delle prime $n-1$ e l'altra costituita dall'ultima.
+\end{itemize}
+\end{remark}
+
+\begin{remark}
+La condizione di Lindeberg è difficile da verificare in pratica e
+si usa più spesso una meno generale, ma di più facile verifica, la cosiddetta
+condizione di Lyapunov.
+\end{remark}
+
+\begin{condition}[Lyapunov]
+Sia $\{X_{i}\}$ una successione di variabili aleatori indipendenti ed a media nulla e definiamo
+\[
+\tilde{X}_{i,n}=\frac{X_{i}}{\sqrt{\sum_{j=1}^{n}E[X_{j}^{2}]}}
+\]
+in modo tale che $\sum_{i=1}^{n}E[\tilde{X}_{i,n}^{2}]=1$ per ogni n. La sequenza soddisfa la condizione
+di Lyapunov se
+\[
+\lim_{n\rightarrow\infty}\sum_{i=1}^{n}E[|\tilde{X}_{i,n}|^{2+\delta}]=0 \text{ per qualche } \delta>0.
+\]
+(Nota: il testo originale presenta $max_{i=1,...,n}$ che è una condizione diversa, seppur correlata. La forma $\sum E[...]$ è più standard).
+\end{condition}
+
+\begin{remark}
+Anche la condizione di Lyapunov può essere vista come la richiesta
+che non ci sia nessuna variabile aleatoria con varianza non trascurabile rispetto
+alla somma di tutte le altre..
+\end{remark}
+
+\begin{remark}
+E' importante discutere la relazione esistente tra teorema del limite centrale e legge dei garndi numeri.
+Consideriamo il caso di variabili indipendenti $X_{i}$, e normalizziamole in modo che abbiano valor medio nullo e
+varianza 1. Sappiamo che la somma di questa variabili aleatorie ha varianza
+$Var[\sum_{i=1}^{n}X_{i}]=n,$ e pertanto $\sum_{i=1}^{n}X_{i}=O_{p}(\sqrt{n})$;
+in altre parole questa sequenza di somme se divisa per $\sqrt{n}$ vivrà su un compatto con probabilità che può
+essere resa arbitrariamente vicina ad uno.
+la legge dei grandi numeri ci dice
+che dividendo per n abbiamo
+\[
+\overline{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}\rightarrow_{p}0
+\]
+in un certo senso, il Teorema del Limite Centrale si può pensare come uno
+zoom sulle fluttuazioni che diventano infinitesimali della media intorno allo zero:
+riscalando per un fattore $\sqrt{n}$ otteniamo
+\[
+\sqrt{n}\overline{X}_{n}=\frac{1}{\sqrt{n}}\sum_{i=1}^{n}X_{i}\rightarrow_{d}N(0,1)
+\]
+.
+Quindi le fluttuazioni nella somma di n variabili aleatorie indipendenti a valor
+medio nullo sono di ordine $\sqrt{n};$ le fluttuazioni della media aritmetica sono di
+ordine $\frac{1}{\sqrt{n}}$ le fluttuazioni nel teorema del limite centrale sono di ordine $O(1)$.
+\end{remark}
+
+\begin{example}
+(L'uso del Teorema del limite centrale nei sondaggi di opinione.)...
+\end{example}
+
+\end{document}

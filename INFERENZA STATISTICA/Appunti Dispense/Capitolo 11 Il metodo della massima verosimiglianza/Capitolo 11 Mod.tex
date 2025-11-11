@@ -1,0 +1,643 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{example}[definition]{Example}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{theorem}[definition]{Theorem}
+\setcounter{definition}{91} % L'ultimo era 91, quindi il prossimo è 92
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{11 Il metodo della massima verosimiglianza}
+Supponiamo di avere di fronte a noi due urne, una con 90 palline bianche e 10
+nere, e l'altra con 10 nere e 90 bianche;
+identifichiamo le urne con la proporzione
+di palline bianche che contengono (denotata con p), in modo tale che la prima
+urna corrisponda a $p=.9$ e la seconda a $p=.1$. Viene estratta una singola
+pallina e non sappiamo da quale urne venga;
+osserviamo però che la pallina
+è bianca. Dovendo cercare di risalire all'urna di provenienza, sembra naturale
+scegliere quella che rende più probabile osservare quello che abbiamo effettivamente osservato, cioè l'urna che contiene la maggiore proporzione di palline
+bianche;
+in altre parole, dall'osservazione "è stata estratta una pallina bianca"
+sembra naturale far discendere lo stimatore $\hat{p}=0.9$.
+Supponiamo ora che invece di una sola pallina ne siano estratte 5, e che
+risultino essere 3 bianche e 2 nere;
+immaginiamo altresì che l'alternativa non sia
+solo tra due urne, ma tra un continuo di urne con tutte le possibili proporzioni
+di palline bianche tra 0 ed $1,$ identificate sempre con p.
+In questo caso, la
+probabilità di osservare 3 bianche e 2 nere è data da una legge binomiale:
+\[
+Pr \{\text{3 bianche e 2 nere}\} = \binom{5}{3} p^{3}(1-p)^{2},
+\]
+ed è facilmente verificabile che questa probabilità è massimizzata prendendo
+$\hat{p}=\frac{3}{5}$.
+
+\begin{spiegazione}
+    \textbf{L'idea fondamentale della Massima Verosimiglianza (MLE)}
+    
+    Questo paragrafo introduce l'idea più intuitiva di tutta la statistica. Il metodo della Massima Verosimiglianza (Maximum Likelihood Estimation) risponde alla domanda: "Dato che ho osservato questi dati, qual è il valore del parametro ($\theta$) che rende i miei dati i più probabili (verosimili) possibile?"
+    
+    \begin{itemize}
+        \item \textbf{Esempio 1 (Urne):} Osservo 1 pallina bianca.
+            \begin{itemize}
+                \item Se l'urna fosse $p=0.1$, la probabilità di osservare il mio dato (bianca) era del 10\%.
+                \item Se l'urna fosse $p=0.9$, la probabilità di osservare il mio dato (bianca) era del 90\%.
+            \end{itemize}
+            Scelgo $\hat{p}=0.9$ perché è il valore del parametro che \textit{massimizza la probabilità} di ciò che ho visto.
+        
+        \item \textbf{Esempio 2 (Binomiale):} Osservo 3 Bianche e 2 Nere.
+            Cerco il valore $p$ (tra 0 e 1) che massimizza la funzione $f(p) = \binom{5}{3} p^3 (1-p)^2$. Usando l'analisi matematica (facendo la derivata rispetto a $p$ e ponendola uguale a 0), si scopre che il massimo si ha proprio a $\hat{p} = 3/5$.
+    \end{itemize}
+    
+    Lo stimatore di massima verosimiglianza ($\hat{p}$) è il valore del parametro che meglio "spiega" i dati che abbiamo osservato.
+\end{spiegazione}
+
+Questo esempio molto semplice dovrebbe aiutare a capire l'idea che è alla
+base degli stimatori di massima verosimiglianza - si tratta di costruire la funzione
+di probabilità (o di densità, nel caso continuo) relativa ad un certo campione
+aletaorio, e vederla quindi non più come funzione del campione, ma come funzione (aleatoria) dei parametri, prendendo come date le osservazioni.
+In altre
+parole, si ha la seguente definizione:
+
+\begin{definition}[Funzione di verosimiglianza]
+Sia $X_{1},...,X_{n}$ un campione aleatorio con legge (funzione di probabilità o densità, a seconda del caso discreto o
+continuo) $f_{\theta}$, $\theta\in\mathbb{R}^{p}.$ La funzione di verosimiglianza $L:\mathbb{R}^{p}\rightarrow\mathbb{R}$ è definita da
+\[
+L(\theta;X_{1},...,X_{n}):=\prod_{i=1}^{n}f(X_{i};\theta)=f(X_{1},...,X_{n};\theta) .
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Funzione di Densità $f(x)$ vs. Funzione di Verosimiglianza $L(\theta)$}
+    
+    Questa è la differenza più importante da capire. Entrambe usano la stessa formula, $f(x; \theta)$, ma la "leggono" in due modi opposti:
+    
+    \begin{itemize}
+        \item \textbf{Funzione di Densità/Probabilità, $f(x; \theta)$:}
+            \begin{itemize}
+                \item \textbf{Fisso:} $\theta$ (il parametro, es. $p=0.5$ per una moneta).
+                \item \textbf{Variabile:} $x$ (i dati, es. $k=3$ teste).
+                \item \textbf{Domanda:} "Qual è la probabilità di osservare $x$, dato $\theta$?"
+            \end{itemize}
+    
+        \item \textbf{Funzione di Verosimiglianza, $L(\theta; x)$:}
+            \begin{itemize}
+                \item \textbf{Fisso:} $x$ (i dati che \textit{ho già osservato}, es. $k=3$ teste).
+                \item \textbf{Variabile:} $\theta$ (il parametro, es. $p$ è incognito).
+                \item \textbf{Domanda:} "Quanto era 'verosimile' un certo $\theta$, dato che ho osservato $x$?"
+            \end{itemize}
+    \end{itemize}
+    
+    Dato che le $X_i$ sono indipendenti, la probabilità congiunta (di osservarle tutte insieme) è il prodotto ($\prod$) delle singole probabilità.
+\end{spiegazione}
+
+\begin{remark}
+Con un leggero abuso di notazione, a sinistra della prima uguaglianza
+abbiamo scritto f sia per la legge univariata che per qualla congiunta;
+inoltre
+usiamo $f(.)$ sia per il caso discreto che per quello continuo.
+Il punto più importante è però un altro: la verosimiglianza è funzione del parametro prendendo i
+valori di $X_{1},...X_{n}$ come dati, mentre la densità congiunta prende il parametro
+$\theta$ come dato ed è funzione dei possibili valori delle osservazioni $x_{1},...,x_{n}$.
+\end{remark}
+
+\begin{remark}
+Ovviamente si ha (nel caso continuo)
+\[
+\int_{\mathbb{R}^{n}}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}=1 ;
+\]
+non c'è però nessun motivo di aspettarsi l'uguaglianza
+\[
+\int_{\mathbb{R}^{p}}L(\theta;X_{1},...,X_{n})d\theta \stackrel{???}{=} 1 .
+\]
+anzi in generale questo integrale può divergere. La funzione di verosimiglianza
+pertanto NON identifica una densità di probabilità.
+\end{remark}
+
+\begin{example}[Valor medio nel caso Gaussiano]
+Sia $X_{1},...,X_{n}$ un campione
+aleatorio estratto da una legge Gaussiana $N(\mu,1)$;
+è immediato verificare che la
+funzione di verosmiglianza prende la forma
+\[
+L(\mu;X_{1},...,X_{n})=\frac{1}{(2\pi)^{n/2}}exp\{-\frac{1}{2}\sum_{i=1}^{n}(X_{i}-\mu)^{2}\} .
+\]
+In questo caso (e in quelli a seguire) è conveniente lavorare con il logaritmo
+della funzione di verosimiglianza;
+trattandosi di una trasformazione monotona
+crescente, il valore che massimizza la funzione (cioè l'argmax) non cambia, e
+pertanto nemmeno lo stimatore.
+Si ha in particolare
+\begin{align*}
+l(\mu;X_{1},...,X_{n}) &:= \log L(\mu;X_{1},...,X_{n}) \\
+&= -\frac{n}{2}\log(2\pi)-\frac{1}{2}\sum_{i=1}^{n}(X_{i}-\mu)^{2}
+\end{align*}
+funzione che è evidentemente massimizzata in
+\[
+\hat{\mu}_{MLE}=\frac{1}{n}\sum_{i=1}^{n}X_{i}
+\]
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Perché usare il Logaritmo? (Log-Likelihood)}
+    
+    Massimizzare $L(\theta)$ è lo stesso che massimizzare $\log(L(\theta))$, perché il logaritmo è una funzione crescente (se $A > B$, allora $\log(A) > \log(B)$).
+    
+    Si usa il logaritmo ($l(\theta) = \log L(\theta)$) perché trasforma i prodotti (che sono difficili da derivare) in somme (che sono facili da derivare).
+    
+    $L(\theta) = \prod f(X_i; \theta) \quad \xrightarrow{\log} \quad l(\theta) = \sum \log f(X_i; \theta)$
+    
+    \textbf{Esempio Gaussiano:}
+    Vogliamo massimizzare $l(\mu) = C - \frac{1}{2}\sum (X_i - \mu)^2$.
+    Massimizzare questa espressione è equivalente a \textit{minimizzare} $\sum (X_i - \mu)^2$.
+    
+    Questo è il famoso \textbf{Metodo dei Minimi Quadrati}! Troviamo il $\mu$ che minimizza la somma delle distanze al quadrato dai punti $X_i$. Usando l'analisi (derivata rispetto a $\mu$ posta uguale a 0), si scopre che questo valore è esattamente la media campionaria $\overline{X}$.
+    
+    Conclusione: Per dati Gaussiani, lo stimatore di Massima Verosimiglianza per la media $\mu$ è la media campionaria $\overline{X}$.
+\end{spiegazione}
+
+\begin{example}[Variabili Bernoulliane]
+Sia $X_{1},...,X_{n}$ un campione aleatorio di
+variabili $Ber(p)$ la probabilità di k successi per $k=0,...,n$ evidentemente data
+da $p^{k}(1-p)^{n-k}.$ e la verosimiglianza è pertanto
+\[
+L(p;X_{1},...,X_{n})=p^{\sum_{i=1}^{n}X_{i}}(1-p)^{n-\sum_{i=1}^{n}X_{i}}.
+\]
+La massimizzazione della log-verosimiglianza ci fa ottenere facilmente
+\[
+\log L(p; X_1, ..., X_n) = (\sum_{i=1}^n X_i) \log p + (n - \sum_{i=1}^n X_i) \log(1-p)
+\]
+\[
+\frac{\partial}{\partial p} \log L(p; \dots) = \frac{\sum_{i=1}^{n}X_{i}}{p}-\frac{(n-\sum_{i=1}X_{i})}{1-p}
+\]
+imponendo che la derivata sia pari a zero, si vede facilmente che
+\[
+\hat{p}_{MLE}=\frac{1}{n}\sum_{i=1}X_{i}
+\]
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio Bernoulli (Moneta Truccata)}
+    
+    \begin{itemize}
+        \item \textbf{Dati:} $n$ lanci di una moneta (1 per Testa, 0 per Croce).
+        \item \textbf{Parametro:} $p$, la probabilità (ignota) di Testa.
+        \item \textbf{Log-Verosimiglianza:} La formula $l(p) = (\text{Num. Teste}) \log(p) + (\text{Num. Croci}) \log(1-p)$.
+        \item \textbf{Massimizzazione:} Facciamo la derivata di $l(p)$ rispetto a $p$ e la poniamo uguale a 0.
+        \item \textbf{Risultato:} La soluzione è $\hat{p} = \frac{\sum X_i}{n} = \frac{\text{Num. Teste}}{\text{Num. Lanci}}$.
+    \end{itemize}
+    
+    Ancora una volta, lo stimatore di Massima Verosimiglianza è la media campionaria, che è esattamente quello che l'intuito (e il Metodo dei Momenti) ci aveva già suggerito.
+\end{spiegazione}
+
+\begin{remark}
+Si sarebbe potuto scrivere la verosimiglianza come
+\[
+L(p;X_{1},...,X_{n})=\binom{n}{\sum_{i=1}^{n}X_{i}}p^{\sum_{i=1}^{n}X_{i}}(1-p)^{n-\sum_{i=1}^{n}X_{i}}.
+\]
+Quale è la versione "giusta" della verosimiglianza? Come sarebbero cambiate le
+stime utilizzando questa seconda versione?
+Si tratta di un risultato generale o
+$c^{\prime}e$ un principio generale sottostante?
+\end{remark}
+
+\subsection*{11.0.1 Consistency and Asymptotic Gaussianity}
+To study consistency, we need first to introduce the Kullback-Leibler distance
+between two probility densities/probability mass function.
+This is defined by
+
+\begin{definition}
+Siano f, g funzioni di densità o funzioni di probabilità.
+La distanza di Kullback-Leibler tra f è definita da
+\[
+D(f,g)=\int \log(\frac{f(x;\theta)}{g(x;\theta)})f(x;\theta)dx
+\]
+se f è assolutamente continua rispetto a g altrimenti la distanza viene posta
+pari $a+\infty.$ Analogamente, nel caso discreto
+\[
+D(p,q)=\sum_{x_{i}}\log(\frac{p(x_{i};\theta)}{q(x_{i};\theta)})p(x_{i};\theta)
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cos'è la "Distanza" di Kullback-Leibler (KL)?}
+    
+    La distanza KL (o "divergenza KL") è un concetto teorico fondamentale. Misura quanto due distribuzioni di probabilità, $f$ e $g$, sono \textit{diverse} tra loro.
+    
+    \begin{itemize}
+        \item \textbf{$D(f, g) = 0$:} Se $f$ e $g$ sono identiche.
+        \item \textbf{$D(f, g) > 0$:} Se $f$ e $g$ sono diverse.
+    \end{itemize}
+    
+    È una "distanza" asimmetrica: la distanza da $f$ a $g$ non è uguale alla distanza da $g$ a $f$. Ci dice, in media, "quanta informazione perdiamo" se usiamo la distribuzione $g$ per approssimare la distribuzione $f$.
+\end{spiegazione}
+
+\begin{remark}
+E' facilmente verificabile che la distanza di Kullback-Leibler è sempre non-negativa; infatti, utilizzando la disuguaglianza di Jensen
+\[
+D(f,g)=E_{f}[\log\frac{f(X)}{g(X)}]=-E_{f}[\log\frac{g(X)}{f(X)}]
+\]
+\[
+\ge -\log(E_{f}[\frac{g(X)}{f(X)}]) = -\log(\int\frac{g(x;\theta)}{f(x;\theta)}f(x;\theta)dx)=-\log(\int g(x;\theta)dx)=0 .
+\]
+D'altra parte la distanza di Kullback-Leibler non identifica una metrica, ad esempio perché non è simmetrica negli argomenti (e non vale la disuguaglianza
+triangolare).
+\end{remark}
+
+Quale è la relazione tra funzione di verosimiglianza e distanza di Kullback-
+Leibler? Focalizziamoci come al solito sulla log-verosimiglianza;
+considerando
+che la stimatore è invariante se la funzione è trasformata linearmente con coefficienti che non dipendono dal parametro, possiamo passare da $\log L=\sum_{i=1}^{n}\log f(X_{i};\theta)$
+a
+\[
+M_{n}(\theta):=\frac{1}{n}\sum_{i=1}^{n}\log f(X_{i};\theta)-\frac{1}{n}\sum_{i=1}^{n}\log f(X_{i};\theta_{0})=\frac{1}{n}\sum_{i=1}^{n}\log\frac{f(X_{i};\theta)}{f(X_{i};\theta_{0})}
+\]
+dove $\theta_{0}$ denota il "vero" valore del parametro. Sotto alcune delle condizioni di
+regolarità che abbiamo visto precedentemente affinchè valga la legge dei grandi
+numeri, abbiamo che, ad un valore di $\theta$ fissato:
+\begin{align*}
+\frac{1}{n}\sum_{i=1}^{n}\log\frac{f(X_{i};\theta)}{f(X_{i};\theta_{0})} &\rightarrow_{p} E_{\theta_0}[\log\frac{f(X_{1};\theta)}{f(X_{1};\theta_{0})}] \\
+&= \int \log\frac{f(x;\theta)}{f(x;\theta_{0})}f(x;\theta_{0})dx \\
+&= -D(f_{\theta_{0}},f_{\theta}).
+\end{align*}
+\end{spiegazione}
+
+\begin{spiegazione}
+    \textbf{Il collegamento tra MLE e Distanza KL}
+    
+    Questo è il cuore della teoria della consistenza.
+    
+    \begin{enumerate}
+        \item \textbf{Lo Stimatore MLE:} Cerca il $\theta$ che \textit{massimizza} la log-verosimiglianza media, $\frac{1}{n} \log L(\theta)$.
+        \item \textbf{La Legge dei Grandi Numeri (LLN):} Ci dice che, per $n$ grande, questa log-verosimiglianza media ($M_n(\theta)$ nel testo) converge al suo valore atteso (teorico).
+        \item \textbf{Il Valore Atteso:} Il testo dimostra che questo valore atteso è $E[\dots] = -D(f_{\theta_0}, f_\theta)$ (la distanza KL, con un segno meno).
+    \end{enumerate}
+    
+    \textbf{Conclusione Euristica:}
+    
+    Massimizzare $\frac{1}{n} \log L(\theta)$ $\xrightarrow[n \to \infty]{}$ Massimizzare $-D(f_{\theta_0}, f_\theta)$
+    
+    Poiché la distanza $D(f_{\theta_0}, f_\theta)$ è sempre positiva (tranne quando $\theta = \theta_0$, dove vale 0), il valore massimo di $-D(\dots)$ è \textbf{zero}, che si ottiene \textit{esattamente} quando $\theta = \theta_0$.
+    
+    Quindi, per $n$ grande, lo stimatore $\hat{\theta}_{MLE}$ (che massimizza la parte sinistra) converge al valore $\theta_0$ (che massimizza la parte destra). Questo dimostra che l'MLE è \textbf{consistente}.
+\end{spiegazione}
+
+L'idea euristica dietro alla dimostrazione della consistenza è dunque la seguente:
+$M_{n}(\theta)$ converge a $-D(f_{\theta_{0}},f_{\theta})$, che è sempre negativa tranne quando $\theta=\theta_{0}$,
+dove vale zero.
+Poiché lo stimatore di massima verosimiglianza è definito come
+il valore di $\theta$ che massimizza $M_{n}(\theta)$, a sua volta esso convergerà al valore che
+massimizza $-D(f_{\theta_{0}},f_{\theta})$, cioè $\theta=\theta_{0}$. Nel seguito, scriviamo per brevità $M(\theta)=$
+$-D(f_{\theta_{0}},f_{\theta})$ abbiamo la seguente proposizione:
+
+\begin{proposition}[Consistenza]
+Assumiamo che valgano le seguenti condizioni
+di regolarità:
+\begin{itemize}
+    \item[a)] (Legge dei grandi numeri uniforme) Si ha che
+    \[
+    \sup_{\theta}|M_{n}(\theta)-M(\theta)|=o_{p}(1) \text{ per } n\rightarrow\infty;
+    \]
+    \item[b)] (Convessità) Si ha che per ogni $\epsilon>0$ esiste $\eta_{\epsilon}>0$ tale che
+    $|\theta-\theta_{0}|>\epsilon\Rightarrow M(\theta_{0})-M(\theta)>\eta_{\epsilon}$
+\end{itemize}
+Allora $\hat{\theta}_{MLE;n}\rightarrow_{p}\theta_{0}$.
+\end{proposition}
+
+\begin{remark}
+L'ipotesi a) è più forte delle leggi dei grandi numeri che abbiamo
+dimostrato in precedenza, perché richiede che la convergenza sia uniforme in $\theta$,
+il che non è garantito anche se la convergenza avviene puntualmente per ogni
+valore fisso di $\theta$. Le leggi dei grandi numeri uniformi sono ampiamente trattate
+nei corsi della magistrale (Teoremi di Glivenko-Cantelli) ma non fanno parte
+del programma di questo corso.
+L'ipotesi b) è essenzialmente una condizione
+di identificabilità: se esistesse un insieme di valori diversi di $\theta$ a distanza di
+Kullback-Leibler 0 da $\theta_{0}$ il problema della consistenza sarebbe evidentemente
+irrisolvibile (e lo stimatore potrebbe non essere nemmeno ben definito).
+\end{remark}
+
+\begin{proof}
+L'idea è di mostrare che per ogni $\epsilon>0$ fissato si ha $Pr\{M(\theta_{0})-M(\hat{\theta}_{n})>\eta_{\epsilon}\}\rightarrow
+0$; grazie alla condizione di convessità abbiamo
+\[
+Pr\{|\theta_{0}-\hat{\theta}_{n}|>\epsilon\}\le Pr\{M(\theta_{0})-M(\hat{\theta}_{n})>\eta_{\epsilon}\}
+\]
+e conseguentemente la proposizione sarà dimostrata. A questo proposito notiamo che, per definizione di stimatore di massima verosimiglianza
+\[
+M_{n}(\hat{\theta}_{n})-M_{n}(\theta_{0})>0
+\]
+e quindi
+\[
+M(\hat{\theta}_{n})-M(\theta_{0})=M_{n}(\theta_{0})-M(\hat{\theta}_{n})+M(\theta_{0})-M_{n}(\theta_{0})
+\]
+\[
+\le M_{n}(\hat{\theta}_{n})-M(\hat{\theta}_{n})+M(\theta_{0})-M_{n}(\theta_{0}).
+\]
+Segue quindi che
+\[
+Pr\{M(\theta_{0})-M(\hat{\theta}_{n})>\eta_{\epsilon}\}\le Pr\{|M(\theta_{0})-M_{n}(\theta_{0})|>\frac{\eta_{\epsilon}}{2}\}+Pr\{|M_{n}(\hat{\theta}_{n})-M(\hat{\theta}_{n})|>\frac{\eta_{\epsilon}}{2}\}
+\]
+\[
+\rightarrow 0, \text{ per } n\rightarrow\infty,
+\]
+usando per il primo termine la legge dei grandi numeri standard e per il secondo
+quella uniforme (che implica ovviamente quella standard).
+\end{proof}
+
+\subsection*{11.0.2 La funzione punteggio}
+
+\begin{definition}[Funzione Punteggio]
+La funzione punteggio (score function in
+inglese) è definita da
+\[
+s_{n}(\theta;X_{1},...,X_{n})=\frac{\partial}{\partial\theta}\log L(\theta;X_{1},...,X_{n}) ,
+\]
+assumendo ovviamente che la derivata esista. In genere, si tratta di una funzione da $\mathbb{R}^p$ in $\mathbb{R}^{p}$.
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cos'è la "Funzione Punteggio" (Score)?}
+    
+    È semplicemente la \textbf{derivata prima} della log-verosimiglianza $l(\theta) = \log L(\theta)$.
+    
+    Ricorda che per trovare il massimo di una funzione (il nostro $\hat{\theta}_{MLE}$), dobbiamo trovare il punto in cui la sua derivata (lo "score") è uguale a zero.
+    
+    $\hat{\theta}_{MLE}$ è la soluzione dell'equazione $s_n(\theta) = 0$.
+    
+    Lo "score" $s_n(\theta)$ è un vettore (il gradiente) che "punta" nella direzione in cui la verosimiglianza cresce più velocemente.
+\end{spiegazione}
+
+Nella discussione che segue inizieremo dal caso $p=1$. Notiamo innanzitutto
+che la funzione punteggio è essa stessa una variabile aleatoria, per ogni valore
+di $\theta$ fissato.
+Ha quindi senso domandarsi quale sia il suo valor medio e la sua
+varianza, ammesso che esistano.
+Iniziamo quindi a imporre alcune condizioni di
+regolarità.
+
+\begin{definition}[Condizioni di regolarità]
+Valgono le seguenti ipotesi:
+\begin{itemize}
+    \item Le condizioni di consistenza
+    \item Le osservazioni $X_{1},...X_{n}$ sono indipendenti ed identicamente distribuite
+    \item La log-verosimiglianza ammette due derivate continue, $\frac{\partial^{2}}{\partial\theta^{2}}\log L_{n}\in C^{2}$
+    \item La derivata seconda ha momento secondo finito, $E[|\frac{\partial^{2}}{\partial\theta^{2}}\log L_{n}|]<\infty$
+    \item Il vero valore del parametro $\theta_{0}$ appartiene all'interno dell'insieme dei valori ammissibili, $\theta_{0}\in Int(\Theta)$
+    \item $E^{\prime}$ possibile scambiare due volte la derivata con l'integrale nel valor medio
+della log-verosimiglianza
+\end{itemize}
+\end{definition}
+
+\begin{remark}
+Queste condizioni sono più forti del necessario per qullo che
+riguarda i risultati sulla funzione punteggio, ma preferiamo enunciarle una volta
+per tutte in funzione del risultato sulla asinotitca Gaussianità degli stimatori
+ML.
+\end{remark}
+
+\begin{lemma}
+Sotto le condizioni di regolarità, abbiamo che
+\[
+E_{\theta_{0}}[s_{n}(\theta_{0};X_{1},...,X_{n})]=0.
+\]
+\end{lemma}
+
+\begin{proof}
+Per definizione abbiamo che
+\begin{align*}
+E_{\theta_{0}}[s_{n}(\theta_{0};X_{1},...,X_{n})] &= \int\{\log^{\prime}L(\theta_{0};x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int\frac{\frac{\partial f(x_{1},...,x_{n};\theta)}{\partial\theta}|_{\theta=\theta_{0}}}{f(x_{1},...,x_{n};\theta_{0})}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int\frac{\partial f(x_{1},...,x_{n};\theta)}{\partial\theta}|_{\theta=\theta_{0}}dx_{1}...dx_{n} .
+\end{align*}
+Poiché per ipotesi possiamo scambiare derivate ed integrali, abbiamo che
+\begin{align*}
+\int\frac{\partial f(x_{1},...,x_{n};\theta)}{\partial\theta}|_{\theta=\theta_{0}}dx_{1}...dx_{n} &= \frac{\partial}{\partial\theta}\int f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}|_{\theta=\theta_{0}} \\
+&= \frac{\partial}{\partial\theta}1|_{\theta=\theta_{0}}=0 .
+\end{align*}
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{Prima Proprietà dello Score: La Media è Zero}
+    
+    Questo lemma ci dice che se calcoliamo lo "score" (la derivata prima) nel punto $\theta_0$ (il \textit{vero} valore del parametro), il suo valore medio (atteso) è 0.
+    
+    Questo è intuitivo: il $\theta_0$ vero è il valore che massimizza la funzione di verosimiglianza "teorica" (la distanza KL). In un punto di massimo, la derivata (lo score) deve essere 0.
+    
+    Poiché lo stimatore $\hat{\theta}_{MLE}$ è il punto dove lo score $s_n(\theta)$ è *effettivamente* 0, questo ci dice che il nostro stimatore sta cercando di trovare il punto ($\theta_0$) dove lo score \textit{dovrebbe essere} 0 in media.
+\end{spiegazione}
+
+\begin{example}
+Se consideriamo il caso della verosimiglianza Gaussiana, abbiamo facilmente (assumendo varianza nota e pari a 1, $X_{i}$ iid $N(\mu_{0},1))$
+\[
+s_{n}(\mu;X_{1},...,X_{n})=\sum_{i=1}^{n}(X_{i}-\mu) ,
+\]
+ed è evidentemente che il valor medio si annulla prendendo $\mu=\mu_{0}$:
+\[
+E[s_{n}(\mu_{0};X_{1},...,X_{n})]=n(\mu_{0}-\mu_{0})=0.
+\]
+(Nota: il testo originale riportava $E[s_n(\mu;...)] = n(\mu-\mu_0)$. Calcolando in $\mu_0$ si ottiene 0.)
+\end{example}
+
+\begin{lemma}
+Sotto le condizioni di regolarità, abbiamo che
+\begin{align*}
+E[\frac{\partial^{2}\log L(\theta;x_{1},...,x_{n})}{\partial\theta^{2}}|_{\theta=\theta_{0}}]
+&= \int\{\log^{\prime\prime}L(\theta_{0};x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= -\int\{\log^{\prime}L(\theta_{0};x_{1},...,x_{n})\}^{2}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= -E[\{\frac{\partial \log L(\theta;x_{1},...,x_{n})}{\partial\theta}|_{\theta=\theta_{0}}\}^{2}]
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+Si noti innanzitutto che, per qualsiasi valore di $\theta$
+\[
+H(\theta):=\int\{\log^{\prime}L(\theta;x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}\equiv0.
+\]
+Di nuovo per le condizioni di regolarità possiamo allora considerare
+\begin{align*}
+0 = \frac{\partial H(\theta)}{\partial\theta} &= H^{\prime}(\theta) \\
+&= \frac{\partial}{\partial\theta}\int\{\log^{\prime}L(\theta;x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n} \\
+&= \int\{\log^{\prime\prime}L(\theta;x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n} \\
+&\quad +\int\{\log^{\prime}L(\theta;x_{1},...,x_{n})\}f^{\prime}(x_{1},...,x_{n};\theta)dx_{1}...dx_{n} \\
+&= \int\{\log^{\prime\prime}L(\theta;x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta)dx_{1},...dx_{n} \\
+&\quad +\int\{\log^{\prime}L(\theta;x_{1},...,x_{n})\}\frac{f^{\prime}(x_{1},...,x_{n};\theta)}{f(x_{1},...,x_{n};\theta)}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n} \\
+&= \int\{\log^{\prime\prime}L(\theta;x_{1},...,x_{n})\}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n} \\
+&\quad +\int\{\log^{\prime}L(\theta;x_{1},...,x_{n})\}^{2}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}
+\end{align*}
+ed il risultato è dimostrato.
+\end{proof}
+
+\begin{remark}
+$E^{+}$ importante notare che in $\theta=\theta_{0}$
+\[
+\int\{\log^{\prime}L(\theta_{0};x_{1},...,x_{n})\}^{2}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n}
+\]
+\[
+=E[(s_{n}(\theta_{0}))^{2}]=Var(s_{n}(\theta_{0})) .
+\]
+La varianza della funzione punteggio calcolata nel valore vero del parametro è
+pertanto uguale al reciproco della derivata seconda della log-verosimiglianza nello
+stesso punto.
+\end{remark}
+
+\begin{definition}[Informazione di Fisher]
+La varianza della funzione punteggio
+è nota come informazione di Fisher e si indica con $I_{n}(\theta_{0}).$ In generale, si tratta
+di una matrice di dimensione $p\times p$.
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cos'è l' "Informazione di Fisher"?}
+    
+    Questo è uno dei concetti più importanti in statistica.
+    
+    \begin{itemize}
+        \item \textbf{Definizione 1:} È la \textbf{varianza dello score} (la derivata prima). Misura "quanto balla" la derivata prima attorno alla sua media (che è 0).
+        
+        \item \textbf{Definizione 2 (dal Lemma 107):} È anche l'opposto ($ - $ ) della \textbf{media della derivata seconda}.
+    \end{itemize}
+    
+    \textbf{Interpretazione intuitiva:}
+    La derivata seconda misura la \textit{curvatura} della funzione di log-verosimiglianza nel punto di massimo $\theta_0$.
+    
+    \begin{itemize}
+        \item \textbf{Picco "appuntito" (Alta curvatura):} La derivata seconda è un numero negativo grande. L'Informazione di Fisher $I_n$ è \textit{grande}. Questo significa che i dati contengono \textit{molta informazione}: se ci spostiamo anche di poco da $\theta_0$, la verosimiglianza crolla. La nostra stima $\hat{\theta}$ sarà molto precisa.
+        
+        \item \textbf{Picco "piatto" (Bassa curvatura):} La derivata seconda è un numero negativo piccolo. L'Informazione di Fisher $I_n$ è \textit{piccola}. I dati contengono \textit{poca informazione}: molti valori di $\theta$ sono quasi altrettanto "verosimili" quanto $\theta_0$. La nostra stima $\hat{\theta}$ sarà poco precisa (avrà alta varianza).
+    \end{itemize}
+    
+    L'Informazione di Fisher $I_n(\theta)$ è la misura di "quanta informazione" il campione $n$ contiene sul parametro $\theta$.
+\end{spiegazione}
+
+\subsection*{11.0.3 L'asintotica Gaussianità degli stimatori MLE}
+\begin{theorem}
+Sotto le condizioni di regolarità di cui sopra, si ha che
+\[
+\sqrt{n}\{\hat{\theta}_{n}-\theta_{0}\}\rightarrow_{d}N(0,I_{1}^{-1}(\theta_{0})).
+\]
+Equivalentemente, abbiamo che
+\[
+I_{n}^{1/2}(\theta_{0})\{\hat{\theta}_{n}-\theta_{0}\}\rightarrow_{d}N(0,Id_{p}),
+\]
+dove $Id_{p}$ indica la matrice di identità di ordine p.
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{La "Pagella" Completa dello Stimatore MLE}
+    
+    Questo è il secondo grande risultato (dopo la consistenza) e completa la "pagella" dello stimatore di Massima Verosimiglianza (MLE).
+    
+    Ci dice che l'MLE non solo è consistente (Proposizione 100), ma è anche \textbf{asintoticamente Gaussiano}.
+    
+    L'errore "zoomato" dello stimatore ($\sqrt{n}(\hat{\theta}_n - \theta_0)$) converge a una curva a campana (Gaussiana) $N(0, \dots)$.
+    
+    E qual è la varianza di questa curva? È $I_1^{-1}(\theta_0)$, cioè l'\textbf{inverso dell'Informazione di Fisher} (calcolata per una singola osservazione, $I_1$).
+    
+    Questo collega tutto:
+    \begin{itemize}
+        \item Tanta informazione ($I_1$ grande) $\implies$ Picco "appuntito" $\implies$ Varianza dell'errore $I_1^{-1}$ \textit{piccola} $\implies$ Stima \textbf{molto precisa}.
+        \item Poca informazione ($I_1$ piccola) $\implies$ Picco "piatto" $\implies$ Varianza dell'errore $I_1^{-1}$ \textit{grande} $\implies$ Stima \textbf{poco precisa}.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{proof}
+Consideriamo per semplicità il caso $p=1$. Per il teorema del valor medio
+di Lagrange, esiste $\overline{\theta}_{n}$ intermedio tra $\hat{\theta}_{n}$ e $\theta_{0}$ tale per cui vale l'uguaglianza
+\[
+0=\log^{\prime}L(\hat{\theta}_{n})=\log L^{\prime}(\theta_{0})+\log L^{\prime\prime}(\overline{\theta}_{n})(\hat{\theta}_{n}-\theta_{0}),
+\]
+da cui
+\[
+\sqrt{n}(\hat{\theta}_{n}-\theta_{0})=-\frac{\log L^{\prime}(\theta_{0})/\sqrt{n}}{\log L^{\prime\prime}(\overline{\theta}_{n})/n}
+\]
+Per il numeratore abbiamo una somma di variabili aleatorie IID con valor medio
+nullo e varianza finita;
+siamo quindi nel dominio di applicabilità del teorema del
+limite centrale ed otteniamo
+\[
+\log L^{\prime}(\theta_{0})/\sqrt{n}=\frac{1}{\sqrt{n}}\sum_{i=1}^{n}\frac{\partial \log f(X_{i};\theta)}{\partial\theta}|_{\theta=\theta_{0}}\rightarrow_{d}N(0,I_{1}(\theta_{0})) .
+\]
+Per il denominatore abbiamo una somma di variabili IID con valor medio finito,
+quindi per la legge dei grandi numeri su variabili uniformemente integrabili ed
+il teorema di Slutzky otteniamo
+\[
+\log L^{\prime\prime}(\overline{\theta}_{n})/n=\frac{1}{n}\sum_{i=1}^{n}\frac{\partial^{2}\log f(X_{i};\theta)}{\partial\theta^{2}}|_{\theta=\overline{\theta}_{n}}\rightarrow_{p}-I_{1}(\theta_{0})
+\]
+Combinando i due risultati ed usando di nuovo Slutzky si arriva all'enunciato
+del Teorema.
+\end{proof}
+
+\begin{remark}
+Questa dimostrazione rende evidente come la consistenza degli
+stimatori sia un prerequisito necessario perché abbia senso la domanda sulla
+loro asintotica Gaussianità.
+\end{remark}
+
+
+
+\end{document}

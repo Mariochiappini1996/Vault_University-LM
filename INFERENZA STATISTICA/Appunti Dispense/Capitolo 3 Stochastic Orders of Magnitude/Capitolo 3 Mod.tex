@@ -1,0 +1,340 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione delle definizioni per iniziare da 44
+% (Assumendo che questa sia la continuazione dei capitoli precedenti)
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{example}[definition]{Example}
+\newtheorem{theorem}[definition]{Theorem}
+\setcounter{definition}{43}
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{3 \quad Stochastic Orders of Magnitude}
+In molti casi può essere utile avere alcuni strumenti per studiare il comportamento di variabili aleatorie che non convergono in nessuno dei sensi discusso nel
+capitolo precedente, ma nonstante questo rimagono limitate, dopo essere state
+opportunamente normalizzate.
+A questo fine, introduciamo la seguente
+
+\begin{definition}[Stochastic Orders of Magnitude: $O_{p}(.) e o_{p}(.)$]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$
+una successione di variabili aleatorie e sia $\{f_{n}\}_{n\in\mathbb{N}}$ una successione deterministica, $f_{n}>0$ per ogni n.
+Diremo che $X_{n}=O_{p}(f_{n})$ se e solo se
+\[
+\forall \epsilon > 0 \quad \exists K\in\mathbb{R}, \exists n_{0}\in\mathbb{N}:\forall n>n_{0} \quad Pr\{\frac{|X_{n}|}{f_{n}}\le K\}\ge1-\epsilon .
+\]
+Diremo che $X_{n}=o_{p}(f_{n})$ se e solo se
+\[
+\forall \epsilon > 0, \forall \delta > 0, \exists n_0 \in \mathbb{N} : \forall n > n_0 \quad Pr\{\frac{|X_n|}{f_n} \le \delta\} \ge 1 - \epsilon .
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa significano "O grande P" e "o piccolo P"?}
+
+    Queste notazioni sono un modo per descrivere quanto "grande" è una variabile aleatoria $X_n$ man mano che $n$ cresce. È l'equivalente in probabilità della notazione "O grande" e "o piccolo" che si usa in Analisi Matematica (es. per i limiti notevoli o in informatica per la complessità degli algoritmi).
+    
+    \begin{itemize}
+        \item \textbf{$X_n = O_p(f_n)$} (\textbf{O grande P}): $X_n$ cresce \textbf{al massimo} come $f_n$. Dividendo $X_n$ per $f_n$, il risultato $\frac{|X_n|}{f_n}$ non "esplode", ma rimane "limitato in probabilità" (cioè, con probabilità molto alta, sta sotto un qualche numero $K$).
+        
+        \item \textbf{$X_n = o_p(f_n)$} (\textbf{o piccolo P}): $X_n$ cresce \textbf{più lentamente} di $f_n$. Dividendo $X_n$ per $f_n$, il risultato $\frac{X_n}{f_n}$ "collassa" a zero (converge in probabilità a 0).
+    \end{itemize}
+    
+    \textbf{Esempi comuni:}
+    \begin{itemize}
+        \item \textbf{$X_n = O_p(1)$}: Si usa $f_n=1$. Significa che $X_n$ è \textbf{stocasticamente limitata}. Non esplode all'infinito. È "controllata".
+        \item \textbf{$X_n = o_p(1)$}: Si usa $f_n=1$. Significa che $X_n$ \textbf{converge in probabilità a 0}. È un modo più compatto per scrivere $X_n \to_p 0$.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{remark}
+Dalla definizione, segue immediatamente che $\{X_{n}=o_{p}(f_{n})\}\Leftrightarrow$
+$\{\frac{X_{n}}{f_{n}}\rightarrow_{p}0\}$.
+\end{remark}
+
+\begin{remark}
+Nella definizione di $X_{n}=O_{p}(f_{n})$ avremmo potuto rimpiazzare la
+condizione $\exists n_{0}\in\mathbb{N}:\forall n>n_{0}$ con la condizione (apparentemente più generale)
+$\forall n\in\mathbb{N}.$ Infatti se la sequenza $\frac{|X_{n}|}{f_{n}}$ è limitata per n sufficientemente grande è
+sempre possibile scegliere una costante $K^{\prime}$ (magari più grande di K) per la quale
+l'affermazione $Pr\{\frac{|X_{n}|}{f_{n}}\le K^{\prime}\}\ge1-\epsilon$ sia soddisfatta con $n=1,...,n_{0}$ .
+\end{remark}
+
+\begin{remark}
+E' evidente che $\{X_{n}=o_{p}(f_{n})\}\Rightarrow\{X_{n}=O_{p}(f_{n})\}$. Sul piano discorsivo, $O_{p}(.)$ implica che la sequenza normalizzata $X_{n}/f_{n}$ appartiene ad un
+compatto;
+se la sequenza $X_{n}/f_{n}$ converge è zero, appartiene ad un compatto
+arbitrariamente piccolo intorno all'origine, per n grande abbastanza.
+\end{remark}
+
+\begin{proposition}[Algebra degli stochastic orders]
+Siano $\{f_{n},g_{n}\}$ due sequenze
+deterministiche strettamente positive.
+1) Abbiamo che
+\[
+\{X_{n}=O_{p}(f_{n}), Y_{n}=O_{p}(g_{n})\}\Rightarrow\{X_{n}+Y_{n}=O_{p}(\max(f_{n},g_{n}))\}
+\]
+\[
+\{X_{n}=O_{p}(f_{n}), Y_{n}=O_{p}(g_{n})\}\Rightarrow\{X_{n}\times Y_{n}=O_{p}(f_{n}\times g_{n})\}
+\]
+2) Inoltre
+\[
+\{X_{n}=o_{p}(f_{n}), Y_{n}=o_{p}(g_{n})\}\Rightarrow\{X_{n}+Y_{n}=o_{p}(\max(f_{n},g_{n}))\}
+\]
+\[
+\{X_{n}=o_{p}(f_{n}), Y_{n}=o_{p}(g_{n})\}\Rightarrow\{X_{n}\times Y_{n}=o_{p}(f_{n}\times g_{n})\}
+\]
+3) Infine
+\[
+\{X_{n}=O_{p}(f_{n}) , Y_{n}=o_{p}(g_{n})\}\Rightarrow\{X_{n}\times Y_{n}=o_{p}(f_{n}\times g_{n})\}
+\]
+\end{proposition}
+
+\begin{spiegazione}
+    \textbf{Come si comportano "O grande P" e "o piccolo P" in algebra?}
+
+    Questa proposizione ci dà le regole per sommare e moltiplicare questi ordini. Sono le stesse dell'Analisi Matematica:
+    
+    \begin{itemize}
+        \item \textbf{Somma (Regola 1 e 2):} Quando sommi due termini, quello che "vince" (cioè quello che cresce più velocemente) detta l'ordine di grandezza. Esempio: $O_p(n^2) + O_p(n) = O_p(n^2)$.
+        
+        \item \textbf{Prodotto (Regola 1 e 2):} Quando moltiplichi, gli ordini si moltiplicano. Esempio: $O_p(n^2) \times O_p(n) = O_p(n^3)$.
+        
+        \item \textbf{Regola mista (Regola 3):} Questa è la più importante. Se moltiplichi qualcosa di \textit{limitato} (un $O_p$) per qualcosa che \textit{va a zero} (un $o_p$), il risultato \textit{va a zero} ($o_p$).
+    \end{itemize}
+\end{spiegazione}
+
+\begin{proof}
+Per la dimostrazione del punto 1), fissato $\epsilon>0$ prendiamo due costanti
+$C_{1}$ $C_{2}$ sufficientemente grandi tali per cui
+\[
+Pr\{\frac{|X_{n}|}{f_{n}}>C_{1}\}<\frac{\epsilon}{2}
+\]
+e
+\[
+Pr\{\frac{|Y_{n}|}{g_{n}}>C_{2}\}<\frac{\epsilon}{2}
+\]
+l'esistenza di tali costanti è garantita dall'ipotesi $X_{n}=O_{p}(f_{n}),$ $Y_{n}=O_{p}(g_{n})$.
+Abbiamo evidentemente
+\[
+Pr\{|X_{n}+Y_{n}|>(C_{1}\vee C_{2})(f_{n}\vee g_{n})\}
+\]
+\[
+\le Pr\{|X_{n}|>C_{1}f_{n}\}+Pr\{|Y_{n}|>C_{2}g_{n}\}=\frac{\epsilon}{2}+\frac{\epsilon}{2}=\epsilon ,
+\]
+dove la prima disuguaglianza segue dal fatto che l'evento $\{|X_{n}+Y_{n}|>(C_{1}\vee C_{2})(f_{n}\vee g_{n})\}$
+implica necessariamente il verificarsi di almeno uno dei due eventi $\{|X_{n}|>C_{1}f_{n}\}$
+$\{|Y_{n}|>C_{2}g_{n}\}$.
+In maniera analoga possiamo notare che
+\[
+Pr\{|X_{n}\times Y_{n}|>(C_{1}\times C_{2})(f_{n}\times g_{n})\}
+\]
+\[
+\le Pr\{|X_{n}|>C_{1}f_{n}\}+Pr\{|Y_{n}|>C_{2}g_{n}\}=\frac{\epsilon}{2}+\frac{\epsilon}{2}=\epsilon,
+\]
+di nuovo perché l'evento $\{|X_{n}\times Y_{n}|>(C_{1}\times C_{2})(f_{n}\times g_{n})\}$ implica necessariamente il verificarsi di almeno uno dei due eventi $\{|X_{n}|>C_{1}f_{n}\}o\{|Y_{n}|>C_{2}g_{n}\}$.
+La dimostrazione del punto 2) è del tutto analoga.
+Per il punto 3), per ipotesi abbiamo $X_{n}=O_{p}(f_{n})$ $Y_{n}=o_{p}(g_{n});$ notiamo
+che si ha, per qualsiasi costante $C_{1}>0$
+\[
+Pr\{|X_{n}\times Y_{n}|>C_{1}(f_{n}\times g_{n})\}
+\]
+\[
+=Pr\{|X_{n}\times Y_{n}|>(\frac{C_{1}}{C_{2}}\times C_{2})(f_{n}\times g_{n})\}
+\]
+\[
+\le Pr\{|X_{n}|>C_{2}f_{n}\}+Pr\{|Y_{n}|>\frac{C_{1}}{C_{2}}g_{n}\} .
+\]
+Per ipotesi, possiamo scegliere $C_{2}$ tale per cui $Pr\{|X_{n}|>C_{2}f_{n}\}\le\frac{\epsilon}{2}$; sempre
+per ipotesi, per $\frac{C_{1}}{C_{2}}$ fissato esiste senz'altro $n_{0}$ tale che
+\[
+Pr\{|Y_{n}|>\frac{C_{1}}{C_{2}}g_{n}\}\le\frac{\epsilon}{2}
+\]
+per ogni $n>n_{0}$,
+ed il risultato è dimostrato.
+\end{proof}
+
+E' naturale domandarsi come si inseriscano gli stochastic orders of magnitude
+nella gerarchia di modalità di convergenza che abbiamo discusso nella sezione
+precedente.
+Informalmente, possiamo considerare una sequenza $X_{n}=O_{p}(1)$
+come se fosse nella categoria "0", nel senso che tale proprietà è implicata da
+tutte le modalità di convergenza precedentemente introdotte:
+\[
+(5)\Rightarrow(4)\Rightarrow(2)\Rightarrow(1)\Rightarrow O_{p}(1) ,
+\]
+\[
+(3)\Rightarrow(2)\Rightarrow(1)\Rightarrow O_{p}(1);
+\]
+più rigorosamente, possiamo dimostrare il risultato qui di seguito.
+
+\begin{lemma}
+Sia $X_{n}$ una sequenza di variabili aleatorie che converge in distribuzione ad una variabile limite X. Allora $X_{n}=O_{p}(1)$
+\end{lemma}
+
+\begin{spiegazione}
+    \textbf{Convergenza $\implies$ Limitatezza Stocastica}
+    
+    Questo lemma collega la convergenza del Capitolo 2 a questa nuova notazione.
+    
+    Dice che se una successione di variabili aleatorie $X_n$ converge in distribuzione (la forma più debole di convergenza, $X_n \to_d X$), allora deve essere "stocasticamente limitata" ($X_n = O_p(1)$).
+    
+    In parole povere: se una successione di istogrammi $X_n$ sta convergendo a un istogramma "finale" $X$, questi istogrammi non possono "scappare" all'infinito. Devono rimanere "controllati" e "limitati" (con alta probabilità) per potersi stabilizzare.
+\end{spiegazione}
+
+\begin{proof}
+Notiamo prima che per ogni $\epsilon > 0$ esiste sicuramente un compatto $K=$
+$K_{\epsilon}\subset\mathbb{R}$ tale per cui $Pr\{X\in K_{\epsilon}\}>1-\epsilon$.
+E' sufficiente infatti prendere $K_{\epsilon}=$
+$[-M_{\epsilon},M_{\epsilon}]$, dove $M_{\epsilon}>0\in\mathbb{R}$ tale per cui $F_{X}(-M_{\epsilon})<\frac{\epsilon}{2}$ e $F_{X}(M_{\epsilon})>$
+$1-\frac{\epsilon}{2}$; questo $M_{\epsilon}$ esiste senz'altro perché tutte le funzioni di distribuzione devono
+soddisfare $\lim_{x \to -\infty} F_X(x) = 0$, $\lim_{x \to \infty} F_X(x) = 1$ (questa proprietà è talvolta
+chiamata la regolarità delle misure di probabilità).
+Preso ora $\overline{\epsilon}>0,$ scegliamo
+$M_{\epsilon/2}$ punto di continuità di $F_{X}$ tale per cui
+\[
+Pr\{X\in[-M_{\epsilon/2},M_{\epsilon/2}]\}>1-\frac{\epsilon}{2}
+\]
+si scelga ora $n_{0}$ tale per cui $|F_{X_{n}}(-M_{\epsilon/2})-F_{X}(-M_{\epsilon/2})| \le \frac{\epsilon}{4}$ e $|F_{X_{n}}(M_{\epsilon/2})-F_{X}(M_{\epsilon/2})| \le \frac{\epsilon}{4}$
+per tutti gli
+$n>n_{0};$ allora per un tale n abbiamo che
+\[
+Pr\{|X_{n}| > M_{\epsilon/2}\}
+\]
+\[
+=F_{X_{n}}(-M_{\epsilon/2})+1-F_{X_{n}}(M_{\epsilon/2})
+\]
+\[
+\le|F_{X_{n}}(-M_{\epsilon/2})-F_{X}(-M_{\epsilon/2})|+F_{X}(-M_{\epsilon/2})
+\]
+\[
++1-F_{X}(M_{\epsilon/2})+|F_{X}(M_{\epsilon/2})-F_{X_{n}}(M_{\epsilon/2})|
+\]
+\[
+\le\frac{\epsilon}{4} + (F_{X}(-M_{\epsilon/2}) + 1 - F_{X}(M_{\epsilon/2})) + \frac{\epsilon}{4} \le \frac{\epsilon}{4} + \frac{\epsilon}{2} + \frac{\epsilon}{4}=\epsilon ,
+\]
+da cui segue immediatamente che $X_{n}=O_{p}(1),$ come richiesto.
+\end{proof}
+
+\begin{example}
+$E^{\prime}$ interessante produrre alcuni esempi in cui la condizione $X_{n}=$
+$O_{p}(1)$ non vale; tre particolarmente semplici sono le sequenze
+\[
+X_{n}=n, \quad X_{n}\triangleq N(0,n), \quad X_{n}\triangleq U(-n,n).
+\]
+\end{example}
+
+Nel corso di Analisi 1 si è visto, come importante corollario del Teorema di
+Bolzano-Weierstrass, che ogni successione limitata ammette sempre una sottosuccessione (estratta) convergente.
+La nozione di sequenza $O_{p}(1)$ si può interpretare come una forma di equilimitatezza stocastica (detta tipicamente tightness) nella letteratura internazionale;
+è naturale domandarsi se possa esistere
+una proprietà simile per successioni di variabili aleatorie.
+La risposta (affermativa) è fornita dal seguente Teorema.
+
+\begin{theorem}[Prohorov 1956]
+Ogni successione $X_{n}=O_{p}(1)$ ammette una estratta che converge in distribuzione.
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Il "Bolzano-Weierstrass" della Probabilità}
+    
+    Questo teorema è l'esatto analogo stocastico (probabilistico) del famoso Teorema di Bolzano-Weierstrass.
+    
+    \begin{itemize}
+        \item \textbf{Teorema di Bolzano-Weierstrass:} Una successione \textit{limitata} (es. $x_n = \sin(n)$) ha sempre una sotto-successione \textit{convergente}.
+        
+        \item \textbf{Teorema di Prohorov:} Una successione \textit{stocasticamente limitata} (cioè $X_n = O_p(1)$) ha sempre una sotto-successione \textit{convergente in distribuzione}.
+    \end{itemize}
+    
+    Ci dice che se una sequenza di variabili aleatorie non "esplode", allora una sua "parte" ($X_{n_k}$) deve per forza "stabilizzarsi" verso una qualche distribuzione.
+\end{spiegazione}
+
+\begin{remark}
+Il teorema di Prohorov è in realtà molto più generale di questo,
+perché vale per qualsiasi successione tight di elementi aleatori a valori su uno
+spazio completo, metrico e separabile.
+\end{remark}
+
+\begin{proof}
+Dal Teorema di Helly-Bray (si veda ad esempio....) sappiamo che ogni
+successione di funzioni di distribuzione ammette una estratta convergente ad
+una funzione di distribuzione possibilmente difettiva, cioè una funzione $F^{*}$ che
+sia non decrescente e continua da destra, ma per la quale non valga necessariamente $\lim_{x\rightarrow\infty}F^{*}(-x)=0$ e $\lim_{x\rightarrow\infty}F^{*}(x)=1$. Sia $F_{n_{k}}$ questa estratta, e
+dimostriamo che se la corrispondente sequenza di variabile aleatorie è tight necessariamente la funzione limite $F^{*}$ deve indurre una misura di massa 1 (cioè
+deve valere $\lim_{x\rightarrow\infty}(F^{*}(x)-F^{*}(-x))=1)$.
+Poiché $F^{*}$ è non decrescente, il
+limite $\lim_{x\rightarrow\infty}F^{*}(x)=\eta$ sicuramente esiste;
+supponiamo per assurdo che sia
+strettamente minore di 1. Allora per ogni insieme compatto $K\subset\mathbb{R}$ si avrebbe
+necessariamente $Pr\{X_{n}\in K\}\le Pr\{X_{n}\le \max(K)\}\le\eta<1$ e la sequenza
+non potrebbe essere $O_{p}(1)$.
+Il teorema di Levy ci garantisce che una successione di funzioni di ripartizione individua una variabile aleatoria limite (in distribuzione) se e solo se le
+corrispondenti funzioni caratteristiche convergono ad una funzione limite continua all'origine.
+Questa condizione può essere interpretata come una condizione
+di tightness;
+ad esempio, per la sequenza di Gaussiane $N(0,n)$ le corrispondenti
+funzioni caratteristiche sono date da $\phi_{n}(t)=\exp(-n\frac{t^{2}}{2})$ che convergono ad una
+funzione limitex $\phi_{\infty}(t)=I_{\{t=0\}}(t),$ evidentemente discontinua all'origine.
+\end{proof}
+
+\end{document}
