@@ -1,0 +1,124 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      4262,        115]
+NotebookOptionsPosition[      3719,         94]
+NotebookOutlinePosition[      4102,        110]
+CellTagsIndexPosition[      4059,        107]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"p", " ", "=", " ", "5521454606219"}], ";", " ", 
+  RowBox[{"PrimeQ", "[", "p", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"q", " ", "=", " ", "11330899921343"}], ";", " ", 
+  RowBox[{"PrimeQ", "[", "q", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"n", "=", " ", 
+  RowBox[{"p", " ", "q"}]}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.5795856183785725`*^9, 3.5795856195036373`*^9}, {
+   3.5795856663563166`*^9, 3.579585688978611*^9}, {3.5795931224790144`*^9, 
+   3.5795931390599623`*^9}, {3.579593184256548*^9, 3.579593204137685*^9}, {
+   3.579593261628973*^9, 3.5795932674213047`*^9}, {3.5795934657216463`*^9, 
+   3.5795934718719983`*^9}, {3.579595773601082*^9, 3.579595774537136*^9}, 
+   3.702186359631614*^9, {3.702186398501681*^9, 3.702186427022563*^9}, {
+   3.7021864794471407`*^9, 3.702186481781656*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"phi", " ", "=", " ", 
+  RowBox[{"EulerPhi", "[", "n", "]"}]}], "\[IndentingNewLine]", "n"}], "Input",
+ CellChangeTimes->{{3.579593894582176*^9, 3.5795939411848416`*^9}, {
+  3.5795961347927413`*^9, 3.5795961388569736`*^9}, {3.579596275430785*^9, 
+  3.5795962786329684`*^9}, {3.7021863818028183`*^9, 3.7021863830672464`*^9}, {
+  3.702186432513643*^9, 3.7021864336312523`*^9}, {3.7021864919785967`*^9, 
+  3.702186533725148*^9}}],
+
+Cell[BoxData[
+ RowBox[{"e", " ", "=", " ", 
+  RowBox[{"Prime", "[", "1000", "]"}]}]], "Input",
+ CellChangeTimes->{{3.579593960280934*^9, 3.57959404134457*^9}, {
+   3.5795941059802675`*^9, 3.5795942630322504`*^9}, {3.5795944026514397`*^9, 
+   3.579594450855524*^9}, {3.5795946597554913`*^9, 3.5795946749187183`*^9}, {
+   3.579594812261359*^9, 3.5795948335865965`*^9}, {3.70218646903107*^9, 
+   3.702186470749735*^9}, 3.702186543020163*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"d", " ", "=", " ", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"e", ",", 
+      RowBox[{"-", "1"}], ",", "phi"}], "]"}]}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.579594282635371*^9, 3.579594307809811*^9}, {
+   3.579594489371992*^9, 3.5795945054244204`*^9}, {3.579594722124401*^9, 
+   3.5795947234192033`*^9}, {3.5795947818413057`*^9, 3.5795948001401377`*^9}, 
+   3.702186499154626*^9, 3.7021865718002496`*^9}],
+
+Cell[BoxData[
+ RowBox[{"m", " ", "=", " ", "12345678901234567890"}]], "Input",
+ CellChangeTimes->{{3.7021865955691123`*^9, 3.70218660586574*^9}}],
+
+Cell[BoxData[
+ RowBox[{"encr", " ", "=", " ", 
+  RowBox[{"PowerMod", "[", 
+   RowBox[{"m", ",", "e", ",", "n"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.7021866120237365`*^9, 3.7021866329671545`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"decr", " ", "=", " ", 
+  RowBox[{"PowerMod", "[", 
+   RowBox[{"encr", ",", "d", ",", "n"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.7021866368857636`*^9, 3.7021866484129534`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"d", "=."}], "\[IndentingNewLine]", 
+ RowBox[{"Solve", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"encr", ",", " ", "d", ",", " ", "n"}], "]"}], " ", "\[Equal]", 
+    " ", "m"}], ",", " ", "d"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7021866623538*^9, 3.70218669475974*^9}}]
+},
+WindowSize->{706, 660},
+WindowMargins->{{356, Automatic}, {Automatic, 34}},
+Magnification->1.8000001907348633`,
+FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (September 9, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 867, 15, 157, "Input"],
+Cell[1427, 37, 450, 7, 89, "Input"],
+Cell[1880, 46, 438, 7, 54, "Input"],
+Cell[2321, 55, 503, 11, 123, "Input"],
+Cell[2827, 68, 145, 2, 54, "Input"],
+Cell[2975, 72, 201, 4, 54, "Input"],
+Cell[3179, 78, 204, 4, 54, "Input"],
+Cell[3386, 84, 329, 8, 123, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
