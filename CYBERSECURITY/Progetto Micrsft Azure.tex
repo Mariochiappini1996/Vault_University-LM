@@ -1,0 +1,472 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{array}
+\usepackage{xcolor}
+
+
+\geometry{margin=2.5cm}
+\setstretch{1.2}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Analisi del perimetro e della superficie di attacco di Microsoft Azure},
+    pdfauthor={Franco Salvucci},
+    pdfsubject={NIST SP 800-207 Zero Trust Architecture},
+}
+
+\title{\textbf{Analisi del Perimetro e della Superficie di Attacco di Microsoft Azure\\
+alla luce del modello NIST SP 800-207 (Zero Trust Architecture)}}
+\author{Franco Salvucci - Mario Chiappini}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Perimetro dell’architettura (confini di controllo e contesti)}
+
+Nel modello architetturale di \textbf{Microsoft Azure}, il concetto di perimetro non coincide più con un confine fisico tradizionale, bensì con un \textit{insieme logico e dinamico di contesti di sicurezza}. Seguendo la filosofia della \textbf{Zero Trust Architecture (ZTA)}, il perimetro viene ridefinito come un \textit{dominio di controllo distribuito} che si estende attraverso i seguenti livelli.
+
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/Azureperimetro.png}
+\end{center}
+
+\subsection{Contesto fisico e infrastrutturale}
+
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/fisico1.png}
+\end{center}
+
+Il primo livello riguarda i \textbf{data center globali di Microsoft}, connessi tramite dorsali ad alta capacità e sistemi di interconnessione privata (Azure WAN, ExpressRoute, Microsoft Global Network). 
+
+Gli elementi sotto controllo diretto di Microsoft includono:
+\begin{itemize}
+  \item Sistemi di protezione fisica multilivello (badge, biometria, videosorveglianza, controllo accessi).
+  \item Infrastruttura di rete proprietaria e sistemi di Network Management isolati.
+  \item Hardware dei server e componenti di virtualizzazione (Hyper-V, Azure Fabric Controller).
+\end{itemize}
+
+Il \textbf{perimetro fisico} è quindi delimitato dai data center Microsoft, ma non rappresenta più il confine di sicurezza effettivo: la sicurezza è proiettata verso gli strati logici e applicativi superiori.
+
+\subsection{Contesto logico e di gestione}
+
+L’ambiente Azure è organizzato in \textbf{tenant}, \textbf{subscription} e \textbf{resource group}, che definiscono domini amministrativi logici. 
+Il sistema di identità centrale è \textbf{Azure Active Directory} (oggi \textbf{Entra ID}), che costituisce il principale punto di fiducia.
+
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/EntraID.png}
+\end{center}
+
+I confini logici di controllo sono stabiliti tramite:
+\begin{itemize}
+  \item \textbf{Policy di accesso e autenticazione} (Conditional Access, MFA, device compliance).
+  \begin{center}
+      \includegraphics[width=1 \textwidth]{images/identity.png}
+  \end{center}
+  \item \textbf{Isolamento dei tenant} tramite separazione delle identità e segregazione delle risorse.
+  \begin{center}
+      \includegraphics[width=1 \textwidth]{images/tenant.png}
+  \end{center}
+  \item \textbf{Micro-segmentazione di rete} attraverso Network Security Groups (NSG) e Azure Firewall.
+\end{itemize}
+
+Il \textbf{perimetro logico} è dunque dinamico e si sposta intorno all’entità autenticata (utente, servizio o dispositivo), piuttosto che intorno alla rete.
+
+\subsection{Contesto applicativo e dei servizi}
+
+Questo livello include tutte le piattaforme gestite (\textbf{PaaS} e \textbf{SaaS}) e i componenti virtuali (\textbf{VM}, container, microservizi, API) erogati da Azure. 
+
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/workflow.png}
+\end{center}
+
+Il perimetro di controllo viene realizzato attraverso:
+\begin{itemize}
+  \item \textbf{Access token} e \textbf{API gateway} che regolano le comunicazioni tra servizi.
+  \item \textbf{Azure Policy} per la governance e la conformità.
+  \item \textbf{Monitoraggio continuo} mediante Azure Defender e Sentinel.
+\end{itemize}
+
+\subsubsection{Azure AWS}
+AWS crea un archivio IAM (Identity and Access Management) separato per ogni account. Il diagramma seguente mostra la configurazione standard per un ambiente AWS con un singolo account AWS:
+
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/WAN1.png}
+\end{center}
+
+L' utente root controlla completamente l'account AWS e delega l'accesso ad altre identità. Il principal di AWS IAM fornisce un'identità univoca per ogni ruolo e utente che deve accedere all'account AWS. AWS IAM può proteggere ogni account root, principal e utente con una password complessa e un'autenticazione a più fattori di base.
+
+Molte organizzazioni necessitano di più di un account AWS, il che crea compartimenti stagni di identità difficili da gestire:
+
+\includegraphics[width=1 \textwidth]{images/WAN2.png}
+
+Molte organizzazioni utilizzano già l'ID Microsoft Entra per assegnare e proteggere le identità Microsoft 365 e cloud ibride. I dipendenti utilizzano le proprie identità Microsoft Entra per accedere a e-mail, file, messaggistica istantanea, applicazioni cloud e risorse locali. Integra l'ID Microsoft Entra con i tuoi account AWS per consentire ad amministratori e sviluppatori di accedere ai tuoi ambienti AWS con le loro identità esistenti.
+
+Il diagramma seguente mostra come Microsoft Entra ID può integrarsi con più account AWS per fornire una gestione centralizzata dell'identità e degli accessi:
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/WAN3.png}
+\end{center}
+
+\subsubsection{Azure Local}
+Questa architettura è costituita da hardware server fisico che è possibile utilizzare per distribuire istanze di Azure Local in sedi locali o periferiche. Per migliorare le funzionalità della piattaforma, Azure Local si integra con Azure Arc e altri servizi di Azure che forniscono risorse di supporto. Azure Local offre una piattaforma resiliente per distribuire, gestire e utilizzare applicazioni utente o sistemi aziendali.
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/Azure Local.png}
+\end{center}
+
+\subsubsection{Azure Database}
+Le soluzioni di database Azure includono sistemi di gestione di database relazionali tradizionali (RDBMS e OLTP), carichi di lavoro di big data e analisi (incluso OLAP) e carichi di lavoro NoSQL.
+
+I carichi di lavoro RDBMS includono l'elaborazione delle transazioni online (OLTP) e l'elaborazione analitica online (OLAP). I dati provenienti da più origini all'interno dell'organizzazione possono essere consolidati in un data warehouse. È possibile utilizzare un processo di estrazione, trasformazione e caricamento (ETL) o di estrazione, caricamento e trasformazione (ELT) per spostare e trasformare i dati di origine.
+
+Un'architettura Big Data è progettata per gestire l'acquisizione, l'elaborazione e l'analisi di dati di grandi dimensioni o complessi. Le soluzioni Big Data in genere comportano una grande quantità di dati relazionali e non relazionali, che i sistemi RDBMS tradizionali non sono adatti a memorizzare. Queste soluzioni in genere includono Data Lake, Delta Lake e lakehouse.
+\begin{center}
+    \includegraphics[width=1 \textwidth]{images/database.png}
+\end{center}
+
+\subsection{Sintesi concettuale del perimetro}
+
+Nel paradigma Zero Trust, il perimetro di Azure è \textbf{virtualizzato e centrato sull’identità}. Si distinguono tre livelli principali di controllo:
+
+\begin{table}[h!]
+\centering
+\caption*{\textbf{Tabella di Sintesi del Perimetro di Microsoft Azure}}
+\begin{tabular}{>{\bfseries}m{3cm} m{5cm} m{6cm}}
+\toprule
+Livello & Tipologia di perimetro & Elementi chiave di controllo \\
+\midrule
+Fisico & Data center Microsoft & Accesso fisico, isolamento infrastrutturale \\
+Logico & Tenant, subscription, identità & Policy, IAM, micro-segmentazione \\
+Applicativo & Servizi e API Azure & Controllo di accesso per servizio, telemetria continua \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Superficie di attacco (punti e vettori di compromissione potenziale)}
+
+\vspace{1cm}
+
+La \textbf{superficie di attacco} di Azure comprende tutti i punti fisici, logici e umani attraverso cui un attore malevolo può tentare di compromettere l’infrastruttura o i servizi cloud.
+
+\section{Concetto di Superficie di Attacco Fisica}
+
+Il concetto di \textbf{"superficie di attacco fisica"} (Physical Attack Surface) si riferisce a tutti i componenti hardware e alle infrastrutture tangibili che un malintenzionato può sfruttare per compromettere un sistema, rubare dati o causare un'interruzione del servizio.
+
+A differenza degli attacchi logici (come malware o phishing), questi attacchi richiedono una prossimità fisica o un'interferenza con l'hardware stesso.
+
+% --- SEZIONE 1 ---
+\subsection{Accesso non autorizzato ai data center}
+
+Questo è lo scenario "Mission: Impossible" della cybersecurity, raro ma con un potenziale impatto devastante. Se un malintenzionato ottiene l'accesso fisico al "cuore" della tua infrastruttura, molte difese digitali diventano inutili.
+
+\subsubsection{Come avviene}
+L'attacco può avvenire tramite ingegneria sociale (convincere un addetto alla sicurezza), \textbf{tailgating} (seguire un dipendente autorizzato attraverso una porta), uso di badge clonati, furto di chiavi, o persino un'effrazione forzata.
+
+\subsubsection{Impatto}
+Una volta all'interno, l'attaccante ha il "controllo fisico". Può:
+\begin{itemize}
+    \item \textbf{Rubare hardware:} Sottrarre server, hard disk o backup tape, con conseguente furto di dati massiccio.
+    \item \textbf{Installare hardware malevolo:} Collegare dispositivi come un \textbf{keylogger} hardware (per registrare le password digitate), un dispositivo "Rubber Ducky" (una finta chiavetta USB che esegue comandi malevoli) o un piccolo computer (come un Raspberry Pi) connesso alla rete interna per creare una backdoor persistente.
+    \item \textbf{Sabotare:} Semplicemente staccare cavi di alimentazione o di rete, tagliare fibre ottiche o distruggere fisicamente i server (Denial of Service fisico).
+    \item \textbf{Accedere alle console:} Collegarsi direttamente alle porte di gestione dei server (crash cart) per bypassare i controlli di rete.
+\end{itemize}
+
+\subsubsection{Contromisure}
+Difese a strati come guardie di sicurezza, videosorveglianza (CCTV), \textbf{mantrap} (bussole di accesso che intrappolano una persona alla volta), controlli di accesso biometrici (impronte digitali, scansione della retina) e rack dei server chiusi a chiave.
+
+% --- SEZIONE 2 ---
+\subsection{Compromissione della Supply Chain Hardware}
+
+Questo è uno degli attacchi più sofisticati e difficili da rilevare. L'attacco non avviene presso la tua sede, ma molto prima che l'hardware ti venga consegnato.
+
+\subsubsection{Come avviene}
+Un avversario (spesso un attore statale) intercetta i dispositivi durante la produzione o la spedizione. Vengono apportate modifiche hardware non rilevabili a prima vista.
+
+\subsubsection{Impatto}
+\begin{itemize}
+    \item \textbf{BIOS/Firmware:} Il codice di avvio fondamentale della macchina (BIOS/UEFI) viene modificato per includere una \textbf{backdoor}. Questa backdoor si attiva \textit{prima} che il sistema operativo (Windows, Linux) si carichi, rendendola quasi invisibile ai software antivirus e ai controlli di sicurezza standard.
+    \item \textbf{Chip malevoli:} Un piccolo chip extra può essere saldato sulla scheda madre. Questo chip potrebbe essere progettato per intercettare dati (come le chiavi di crittografia direttamente dalla CPU), creare una connessione di rete nascosta o persino consentire uno "spegnimento" (kill switch) da remoto.
+\end{itemize}
+
+\subsubsection{Contromisure}
+Estremamente difficili. Includono l'acquisto solo da fornitori noti e fidati (Trusted Vendors), l'uso di sigilli di garanzia (tamper-evident seals) sulle spedizioni e l'uso di tecnologie come il \textbf{Trusted Platform Module (TPM)} e l'avvio sicuro (Secure Boot) che verificano crittograficamente l'integrità del firmware a ogni avvio.
+
+% --- SEZIONE 3 ---
+\subsection{Attacchi alla Rete Fisica (Tapping)}
+
+Questo attacco prende di mira i dati "in transito" (data in transit), intercettando le comunicazioni mentre viaggiano sui cavi al di fuori delle aree protette.
+
+\subsubsection{Come avviene}
+I collegamenti WAN (Wide Area Network) collegano i tuoi data center tra loro o al resto di Internet. Questi cavi (spesso in fibra ottica) viaggiano in condotti sotterranei, pali telefonici o armadi di smistamento in strada. Un attaccante può localizzare questi cavi e:
+\begin{itemize}
+    \item \textbf{Effettuare un "tap":} Utilizzare uno "splitter" ottico o un "vampire tap" (per cavi in rame) per copiare passivamente tutto il traffico che passa attraverso il cavo.
+    \item \textbf{Intercettazione attiva:} Tagliare il cavo e inserire un dispositivo (un "interpositore") che può non solo leggere, ma anche modificare o bloccare il traffico (un attacco Man-in-the-Middle a livello fisico).
+\end{itemize}
+
+\subsubsection{Impatto}
+Spionaggio industriale o governativo, furto di credenziali, intercettazione di dati sensibili (finanziari, personali, segreti commerciali) prima che raggiungano la loro destinazione sicura.
+
+\subsubsection{Contromisure}
+La difesa principale è la \textbf{crittografia end-to-end}. Anche se un attaccante "vede" il traffico, la crittografia (come IPsec per le VPN o MACsec a livello di link) lo rende illeggibile. Altre misure includono la sicurezza fisica dei condotti e l'uso di sistemi di monitoraggio (come OTDR per la fibra) che possono rilevare cali di segnale anomali causati da un "tap".
+
+% --- CONCLUSIONE ---
+\section*{Conclusione}
+In sintesi, la superficie di attacco fisica ci ricorda che la cybersecurity non riguarda solo il software; l'integrità e la sicurezza dell'hardware sottostante sono fondamentali.
+
+\section{Definizione di Superficie di Rete}
+
+La \textbf{superficie di attacco di rete} (Network Attack Surface) in un ambiente cloud come Azure comprende tutti i punti di ingresso e di uscita di rete che un malintenzionato può scoprire e tentare di sfruttare da Internet.
+
+Si tratta, in essenza, di qualsiasi risorsa che possiede un indirizzo IP pubblico o che è raggiungibile attraverso protocolli di rete. La gestione di questa superficie è un equilibrio tra la necessità di esporre servizi a utenti legittimi e il principio di sicurezza di "minima esposizione".
+
+% --- SEZIONE 2: Endpoint Pubblici ---
+\subsection{Endpoint Pubblici: I Punti di Esposizione}
+
+Qualsiasi servizio configurato per "ascoltare" su un indirizzo IP pubblico contribuisce ad allargare la superficie di attacco.
+
+\subsubsection{Endpoint dei servizi (API, Web App)}
+Le applicazioni web e le API (Application Programming Interfaces) esposte pubblicamente sono il bersaglio più comune. Un utente malintenzionato può tentare di sfruttare vulnerabilità nel codice dell'applicazione (es. SQL Injection, XSS) o nell'autenticazione.
+
+\subsubsection{Servizi DNS}
+Sebbene il DNS (Domain Name System) debba essere pubblico per definizione, può essere usato per la ricognizione. Gli aggressori enumerano i record DNS (es. \texttt{A}, \texttt{CNAME}, \texttt{MX}) per mappare l'infrastruttura di un'organizzazione, scoprendo gli indirizzi IP di server web, server di posta e altri servizi critici.
+
+\subsubsection{Servizi di Storage (es. Blob Storage)}
+I servizi di archiviazione di oggetti, come Azure Blob Storage, possono avere endpoint pubblici. Una configurazione errata (es. un container impostato su "accesso anonimo" o "pubblico") può portare a un'esposizione massiccia e involontaria di dati sensibili.
+
+\subsubsection{Gateway di Rete (es. Gateway VPN)}
+I gateway VPN e Application Gateway sono "porte" progettate per consentire l'accesso alla rete privata (VNet). Questi dispositivi sono ad alta criticità: se un aggressore riesce a compromettere un gateway (sfruttando una vulnerabilità o rubando credenziali), ottiene un punto d'appoggio diretto all'interno della rete privata.
+
+% --- SEZIONE 3: Attacchi Tipici ---
+\subsection{Vettori di Attacco Tipici}
+
+Una volta identificati gli endpoint, gli aggressori utilizzano diverse tecniche per attaccarli.
+
+\subsubsection{Attacchi DDoS (Distributed Denial of Service)}
+Questi attacchi mirano a sovraccaricare un endpoint (come un server web o un gateway VPN) con un volume massiccio di traffico di rete fasullo. L'obiettivo non è rubare dati, ma esaurire le risorse (CPU, larghezza di banda) e rendere il servizio inutilizzabile per gli utenti legittimi (attacco alla disponibilità).
+
+\subsubsection{Scanning delle Porte e Ricognizione}
+L'attaccante utilizza strumenti (come \texttt{nmap}) per "scansionare" sistematicamente gli indirizzi IP pubblici alla ricerca di porte aperte. Una porta aperta (es. 22 per SSH, 3389 per RDP) indica un servizio in ascolto, che può essere poi analizzato per debolezze note o password deboli.
+
+\subsubsection{Attacchi Man-in-the-Middle (MitM)}
+In un attacco MitM, l'aggressore si interpone segretamente tra l'utente e il servizio cloud. Questo può avvenire tramite DNS poisoning o compromettendo un punto della rete. Se la comunicazione non è crittografata (o se la crittografia è debole), l'attaccante può intercettare, leggere e persino modificare i dati in transito (es. rubare password o session cookie).
+
+% --- SEZIONE 4: Misure di Difesa ---
+\subsection{Strategie di Difesa e Mitigazione in Azure}
+
+La difesa in Azure si basa su un approccio "defense-in-depth" (difesa a strati) per proteggere la superficie di rete.
+
+\subsubsection{Azure DDoS Protection}
+Azure fornisce due livelli di protezione. Il livello \textbf{Basic}, gratuito, protegge l'intera infrastruttura Azure da attacchi volumetrici su larga scala. Il livello \textbf{Standard} è un servizio a pagamento che offre protezione avanzata e adattiva specificamente per le risorse VNet, con telemetria e avvisi, cruciale per applicazioni business-critical.
+
+\subsubsection{Crittografia del Transito (TLS)}
+Il protocollo \textbf{TLS (Transport Layer Security)} è la difesa primaria contro gli attacchi MitM. Imponendo l'uso di HTTPS (TLS su HTTP) per tutte le API e le applicazioni web, si garantisce che i dati scambiati tra il client e il server siano crittografati e che la loro integrità sia protetta. È fondamentale applicare configurazioni TLS moderne (disabilitando versioni obsolete come SSLv3 o TLS 1.0/1.1).
+
+\subsubsection{Isolamento della VNet (Virtual Network)}
+Questa è la strategia di difesa più efficace: \textbf{ridurre la superficie di attacco}.
+\begin{itemize}
+    \item \textbf{Network Security Groups (NSG):} Agiscono come un firewall a livello di porta/IP. La best practice è "negare tutto" (deny-all) in entrata da Internet e consentire solo le porte strettamente necessarie (es. la porta 443 per un server web).
+    \item \textbf{Principio di "Zero Public IP":} Ove possibile, i servizi non dovrebbero avere affatto un indirizzo IP pubblico. Servizi come Azure SQL Database o Blob Storage possono essere resi accessibili \textit{solo} dall'interno della VNet tramite \textbf{Service Endpoints} o \textbf{Private Endpoints}. Questo rimuove completamente quel servizio dalla superficie di attacco Internet pubblica.
+\end{itemize}
+
+\section{Definizione di Superficie Logica}
+
+A differenza delle superfici fisica e di rete, la \textbf{superficie di attacco logica} è astratta. Non è composta da cavi o porte di rete, ma da identità, applicazioni, protocolli e, soprattutto, dalle autorizzazioni che legano insieme questi elementi.
+
+Questa superficie rappresenta l'interfaccia di "controllo" del sistema. In un ambiente cloud moderno come Azure, il "controllore" centrale è il sistema di gestione delle identità e degli accessi (IAM).
+
+% --- SEZIONE 2: L'Obiettivo Primario (Azure AD) ---
+\subsection{Target: Sistemi di Autenticazione e Autorizzazione}
+
+L'obiettivo principale della superficie logica è il provider di identità (IdP). Nel mondo Microsoft, questo è \textbf{Azure Active Directory (Azure AD)}, ora noto come \textbf{Microsoft Entra ID}.
+
+Azure AD è il "sistema nervoso centrale" dell'ecosistema cloud:
+\begin{itemize}
+    \item \textbf{Autenticazione:} Verifica l'identità dell'utente (username + password + MFA).
+    \item \textbf{Autorizzazione:} Decide cosa un utente (o un servizio) autenticato ha il permesso di fare (es. leggere un database, eliminare una VM).
+\end{itemize}
+Compromettere Azure AD non significa rubare un singolo file; significa ottenere le "chiavi del regno", con il potenziale di controllare l'intera infrastruttura.
+
+% --- SEZIONE 3: Vettori di Attacco Comuni ---
+\subsection{Vettori di Attacco alla Superficie Logica}
+
+Gli attacchi non mirano a un IP, ma a un'identità.
+
+\subsubsection{Credential Theft e Phishing}
+Questo è il metodo più comune per ottenere l'accesso iniziale. Tramite email di phishing, l'attaccante inganna un utente (spesso un amministratore) per indurlo a inserire le proprie credenziali su una pagina di login contraffatta. L'obiettivo è rubare la coppia username/password.
+
+\subsubsection{Token Hijacking (Furto di Token)}
+Questo attacco è più sofisticato e bypassa l'autenticazione. Dopo che un utente ha effettuato l'accesso (e ha completato l'MFA), il suo browser conserva un "token di sessione" (simile a un lasciapassare temporaneo). Se un attaccante, tramite malware sul computer dell'utente o un attacco Man-in-the-Middle, riesce a rubare questo token, può presentarlo ai servizi Azure e impersonare l'utente senza bisogno di password o MFA.
+
+\subsubsection{Privilege Escalation (Escalation dei Privilegi)}
+Spesso un attaccante ottiene l'accesso iniziale con un account a bassi privilegi (es. un dipendente standard). Il suo obiettivo successivo è l'"escalation": muoversi lateralmente all'interno del sistema per trovare un modo di aumentare i propri permessi, fino a diventare Amministratore Globale o Proprietario della Sottoscrizione. Questo può avvenire sfruttando configurazioni errate (es. un account di servizio con troppi permessi) o vulnerabilità nelle applicazioni.
+
+% --- SEZIONE 4: Analisi del Rischio ---
+\subsection{Rischio Elevato: Accesso a Risorse Distribuite}
+
+Il rischio associato alla superficie logica è il più elevato per un motivo fondamentale: \textbf{il controllo dell'identità trascende la posizione della risorsa}.
+
+In un attacco di rete, un aggressore potrebbe compromettere una singola Virtual Machine. In un attacco alla superficie logica, un aggressore che compromette un'identità di amministratore ottiene accesso immediato e simultaneo a \textit{tutte} le risorse collegate a quell'identità, indipendentemente da dove si trovino:
+\begin{itemize}
+    \item Può accedere a VM in diverse region (Europa, USA, Asia).
+    \item Può leggere dati da database (Azure SQL) e storage (Blob).
+    \item Può accedere alle caselle di posta (Microsoft 365).
+    \item Può eliminare l'intera infrastruttura (backup, VM, account) e cancellare i log per coprire le proprie tracce.
+\end{itemize}
+La superficie logica è quindi il vettore che consente a un attaccante di passare da un singolo punto di compromissione al controllo totale dell'ambiente.
+
+% --- SEZIONE 5: Difese ---
+\subsection{Mitigazione e Difesa}
+
+La protezione della superficie logica si concentra sulla protezione dell'identità:
+\begin{itemize}
+    \item \textbf{Multi-Factor Authentication (MFA):} La difesa più critica contro il furto di credenziali.
+    \item \textbf{Azure AD Conditional Access:} Politiche di accesso granulari (es. "richiedi MFA se l'utente si connette da una rete sconosciuta").
+    \item \textbf{Principio del Minimo Privilegio (PoLP):} Gli utenti devono avere solo i permessi strettamente necessari per il loro lavoro.
+    \item \textbf{Privileged Identity Management (PIM):} Gli amministratori non hanno privilegi elevati permanenti; devono "richiederli" per un tempo limitato (accesso Just-in-Time).
+\end{itemize}
+
+\section{Definizione di Superficie Applicativa}
+
+La \textbf{superficie di attacco applicativa} si riferisce alla totalità del codice eseguibile e delle interfacce (API, form web, endpoint) che un utente malintenzionato può tentare di manipolare. A differenza della superficie di rete (che riguarda porte e protocolli), questa superficie riguarda la \textit{logica} stessa dell'applicazione.
+
+In un'architettura cloud, questa superficie è distribuita e complessa, in quanto non risiede più su un singolo server monolitico.
+
+% --- SEZIONE 2: Modelli di Servizio e Architetture ---
+\subsection{Coinvolgimento di PaaS, SaaS e Microservizi}
+
+Il modello di servizio determina chi è responsabile della sicurezza del codice.
+
+\subsubsection{Servizi PaaS (Platform-as-a-Service)}
+In un modello PaaS (es. Azure App Service, Azure Functions), il provider (Microsoft) gestisce il sistema operativo e l'infrastruttura sottostante, ma \textbf{l'utente è responsabile del codice dell'applicazione} e delle sue dipendenze. È qui che le vulnerabilità classiche del codice prosperano.
+
+\subsubsection{Servizi SaaS (Software-as-a-Service)}
+In un modello SaaS (es. Microsoft 365, Dynamics 365), la superficie di attacco si sposta dal codice (che è gestito dal provider) alla \textbf{configurazione}. Rischi comuni includono un controllo degli accessi troppo permissivo, configurazioni errate della condivisione e l'abuso di API esposte dal servizio.
+
+\subsubsection{Microservizi}
+Questa architettura scompone un'applicazione monolitica in molti servizi più piccoli (es. un servizio per i pagamenti, uno per gli utenti, uno per il catalogo). Se da un lato migliora la resilienza, dall'altro \textbf{moltiplica la superficie di attacco}:
+\begin{itemize}
+    \item Ogni microservizio espone un'API, che diventa un potenziale punto di ingresso.
+    \item La comunicazione "Est-Ovest" (tra i servizi stessi) diventa un nuovo vettore di attacco se non è adeguatamente protetta (es. tramite autenticazione mTLS).
+\end{itemize}
+
+% --- SEZIONE 3: Vulnerabilità Applicative Comuni ---
+\subsection{Possibili Vulnerabilità}
+
+Queste sono vulnerabilità che sfruttano una gestione non sicura degli input da parte dell'applicazione.
+
+\subsubsection{SQL Injection (SQLi)}
+L'attaccante "inietta" comandi SQL malevoli all'interno di un campo di input (es. un form di ricerca). Se l'applicazione concatena ingenuamente l'input dell'utente con la query al database, l'attaccante può bypassare l'autenticazione, rubare l'intero contenuto del database (es. \texttt{' OR '1'='1}) o persino modificarlo.
+
+\subsubsection{Command Injection}
+Simile a SQLi, ma ancora più pericolosa. L'attaccante inietta comandi della shell del sistema operativo (es. \texttt{; rm -rf /}). Se l'applicazione passa l'input dell'utente a uno script di sistema, l'attaccante può ottenere l'esecuzione di codice arbitrario (RCE) sul server che ospita l'applicazione.
+
+\subsubsection{Deserializzazione Insicura}
+Le applicazioni moderne spesso "serializzano" dati (convertono oggetti complessi in un formato stringa o binario per l'archiviazione o la trasmissione). La deserializzazione è il processo inverso. Se un attaccante può fornire un payload serializzato malevolo, e l'applicazione lo deserializza senza validarlo, l'attaccante può istanziare oggetti imprevisti, portando a RCE.
+
+% --- SEZIONE 4: Rischio Specifico: Escalation dai Container (AKS) ---
+\subsection{Rischio di Escalation da Container Compromessi}
+
+Questo è uno scenario critico nelle architetture basate su microservizi, che spesso utilizzano orchestratori come \textbf{Azure Kubernetes Service (AKS)}.
+
+Il processo di attacco (attack chain) è il seguente:
+\begin{enumerate}
+    \item \textbf{Compromissione Iniziale:} L'attaccante trova una vulnerabilità applicativa (es. Command Injection) in un microservizio esposto su Internet.
+    \item \textbf{Accesso al Container:} Sfruttando la vulnerabilità, ottiene una shell \textit{all'interno} del container che esegue quel microservizio.
+    \item \textbf{Container Breakout (Fuga dal Container):} L'obiettivo ora è evadere dall'isolamento del container per raggiungere il "Nodo" host sottostante (la VM che esegue il container). Questo è possibile se il container è stato configurato in modo insicuro (es. eseguito come utente \texttt{root}, con privilegi \texttt{--privileged}, o con volumi sensibili del nodo montati).
+    \item \textbf{Compromissione del Nodo e del Cluster:} Una volta sul nodo host, l'attaccante può rubare le credenziali usate dal nodo per comunicare con il \textbf{Kubernetes API Server}. Se ottiene queste credenziali, può tentare un'escalation per diventare \textbf{Cluster Admin}, ottenendo di fatto il controllo totale di \textit{tutte} le applicazioni in esecuzione sull'intero cluster.
+\end{enumerate}
+
+Questo dimostra come una singola vulnerabilità applicativa possa, attraverso una catena di escalation, portare alla compromissione totale di un'infrastruttura di microservizi.
+
+\section{Definizione di Superficie Umana}
+
+La \textbf{superficie di attacco umana e di gestione} (spesso chiamata "The Human Element") è la più imprevedibile e la più difficile da proteggere. Non è definita da hardware o software, ma dalle \textbf{persone}, dai loro privilegi, dalle loro conoscenze e dai loro comportamenti.
+
+Questa superficie rappresenta tutti gli individui che interagiscono con il sistema, dai più privilegiati ai meno privilegiati. In un ambiente cloud, dove il confine tra gestione interna ed esterna è labile, questa superficie include diversi attori.
+
+% --- SEZIONE 2: Gli Attori ---
+\subsection{Gli Attori: I Punti di Interazione}
+
+La superficie umana è composta da cerchi concentrici di fiducia e privilegio.
+
+\subsubsection{Amministratori (Alto Privilegio)}
+Questo gruppo include gli Amministratori Globali di Azure AD, i Proprietari delle Sottoscrizioni e, in un certo senso, gli ingegneri di supporto Microsoft che potrebbero (con autorizzazione) accedere all'infrastruttura di back-end. Una compromissione di questi account è \textbf{catastrofica} e porta alla perdita totale di controllo, riservatezza e integrità.
+
+\subsubsection{Operatori e Sviluppatori (Medio Privilegio)}
+Questo gruppo (es. team DevOps, amministratori di database, operatori IT) possiede privilegi elevati ma specifici (es. "Collaboratore VM", "Amministratore del database SQL"). Sono un obiettivo primario perché hanno accesso pratico ai sistemi che contengono dati e logica di business.
+
+\subsubsection{Utenti Finali (Basso Privilegio)}
+Questo è il gruppo più vasto. Include i dipendenti standard che utilizzano servizi SaaS (come Microsoft 365) o applicazioni line-of-business. Hanno privilegi minimi, ma rappresentano la \textbf{superficie di attacco più ampia} e sono il bersaglio preferito per gli attacchi di accesso iniziale (es. phishing).
+
+% --- SEZIONE 3: Le Minacce (I Vettori di Attacco) ---
+\subsection{Minacce e Vettori Principali}
+
+Gli attacchi a questa superficie sono di natura psicologica, manipolativa o accidentale.
+
+\subsubsection{Errore Umano}
+Questa è una minaccia involontaria ma estremamente comune.
+\begin{itemize}
+    \item \textbf{Misconfiguration:} Un operatore applica un Network Security Group (NSG) errato, esponendo una porta RDP a Internet. Un sviluppatore carica accidentalmente chiavi di accesso (access keys) su un repository GitHub pubblico.
+    \item \textbf{Scarsa Igiene di Sicurezza:} Riuso della stessa password, mancata applicazione di patch, invio di dati sensibili all'email sbagliata.
+\end{itemize}
+L'errore umano non è un attacco in sé, ma \textit{crea} la vulnerabilità che un altro attacco (es. scansione di rete) può sfruttare.
+
+\subsubsection{Phishing (e Ingegneria Sociale)}
+Questo è il vettore di attacco \textit{attivo} più comune contro la superficie umana. L'obiettivo è ingannare l'utente per indurlo a compiere un'azione che comprometta la sicurezza.
+\begin{itemize}
+    \item \textbf{Credential Theft:} Indurre l'utente (spesso un utente finale) a inserire le proprie credenziali su un falso portale di login di Microsoft 365.
+    \item \textbf{Spear Phishing:} Un attacco mirato e altamente personalizzato contro un amministratore o un operatore, utilizzando informazioni specifiche per guadagnare la sua fiducia.
+    \item \textbf{MFA Fatigue:} Se l'MFA è attivo, l'attaccante (che ha già la password) invia una raffica di richieste di approvazione MFA, sperando che l'utente, infastidito, ne approvi una per errore.
+\end{itemize}
+
+\subsubsection{Insider Threat (Minaccia Interna)}
+Questa è la minaccia più difficile da rilevare, poiché l'autore possiede già un accesso legittimo.
+\begin{itemize}
+    \item \textbf{Insider Malizioso:} Un amministratore o un operatore scontento che abusa dei propri privilegi per sabotare l'infrastruttura (es. eliminando i backup) o rubare dati per profitto personale.
+    \item \textbf{Insider Compromesso:} Un utente (qualsiasi dei tre attori) la cui identità è stata rubata (es. tramite phishing). L'attaccante esterno ora agisce \textit{come} un insider, rendendo difficile distinguere le sue azioni da quelle legittime.
+    \item \textbf{Insider Negligente:} Un utente che, per convenienza, aggira le policy di sicurezza (es. condividendo un account di servizio, usando una rete Wi-Fi pubblica non sicura per accedere a sistemi sensibili).
+\end{itemize}
+
+% --- SEZIONE 4: Difese ---
+\subsection{Mitigazione della Superficie Umana}
+
+Poiché questa superficie non può essere "patchata" come il software, le difese sono un misto di tecnologia, processi e formazione.
+\begin{itemize}
+    \item \textbf{Tecnologia:} Applicazione rigorosa dell'MFA, uso dell'Accesso Condizionale (Conditional Access) per bloccare accessi rischiosi, implementazione del Principio del Minimo Privilegio (PoLP) e uso di Privileged Identity Management (PIM) per l'accesso just-in-time degli amministratori.
+    \item \textbf{Processi e Formazione:} Formazione continua anti-phishing (Security Awareness Training), procedure di "four-eyes" (doppia approvazione) per modifiche critiche, e monitoraggio attivo dei log per comportamenti anomali (UEBA - User and Entity Behavior Analytics).
+\end{itemize}
+
+\section{Conclusione}
+
+Nel modello Zero Trust adottato da Azure, il perimetro non è più una linea statica, ma la somma di \textbf{domini di fiducia continuamente verificati}. La superficie di attacco, ampia e multidimensionale, richiede una validazione continua dell’identità, una segmentazione rigorosa e un monitoraggio costante di ogni livello dell’infrastruttura.
+
+\begin{table}[h!]
+\centering
+\caption*{\textbf{Tabella di Sintesi della Superficie di Attacco di Microsoft Azure}}
+\begin{tabular}{>{\bfseries}m{3cm} m{6cm} m{5cm}}
+\toprule
+Livello & Esempi di vettori di attacco & Natura del rischio \\
+\midrule
+Fisico & Accesso ai data center, supply chain & Bassa probabilità, alto impatto \\
+Rete & DDoS, port scanning, MitM & Alta esposizione, mitigabile \\
+Logico & Credential theft, privilege escalation & Critico, punto di ingresso primario \\
+Applicativo & Vulnerabilità software, API abuse & Alta complessità, rischio laterale \\
+Umano & Phishing, errori di configurazione & Costante e trasversale \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

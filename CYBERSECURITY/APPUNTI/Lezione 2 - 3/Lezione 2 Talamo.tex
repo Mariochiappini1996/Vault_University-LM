@@ -1,0 +1,96 @@
+% File: Lezione_Cybersecurity_Appunti.tex
+% Formattato per Overleaf
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\geometry{margin=2.5cm}
+
+\title{Appunti della lezione di Cybersecurity}
+\author{Corso universitario — Lezione 3 Prof. Talamo}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\vspace{1cm}
+
+\section{Registry e mappatura su DNS}
+\begin{itemize}
+  \item I registry virtualizzano risorse e si occupano della distribuzione degli stessi.
+  \item Se un attaccante compromette un registry, può alterare l'associazione tra un'identità logica e il suo indirizzo fisico (es. record DNS) e quindi impadronirsi dell'identità di un soggetto agli occhi degli altri sistemi.
+  \item Un attacco al registry si propaga su tutti gli oggetti che dipendono da quella mappatura.
+  \item Per accedere al DNS è necessario un protocollo specifico: la sua implementazione e gestione diventano quindi superfici d'attacco critiche.
+\end{itemize}
+
+\section{Esempio: attacco a infrastruttura cloud (caso pratico)}
+\begin{itemize}
+  \item Caso esemplificativo: attacco che ha interessato un provider (es. scenario tipo Amazon).
+  \item L'attaccante ha preso il controllo del registry virtuale: la risposta dell'operatore è stata chiudere il registry compromesso e aprirne uno nuovo.
+  \item L'avversario si era invece posizionato sulle macchine virtuali, rendendo l'impatto più esteso e meno evidente; parte dell'utenza resta inconsapevole del danno subito.
+  \item Domande critiche: perch\'e l'infrastruttura presenta questa architettura? Quale componente \'e stato effettivamente attaccato? (registry, hypervisor, VM, rete, ecc.)
+\end{itemize}
+
+\section{Architettura vs infrastruttura di sicurezza}
+\begin{description}[leftmargin=!,labelwidth=3cm]
+  \item[Architettura sistemistica] l'insieme dei componenti hardware e software e la loro organizzazione (es. macchine, hypervisor, rete, DB).
+  \item[Infrastruttura della sicurezza] le soluzioni, le politiche e i processi che si adottano per proteggere i contesti rilevanti all'interno dell'architettura.
+\end{description}
+
+\section{Standard e protezione delle vulnerabilit\`a}
+\begin{itemize}
+  \item Negli anni 2000 si svilupparono iniziative in Europa e negli USA per progettare infrastrutture digitali sicure: l'obiettivo era progettare sistemi orientati alla protezione delle identit\`a e dei contesti.
+  \item Una \emph{potenziale vulnerabilit\`a} viene qui definita come un "contesto" che contiene informazioni e che decidiamo di proteggere perch\'e distinguibile e identificabile.
+  \item L'elemento comune e\` l'esistenza di un'identit\`a associata ad un contesto informativo; intorno a questo concetto nascono protocolli e linee guida (es. best practices, norme per il trattamento dati).
+\end{itemize}
+
+\section{Filosofia dei contesti e livello di astrazione}
+\begin{itemize}
+  \item L'approccio basato sui contesti introduce un livello di astrazione: invece di difendere singoli componenti isolati, si individuano contesti identificati (es. servizi, archivi, funzioni) e si progetta la difesa attorno a questi.
+  \item Questo approccio \`e empirico e spesso non visibile nella progettazione iniziale dell'architettura.
+\end{itemize}
+
+\section{Esempio reale: gestione di un "Comune"}
+Descriviamo un esempio pratico per capire la logica dei contesti.
+\begin{itemize}
+  \item \textbf{Contenitori/servizi presenti:}
+  \begin{itemize}
+    \item Comando vigile (archivio multe, dati anagrafici, archivio personale, integrazione videosorveglianza)
+    \item Museo (archivi propri, biglietteria con carte di credito)
+    \item Portale cittadino con accesso via login collegato a un database centrale
+  \end{itemize}
+  \item \textbf{Analisi del rischio e vettori d'attacco:}
+  \begin{itemize}
+    \item La sezione \emph{museo} pu\`o essere particolarmente critica per la presenza di dati di pagamento (biglietteria online): un attacco qui potrebbe portare a frodi finanziarie.
+    \item Un attaccante che compromette il portale di accesso pu\`o potenzialmente raggiungere l'intero sistema se il portale funge da punto di ingresso comune al database centrale.
+    \item La scelta di difendere solo una parte dell'infrastruttura (es. il "comando vigile") rischia di lasciare scoperti altri contesti pi\`u sensibili.
+  \end{itemize}
+  \item \textbf{Identit\`a del contesto:} l'identit\`a da proteggere non \`e solo username/password, ma l'identit\`a del contesto (es. il ticket + carta di credito nella biglietteria).
+\end{itemize}
+
+\section{Perimetro e superficie d'attacco}
+\begin{itemize}
+  \item Il perimetro \`e il confine che racchiude tutti i contesti appartenenti a una struttura (es. l'insieme dei servizi di un Comune).
+  \item La superficie d'attacco \`e l'insieme dei punti di vulnerabilit\`a compresi all'interno di quel perimetro: punti di accesso, API, portali, database, servizi esterni collegati, ecc.
+  \item Definire il perimetro aiuta a raggruppare contesti e a calcolare la superficie d'attacco in modo strutturato.
+\end{itemize}
+
+\section{Esercizio proposto}
+\begin{enumerate}
+  \item Scegliere un'architettura di riferimento (es. architettura database, architettura di servizio su cloud).
+  \item Disegnare il perimetro: elencare i contesti che appartengono alla struttura.
+  \item Per ogni contesto decidere quale sia la superficie d'attacco (vettori principali, dipendenze esterne, punti di ingresso).
+  \item Applicare l'analisi a una piattaforma cloud moderna (es. Microsoft Azure): mappare i servizi Azure usati (VM, App Service, Azure AD, Database, Storage, Gateway) e valutare perimetro e superficie d'attacco.
+\end{enumerate}
+
+\vfill
+\noindent---
+\newline
+% Fine del documento
+\end{document}

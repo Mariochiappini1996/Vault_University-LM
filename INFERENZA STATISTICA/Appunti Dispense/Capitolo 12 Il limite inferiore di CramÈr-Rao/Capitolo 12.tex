@@ -1,0 +1,150 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}[theorem]{Remark}
+\setcounter{theorem}{112} % L'ultimo era 112, quindi il prossimo è 113
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{12 Il limite inferiore di Cramér-Rao}
+Un risultato notevole riguarda la determinazione della varianza minima degli stimatori non-distorti, sotto condizioni di regolarità;
+in particolare, emerge che tale
+varianza minima coincide con quella degli stimatori di massima verosimiglianza,
+sotto condizioni di regolarità.
+Per tale motivo, gli stimatori di massima verosimiglianza
+sotto opportune ipotesi (che coprono gran parte delle distribuzioni di uso comune, almeno nei casi più semplici) risultano essere non solo consistenti ed
+asinotitcamente Gaussiani, ma anche efficienti in senso assoluto.
+
+\begin{remark}
+E' evidente che porsi la questione sulla varianza minima ha senso
+solo per stimatori che siano non-distorti;
+altrimenti qualsiasi stimatore con valore identicamente costante non potrebbe essere migliorato, avendo varianza identicamente pari a zero.
+\end{remark}
+
+Consideriamo ora uno stimatore generico di un parametro $\theta\in\mathbb{R},$
+\[
+W_{n}=W_{n}(X_{1},...,X_{n})
+\]
+e supponiamo che la funzione $\psi(\theta):=E_{f_{\theta}}[W(X_{1},...,X_{n})]$ sia di classe $C^{1}$ per
+ogni n;
+assumiamo inoltre che la densità congiunta $f_{\theta}$ sia tale per cui, per ogni
+$h\in C^{1}$ $h:\mathbb{R}^{n}\rightarrow\mathbb{R}$ con $E_{\theta}[|h(X_{1},...,X_{n})|]<\infty$ valga la scambiabilità
+\[
+\frac{d}{d\theta}E_{\theta}[h(X_{1},...,X_{n})]=\int_{\mathbb{R}^{n}}h(x_{1},...,x_{n})\frac{\partial}{\partial\theta}f(x_{1},...,x_{n};\theta)dx_{1}...dx_{n}
+\]
+Chiamiamo ora $b(\theta)=E[W_{n}]-\theta$ il bias della nostra statistica, e $b^{\prime}(.)$ la sua
+derivata rispetto a $\theta$. Abbiamo allora il seguente
+
+\begin{theorem}[Cramér-Rao]
+Per $\theta\in\mathbb{R}$
+\[
+Var[W_{n}]\ge\frac{\{1+b^{\prime}(\theta_{0})\}^{2}}{I_{n}(\theta_{0})}
+\]
+(Nota: il testo originale riporta $\{b^{\prime}(\theta_{0})\}^{2}$, ma la forma standard include $1+b^{\prime}(\theta)$ per la stima di $\theta$, derivando $E[W_n] = \theta + b(\theta)$ rispetto a $\theta$).
+\end{theorem}
+
+\begin{remark}
+Per semplicità, abbiamo enunciato e dimostreremo il teorema
+solo nel caso $p=1.$ La generalizzazione a p generico è comunque abbastanza
+semplice;
+consideriamo lo stimatore $W_{n}$ come un vettore colonna $p\times1,$ con
+valor medio $\Psi(\theta)$ che ha matrice Jacobiana $p\times p$ denotata con $J\Psi()$.
+Allora la
+matrice di varianza e covarianza di $W_{n}$ soddisfa la disuguaglianza
+\[
+Var[W_{n}]\ge J\Psi(\theta_{0})I_{n}^{-1}(\theta_{0})J\Psi(\theta_{0})^{T}.
+\]
+La disuguaglianza va intesa none solito senso di disuguaglianza tra matrici simmetriche e non-negative definite: la loro differenza deve essere non-negativa
+definita.
+\end{remark}
+
+\begin{proof}
+(caso $p=1)$. L'idea di fondo è utilizzare la disuguaglianza di Cauchy-Schwartz, scrivendola come
+\[
+Var[Y]\ge\frac{Cov^{2}(X,Y)}{Var[X]}
+\]
+Prendiamo come X la funzione punteggio $\frac{d}{d\theta}\log L(\theta;X_{1},...,X_{n})|_{\theta=\theta_{0}}$; sappiamo
+che $E[X]=0$ da cui $Cov(X,Y)=E[XY]$. Prendiamo quindi $Y=W_{n},$ e
+osserviamo che
+\begin{align*}
+E[XY] &= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{d}{d\theta}\log L(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{\frac{d}{d\theta}f(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}}{f(x_{1},...,x_{n};\theta_{0})}f(x_{1},...,x_{n};\theta_{0})dx_{1}...dx_{n} \\
+&= \int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})\frac{d}{d\theta}f(\theta;x_{1},...,x_{n})|_{\theta=\theta_{0}}dx_{1}...dx_{n} \\
+&= \frac{d}{d\theta}\int_{\mathbb{R}^{n}}W(x_{1},...,x_{n})f(\theta;x_{1},...,x_{n})dx_{1}...dx_{n}|_{\theta=\theta_{0}} \\
+&= \frac{d}{d\theta}E_{\theta}[W_{n}]|_{\theta=\theta_{0}}
+\end{align*}
+Questo conclude la dimostrazione nel caso con densità; il caso discreto è identico.
+\end{proof}
+
+\begin{remark}
+$E^{\prime}$ interessante studiare cosa succede nel caso in cui le condizioni di regolarità, ed in particolare la possibilità di scambiare la derivata
+con l'integrale nel valor medio, non siano soddisfatte.
+Prendiamo ad esempio
+un campione di variabili i.i.d., uniformi in $[0,\theta]$;
+si verifica facilmente che la
+funzione di verosimiglianza prende la forma
+\[
+L(\theta;X_{1},...,X_{n})=\prod_{i=1}^{n}\frac{1}{\theta}I_{[0,\theta]}(X_{i})=\frac{1}{\theta^{n}}I_{[0,\theta]}(X_{(n)})
+\]
+dove $X_{(n)}$ indica la più grande delle n osservazioni; abbiamo inoltre
+\[
+\hat{\theta}_{ML;n}=X_{(n)}.
+\]
+Ora, si vede anche facilmente che, per ogni $\epsilon>0$
+\begin{align*}
+Pr\{\theta_{0}-X_{(n)}>\epsilon\} &= \prod_{i=1}^{n}Pr\{\theta_{0}-X_{i}>\epsilon\} \\
+&= \{Pr\{\theta_{0}-\epsilon>X_{1}\}\}^{n} \\
+&= \{\frac{1}{\theta_{0}}(\theta_{0}-\epsilon)\}^{n}=(1-\frac{\epsilon}{\theta_{0}})^{n}.
+\end{align*}
+Poichè queste probabilità sono sommabili, abbiamo che lo stimatore è completamente convergente (e pertanto converge quasi certamente).
+Inoltre abbiamo
+che
+\begin{align*}
+Pr\{n(\theta_{0}-X_{(n)})>\epsilon\} &= \{Pr\{\theta_{0}-\frac{\epsilon}{n}>X_{1}\}\}^{n} \\
+&= (1-\frac{\epsilon}{n\theta_{0}})^{n}\rightarrow \exp(-\frac{\epsilon}{\theta_{0}})
+\end{align*}
+per $n\rightarrow\infty$; abbiamo quindi una forma di superconsistenza, perché la convergenza avviene a velocità $n^{-1}$ invece che $n^{-1/2}$ come nel teorema precedente.
+D'altra parte la distribuzione limite è esponenziale invece che Gaussiana.
+Questo
+esempio mostra come, quando le condizioni di regolarità vengono a mancare,
+non necessariamente le proprietà degli stimatori di massima verosimiglianza
+debbano peggiorare: possono addirittura essere superiori, sia come modalità che
+come velocità di convergenza.
+\end{remark}
+
+\end{document}

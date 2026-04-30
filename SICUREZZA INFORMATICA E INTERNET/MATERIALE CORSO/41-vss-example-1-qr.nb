@@ -1,0 +1,156 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 7.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[      5910,        148]
+NotebookOptionsPosition[      5321,        132]
+NotebookOutlinePosition[      5662,        147]
+CellTagsIndexPosition[      5619,        144]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"q", " ", "=", " ", 
+   RowBox[{"Prime", "[", "13", "]"}]}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"usare", " ", "anche", " ", "9", " ", "o", " ", "555"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{"p", " ", "=", " ", 
+  RowBox[{
+   RowBox[{"2", "q"}], "+", "1"}]}], "\[IndentingNewLine]", 
+ RowBox[{"PrimeQ", "[", "p", "]"}]}], "Input",
+ CellChangeTimes->{{3.5454035643005*^9, 3.5454035740817175`*^9}, 
+   3.545408668332192*^9, {3.5793782750119905`*^9, 3.5793782761770573`*^9}, {
+   3.579378307536851*^9, 3.5793783145222507`*^9}, {3.579416225437931*^9, 
+   3.5794162313191414`*^9}, {3.579416430422291*^9, 3.5794164494543247`*^9}, 
+   3.579416597872985*^9, {3.6107774088876123`*^9, 3.6107774455237074`*^9}, {
+   3.610777479256637*^9, 3.6107774856029997`*^9}, {3.610778015022281*^9, 
+   3.610778015745322*^9}, {3.610778109080661*^9, 3.6107781122968445`*^9}, {
+   3.6107785943304157`*^9, 3.610778633068631*^9}, {3.64036859768351*^9, 
+   3.6403685992726536`*^9}, {3.640395228108026*^9, 3.640395259176135*^9}, {
+   3.640395304971723*^9, 3.6403953251350946`*^9}, {3.640396258143058*^9, 
+   3.6403962599153185`*^9}, {3.7362202195624557`*^9, 
+   3.7362202293798285`*^9}, {3.736220299474593*^9, 3.7362203042788363`*^9}, {
+   3.7850686454843016`*^9, 3.7850686535483093`*^9}, {3.7850687839132533`*^9, 
+   3.785068798865985*^9}, {3.7850689306081133`*^9, 
+   3.7850689311625834`*^9}},ExpressionUUID->"381d8648-edd2-40d3-9ff6-\
+e3b332287b51"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"g", "=", "5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"g", ",", "x", ",", "p"}], "]"}], " ", "/.", " ", 
+   RowBox[{"{", 
+    RowBox[{"x", "\[Rule]", 
+     RowBox[{"Range", "[", 
+      RowBox[{"1", ",", 
+       RowBox[{"p", "-", "1"}]}], "]"}]}], "}"}]}], " ", "//", " ", 
+  "Sort"}]}], "Input",
+ CellChangeTimes->{{3.545403576858522*^9, 3.5454035958905554`*^9}, {
+   3.5454040563565254`*^9, 3.5454040784617643`*^9}, 3.545404124934246*^9, {
+   3.545408682575017*^9, 3.545408771822774*^9}, {3.545408909337015*^9, 
+   3.5454089303970523`*^9}, {3.5454090473660574`*^9, 3.545409108970566*^9}, 
+   3.545409168749871*^9, 3.545409207578339*^9, {3.5454093881316214`*^9, 
+   3.5454093906120253`*^9}, {3.579378336252494*^9, 3.5793783889805093`*^9}, 
+   3.5794166177006197`*^9, {3.610777488329156*^9, 3.6107775353208437`*^9}, {
+   3.610778027223979*^9, 3.6107780813210735`*^9}, 3.61077860839222*^9, 
+   3.64039526819055*^9, {3.6403962953236623`*^9, 3.6403962980966606`*^9}, {
+   3.736220312075383*^9, 3.736220360408622*^9}},
+ CellLabel->"In[30]:=",ExpressionUUID->"24e538ea-5894-4f9c-b181-230b314da818"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"g", "=", " ", "25"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"g", ",", "x", ",", "p"}], "]"}], " ", "/.", " ", 
+   RowBox[{"{", 
+    RowBox[{"x", "\[Rule]", 
+     RowBox[{"Range", "[", 
+      RowBox[{"1", ",", 
+       RowBox[{"p", "-", "1"}]}], "]"}]}], "}"}]}], " ", "//", " ", 
+  "Sort"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"g", ",", "x", ",", "p"}], "]"}], ",", " ", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"g", ",", 
+      RowBox[{"x", "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"p", "-", "1"}], ")"}], "/", "2"}]}], ",", " ", "p"}], 
+     "]"}]}], "}"}], " ", "/.", " ", 
+  RowBox[{"{", 
+   RowBox[{"x", "\[Rule]", "16"}], "}"}], " "}]}], "Input",
+ CellChangeTimes->{{3.6107781194522543`*^9, 3.610778168547062*^9}, {
+   3.7362203764434204`*^9, 3.736220477269555*^9}, 3.785068959029814*^9},
+ CellLabel->"In[37]:=",ExpressionUUID->"babb595d-103b-4d59-a68a-896e04c409fa"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"attenzione", " ", "ai", " ", 
+    RowBox[{"QR", "!"}]}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Simbolo", " ", "di", " ", "Legendre"}], " ", "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"5", ",", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"p", "-", "1"}], ")"}], "/", "2"}], ",", " ", "p"}], "]"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"25", ",", " ", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"p", "-", "1"}], ")"}], "/", "2"}], ",", " ", "p"}], 
+    "]"}]}]}]], "Input",
+ CellChangeTimes->{
+  3.579416514693639*^9, {3.610777556739069*^9, 3.6107776061738963`*^9}, {
+   3.610777836231055*^9, 3.6107780120591116`*^9}, {3.610778184396969*^9, 
+   3.610778270869915*^9}, 3.736220272745934*^9, {3.736220631917802*^9, 
+   3.7362206440838184`*^9}, {3.7362207268703203`*^9, 3.7362207336184616`*^9}},
+ CellLabel->"In[35]:=",ExpressionUUID->"98bb7d8e-52bc-4cba-b435-f19b92254874"]
+},
+WindowSize->{1561, 537},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[545, 20, 1475, 26, 67, "Input",ExpressionUUID->"381d8648-edd2-40d3-9ff6-e3b332287b51"],
+Cell[2023, 48, 1183, 23, 48, "Input",ExpressionUUID->"24e538ea-5894-4f9c-b181-230b314da818"],
+Cell[3209, 73, 1056, 29, 67, "Input",ExpressionUUID->"babb595d-103b-4d59-a68a-896e04c409fa"],
+Cell[4268, 104, 1049, 26, 86, "Input",ExpressionUUID->"98bb7d8e-52bc-4cba-b435-f19b92254874"]
+}
+]
+*)
+

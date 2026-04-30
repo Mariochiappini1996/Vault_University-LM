@@ -1,0 +1,235 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione delle definizioni per iniziare da 53
+% (Assumendo che questa sia la continuazione dei capitoli precedenti)
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{lemma}[definition]{Lemma}
+\setcounter{definition}{52}
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{4 Uniforme Integrabilità}
+Abbiamo visto in precedenza che la convergenza in probablità può implicare la
+convergenza in media r-esima per sequenze di variabili aleatorie uniformemente
+limitate, perché la limitatezza impedisce che con probabilità anche sempre più
+piccola si assumano valori sempre più grandi.
+E' naturale domandarsi se questa
+richiesta di uniforme limitatezza non sia eccessiva;
+dovrebbe essere possibile
+"compensare" il comportamento sulle code in modo da far sì che la massa corrispondente decada comunque a zero.
+Questa è proprio l'intuizione dietro alla
+nozione di Uniforme Integrabilità.
+
+\begin{spiegazione}
+    \textbf{Qual è il problema che stiamo risolvendo?}
+
+    Nei capitoli precedenti, abbiamo visto che la "Convergenza in Probabilità" (tipo 2) non garantisce la "Convergenza in Media" (tipo 3).
+    
+    Il problema è il contro-esempio: $X_n = n$ con probabilità $1/n$, e $0$ altrimenti.
+    \begin{itemize}
+        \item \textbf{Converge in probabilità a 0?} Sì. L'evento "sfortunato" ($X_n=n$) diventa sempre più raro (prob $1/n \to 0$).
+        \item \textbf{Converge in media a 0?} No. La media $\mathbb{E}[|X_n|] = (n \times 1/n) + (0 \times \dots) = 1$. La media resta 1 per sempre.
+    \end{itemize}
+    
+    Abbiamo visto che se $X_n$ è \textit{limitata} (es. non può mai superare 1000), questo problema sparisce. Ma "limitata" è un requisito troppo forte.
+    
+    L'\textbf{Uniforme Integrabilità (UI)} è un requisito più debole e più intelligente: non chiede che i valori "estremi" siano impossibili, ma solo che, in media, la loro influenza diventi trascurabile all'aumentare di $n$. È la condizione "giusta" per far funzionare le cose.
+\end{spiegazione}
+
+\begin{definition}
+La sequenza di variabili aleatorie $\{X_{n}\}$ è detta Uniformemente
+Integrabile se
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=0 .
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Decodifichiamo la formula}
+
+    Analizziamo la formula pezzo per pezzo:
+    \begin{itemize}
+        \item \textbf{$I_{\{|X_{n}|>M\}}$}: È la "funzione indicatrice". Vale 1 se $X_n$ è "estremo" (cioè $|X_n| > M$), e 0 altrimenti.
+        \item \textbf{$E[|X_{n}|I_{\{|X_{n}|>M\}}]$}: È il "contributo medio delle code". Calcoliamo la media di $X_n$, ma consideriamo \textit{solo} i valori estremi, più grandi di $M$. È una misura di "quanta massa" (quanta probabilità moltiplicata per il valore) sta nelle code della distribuzione.
+        \item \textbf{$\sup_{n} \dots$}: Prendiamo il valore "peggiore" (il massimo, "supremum") di questo contributo medio su \textit{tutta} la successione $n=1, 2, \dots$.
+        \item \textbf{$\lim_{M\rightarrow\infty} \dots = 0$}: Diciamo che la successione è UI se, scegliendo una soglia $M$ abbastanza grande (es. $M=1.000.000$), il contributo medio delle code (anche nel caso peggiore $n$) diventa praticamente zero.
+    \end{itemize}
+    In breve: \textbf{le code (i valori estremi) di tutte le $X_n$ contemporaneamente diventano trascurabili in media, se guardiamo abbastanza lontano (M grande).}
+\end{spiegazione}
+
+\begin{remark}
+Notiamo innanzitutto che il fatto che i momenti siano uniformemente limitati non è sufficiente a garantire l'uniforme integrabilità: basta infatti
+considerare l'esempio visto precedentemente, con:
+\[
+X_n = \begin{cases} 0 & \text{con probabilità } 1-\frac{1}{n^{2}} \\ n^2 & \text{con probabilità } \frac{1}{n^{2}} \end{cases}
+\]
+Qui $E[X_{n}]=1$ per ogni n, quindi il valor medio è unifomemente limitato, però
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=1 ,
+\]
+quindi la sequenza non è uniformemente integrabile. D'altra parte si vede subito
+che la limitatezza dei momenti è una condizione necessaria.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Momenti limitati $\neq$ Uniforme Integrabilità}
+
+    Questo contro-esempio è importante.
+    \begin{itemize}
+        \item \textbf{Media (momento primo) limitata?} Sì. La media è $\mathbb{E}[X_n] = (n^2 \times 1/n^2) + (0 \times \dots) = 1$. La media è sempre 1, quindi è "uniformemente limitata".
+        \item \textbf{È Uniformemente Integrabile?} No. Se calcoliamo il contributo medio delle code (oltre una soglia $M$), per $n$ molto grande (tale che $n^2 > M$), il valore "estremo" $n^2$ viene sempre "catturato". Il contributo medio delle code sarà sempre 1 (per $n$ abbastanza grande). Il limite per $M \to \infty$ non va a 0, ma resta 1.
+    \end{itemize}
+    Questo dimostra che avere una media costantemente pari a 1 non basta per "controllare le code" nel modo specifico richiesto dall'UI.
+\end{spiegazione}
+
+\begin{lemma}[Condizione necessaria per uniforme integrabilità]
+Se $\{X_{n}\}$ è uniformemente integrabile, $E[X_{n}]$ è uniformemente limitato.
+\end{lemma}
+
+\begin{proof}
+Si scelga $M=M_{\epsilon}$ tale per cui
+\[
+\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]<\epsilon
+\]
+allora
+\[
+E[|X_{n}|]=E[|X_{n}|I_{\{|X_{n}|\le M_{\epsilon}\}}]+E[|X_{n}|I_{\{|X_{n}|>M_{\epsilon}\}}]\le M_{\epsilon}+\epsilon,
+\]
+da cui segue
+che il valor medio è limitato uniformemente in n..
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{UI $\implies$ Momenti limitati}
+
+    Questo lemma dice il contrario del remark precedente. Se una successione è UI (cioè le sue code sono "controllate"), allora \textit{necessariamente} anche la sua media (momento primo) deve essere "controllata" (uniformemente limitata).
+    
+    La dimostrazione è intuitiva: la media totale $\mathbb{E}[|X_n|]$ viene divisa in due parti:
+    \begin{enumerate}
+        \item \textbf{La "pancia" ($|X_n| \le M$):} Questa parte è al massimo $M$ (un numero finito).
+        \item \textbf{Le "code" ($|X_n| > M$):} Per l'ipotesi di UI, questa parte è piccolissima (minore di $\epsilon$).
+    \end{enumerate}
+    La media totale è al massimo $M + \epsilon$, un numero finito. Quindi è limitata.
+\end{spiegazione}
+
+\begin{lemma}[Condizioni sufficienti per l'uniforme integrabilità]
+\begin{itemize}
+    \item[a)] Se la sequenza $\{X_{n}\}$ è costituita da variabili aleatorie identicamente distribuite con valor medio finito, essa è uniformememente integrabile
+    \item[b)] Se esiste $\eta>0$ tale per cui $E[|X_{n}|^{1+\eta}]<M_{\eta}<\infty$ per ogni n, allora la
+sequenza è uniformemente integrabile
+\end{itemize}
+\end{lemma}
+
+\begin{spiegazione}
+    \textbf{Come faccio a sapere se una successione è UI?}
+
+    Controllare la definizione è difficile. Questo lemma ci dà due scorciatoie (condizioni sufficienti):
+    
+    \begin{itemize}
+        \item \textbf{a) Sono Identicamente Distribuite?} Se tutte le $X_n$ seguono la stessa identica distribuzione (es. sono tutti lanci dello stesso dado) e la loro media è finita (es. la media di un dado è 3.5), allora la successione è UI. Facile.
+        
+        \item \textbf{b) Hanno un "momento" più alto controllato?} Se le $X_n$ non sono identiche, ma puoi dimostrare che un "momento" (una media) \textit{leggermente superiore} al primo (es. $\mathbb{E}[|X_n|^{1.01}]$) è uniformemente limitato (cioè sta sotto un numero $M_\eta$ per ogni $n$), allora la successione è UI.
+    \end{itemize}
+    La condizione (b) è molto potente: "controllare" un momento superiore (come 1.5, o 2) è sufficiente per "schiacciare" le code e garantire l'UI.
+\end{spiegazione}
+
+\begin{proof}
+Per a), è sufficiente notare che
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=\lim_{M\rightarrow\infty}E[|X_{1}|I_{\{|X_{1}|>M\}}]=0
+\]
+per l'ipotesi del momento primo finito. Per la b), abbiamo che
+\begin{align*}
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}] &\le \lim_{M\rightarrow\infty}\sup_{n}E[\frac{|X_{n}|^{\eta}}{M^{\eta}}|X_{n}|I_{\{|X_{n}|>M\}}] \\
+&= \lim_{M\rightarrow\infty}\frac{1}{M^{\eta}}\sup_{n}E[|X_{n}|^{1+\eta}I_{\{|X_{n}|>M\}}] \\
+&\le \lim_{M\rightarrow\infty}\frac{M_{\eta}}{M^{\eta}}=0 .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+Sia $\{X_{n}\}$ una sequenza uniformemente integrabile. Allora $X_{n}\rightarrow_{p}$
+X implica $X_{n}\rightarrow_{1}X.$
+\end{lemma}
+
+\begin{spiegazione}
+    \textbf{Il Teorema Fondamentale dell'UI}
+
+    Questo è il risultato principale del capitolo. Ci dice che l'Uniforme Integrabilità (UI) è esattamente l'ingrediente che mancava.
+    
+    \textbf{Convergenza in Probabilità (2) + Uniforme Integrabilità (UI) $\implies$ Convergenza in Media r=1 (3)}
+    
+    Se sappiamo che $X_n$ converge a $X$ in probabilità (quindi i casi "sfortunati" diventano rari) E sappiamo anche che $X_n$ è UI (quindi i casi "sfortunati" non sono mai *troppo* disastrosi in media), allora possiamo concludere che $X_n$ converge a $X$ anche in media.
+    
+    L'UI "tappa il buco" che permetteva al contro-esempio ($X_n=n$ con prob $1/n$) di funzionare.
+\end{spiegazione}
+
+\begin{proof}
+Basta scrivere
+\[
+E[|X_n - X|] \le E[|X_n - X_n I_{\{|X_n| \le M\}}|] + E[|X_n I_{\{|X_n| \le M\}} - X I_{\{|X| \le M\}}|] + E[|X I_{\{|X| \le M\}} - X|].
+\]
+Il primo elemento può essere reso arbitrariamente piccolo per l'uniforme integrabilità, il secondo perché X ha necessariamente valor medio finito (dimostrarlo),
+il terzo perché abbiamo a che fare con variabili limitate che convergono in probabilità, quindi possiamos fruttare il risultato dimostrato precedentemente.
+\end{proof}
+
+\end{document}

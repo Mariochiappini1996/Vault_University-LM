@@ -1,0 +1,555 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{bm} % Per il grassetto \bm
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{exercise}{Exercise}
+\newtheorem{condition}[exercise]{Condition}
+\newtheorem{proposition}[exercise]{Proposition}
+\newtheorem{remark}[exercise]{Remark}
+\newtheorem{lemma}[exercise]{Lemma}
+\newtheorem{example}[exercise]{Example}
+\setcounter{exercise}{127} % L'ultimo era 127, quindi il prossimo è 128
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{16 Il Modello lineare multivariato}
+Nella pratica, è estremamente comune la situazione in cui si cerchi di stimare
+la relazione esistente tra una particolare variabile (che chiameremo genericamente Y) ed un gruppo di altre (che chiameremo genericamente $X_{1},...,X_{k}),$
+dove queste ultime sono considerate esplicative del comportamento della Y. Si
+tratta di un caso particolare di un ambito di ricerca al momento estremamente
+attivo, e che viene spesso indicato come Supervise Learning;
+in generale, lo studio di relazioni come $Y=f(X)$ va anche sotto il nome di Machine Learning
+o Statistical Learning.
+In questo corso, ci limiteremo a trattare il caso più comune, che è anche il più semplice;
+quello in cui assumiamo che $f(.)$ abbia una
+forma lineare in un vettore di parametri $\beta$.
+
+\begin{spiegazione}
+    \textbf{Cos'è il "Modello Lineare"? (Regressione)}
+    
+    Questo capitolo introduce la \textbf{regressione lineare}, probabilmente il metodo più usato in tutta la statistica.
+    
+    L'idea è semplice: abbiamo una variabile "risposta" $Y$ (es. il prezzo di una casa) e vogliamo "spiegarla" o "prevederla" usando altre variabili "esplicative" $X$ (dette anche \textit{regressori}), come la superficie ($X_1$), il numero di stanze ($X_2$), ecc.
+    
+    Il modello "lineare" ipotizza che la relazione tra $Y$ e le $X$ sia una linea (o un "iperpiano" in più dimensioni).
+\end{spiegazione}
+
+In particolare, supponiamo che valga
+la seguente relazione, per $i=1,2,...,n$:
+\[
+y_{i}=x_{1i}\beta_{1}+x_{2i}\beta_{2}+...+x_{ki}\beta_{k}+\epsilon_{i}
+\]
+dove le variabili $\epsilon_{i}$ sono considerate dei "residui" o degli "errori" e catturano
+tutto quello che non è spiegato dalla relazione lineare tra le y e le $x_{i}$.
+In forma
+matriciale, possiamo scrivere
+\begin{equation}
+Y=X\beta+\epsilon,
+\end{equation}
+dove Y è un vettore $n\times1$ della forma $Y=(y_{1},...,y_{n})^{T}$, X è una matrice $n\times k$
+le cui colonne sono costituite da $(x_{j1},...,x_{jn})^{T}$ e $\epsilon$ è un vettore di residui;
+iniziamo
+supponendo che si tratti di residui Gaussiani, con valor medio nullo e matrice
+di varianza/covarianza $E[\epsilon\epsilon^{T}]=\Omega$.
+Comunemente la prima colonna di X viene
+scelta come il vettore di costanti $(1,1,...,1)$ così ad esempio per $k=2$ abbiamo
+\[
+y_{i}=\beta_{1}+\beta_{2}x_{i}+\epsilon_{i}.
+\]
+\begin{spiegazione}
+    \textbf{Le due equazioni (Singola e Matriciale)}
+    
+    \begin{itemize}
+        \item \textbf{Equazione per $y_i$:} Questa è l'equazione per una \textit{singola} osservazione (es. la $i$-esima casa). Dice che il suo prezzo $y_i$ è una somma pesata dei suoi regressori (es. $\beta_1 \times \text{superficie}_i + \beta_2 \times \text{stanze}_i \dots$) più un termine di errore $\epsilon_i$. I $\beta$ sono i "pesi" (parametri) che vogliamo stimare.
+        
+        \item \textbf{Equazione Matriciale $Y = X\beta + \epsilon$:} Questa è solo un modo compatto per scrivere \textit{tutte} le $n$ equazioni (per tutte le $n$ case) in un colpo solo.
+            \begin{itemize}
+                \item $Y$: Un vettore colonna con tutte le risposte ($y_1, \dots, y_n$).
+                \item $X$: Una matrice (la "matrice di design") dove ogni riga è un'osservazione (una casa) e ogni colonna è un regressore (superficie, stanze, ecc.).
+                \item $\beta$: Un vettore colonna con tutti i pesi ($\beta_1, \dots, \beta_k$) che vogliamo trovare.
+                \item $\epsilon$: Un vettore colonna con tutti gli errori ($\epsilon_1, \dots, \epsilon_n$).
+            \end{itemize}
+    \end{itemize}
+    L'equazione $y_i = \beta_1 + \beta_2 x_i + \epsilon_i$ è il caso più semplice: una retta, dove $\beta_1$ è l'intercetta (il valore quando $x=0$) e $\beta_2$ è la pendenza.
+\end{spiegazione}
+
+Abbiamo bisogno di una condizione ulteriore sulle variabili X:
+
+\begin{condition}
+Le variabili X sono deterministiche ed il rango della matrice
+è esattamente pari a k.
+\end{condition}
+
+Ambedue le condizioni possono essere rimosse ed effettivamente lo sono nella
+ricerca più recente;
+si tratta però di ipotesi semplificatrici che costituiscono un
+punto di partenza naturale.
+Si noti che questa condizione implica immediatamente $k\le n;$ questa ipotesi in particolare viene abbandonata negli studi più
+recenti (high-dimensional statistics/big data).
+
+\begin{spiegazione}
+    \textbf{Condizioni Tecniche}
+    
+    \begin{itemize}
+        \item \textbf{"X sono deterministiche":} Questa è un'ipotesi semplificativa. Significa che non consideriamo le $X$ (es. la superficie delle case) come variabili casuali, ma come numeri fissi, "dati".
+        \item \textbf{"Rango della matrice pari a k":} Questo è fondamentale. Significa che $k \le n$ (abbiamo più osservazioni che parametri da stimare) e che \textbf{non ci sono regressori ridondanti}. Non possiamo, ad esempio, includere la "superficie in $m^2$" ($X_1$) e la "superficie in $piedi^2$" ($X_2$) come due regressori separati, perché uno è un multiplo dell'altro e l'informazione è la stessa.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{proposition}
+Lo stimatore di massima verosimiglianza nel modello 1 ha la
+seguente forma:
+\[
+\hat{\beta}_{MLE}=(X^{T}X)^{-1}X^{T}Y
+\]
+\[
+\hat{\sigma}_{MLE}^{2}=\frac{1}{n}(\hat{\epsilon}^{T}\hat{\epsilon}) \quad \hat{\epsilon}=Y-\hat{Y}=Y-X\hat{\beta}
+\]
+Si ha inoltre che
+\[
+\hat{\beta}_{MLE}\triangleq N(\beta,\sigma^{2}(X^{T}X)^{-1}),
+\]
+\[
+n\times\frac{\hat{\sigma}_{MLE}^{2}}{\sigma^{2}} \sim \chi_{n-k}^{2}
+\]
+\end{proposition}
+
+\begin{spiegazione}
+    \textbf{La Soluzione: Lo Stimatore OLS/MLE}
+    
+    Questa proposizione ci dà la "risposta" al problema della regressione.
+    
+    \begin{itemize}
+        \item \textbf{Come stimare $\beta$?} La "ricetta" (stimatore) per $\beta$ è $\hat{\beta} = (X^T X)^{-1} X^T Y$.
+        
+        \item \textbf{Perché questa formula?}
+            \begin{enumerate}
+                \item \textbf{(OLS) Minimi Quadrati Ordinari:} Questa formula è quella che \textit{minimizza la somma dei quadrati degli errori} ($\sum \epsilon_i^2$). È la "migliore" linea che passa attraverso i dati. (Remark 130)
+                \item \textbf{(MLE) Massima Verosimiglianza:} Se, e solo se, assumiamo che gli errori $\epsilon_i$ seguano una distribuzione \textit{Gaussiana}, allora questa formula OLS è \textit{anche} lo stimatore di Massima Verosimiglianza. (La dimostrazione lo mostra derivando la log-verosimiglianza Gaussiana).
+            \end{enumerate}
+        
+        \item \textbf{La "Pagella" dello Stimatore $\hat{\beta}$:} Il teorema ci dice anche le proprietà di $\hat{\beta}$ (la sua "pagella"):
+            \begin{itemize}
+                \item È \textbf{non-distorto}: la sua media è $N(\beta, \dots)$, quindi è centrato sul valore vero $\beta$.
+                \item È \textbf{Gaussiano}: la sua distribuzione campionaria segue una curva a campana (multivariata).
+                \item La sua \textbf{Varianza} (precisione) è $\sigma^2 (X^T X)^{-1}$.
+            \end{itemize}
+        
+        \item \textbf{Stimatore della Varianza $\hat{\sigma}^2$:} Ci dice che la varianza degli errori $\sigma^2$ (normalizzata) segue una distribuzione Chi-quadro ($\chi^2$).
+    \end{itemize}
+\end{spiegazione}
+
+\begin{proof}
+Notiamo innanzitutto che la funzione di verosimiglianza prende la forma
+\[
+L(\beta,\sigma^{2};Y,X)=\frac{1}{(2\pi)^{n/2}}\frac{1}{(\sigma^{2})^{n/2}}exp\{-\frac{1}{2\sigma^{2}}(Y-X\beta)^{T}(Y-X\beta)\} ,
+\]
+\[
+\log L(\beta,\sigma^{2};Y,X)=-\frac{n}{2}\log(2\pi)-\frac{n}{2}\log \sigma^{2}-\frac{1}{2\sigma^{2}}(Y-X\beta)^{T}(Y-X\beta) .
+\]
+Il calcolo del gradiente ci dà facilmente
+\[
+\nabla_{\beta}\log L(\beta,\sigma^{2};Y,X) = -\frac{1}{2\sigma^2}(-2X^{T}Y+2X^{T}X\beta)
+\]
+\[
+\frac{\partial}{\partial \sigma^2} \log L(\beta,\sigma^{2};Y,X) = -\frac{n}{2\sigma^{2}}+\frac{1}{2\sigma^{4}}(Y-X\beta)^{T}(Y-X\beta)
+\]
+and setting these quantities to zero leads to the previous expressions for $\hat{\beta}_{MLE}$ $\hat{\sigma}_{MLE}^{2}$ .
+It is also immediate to see that
+\[
+\hat{\beta}_{MLE}=(X^{T}X)^{-1}X^{T}Y
+\]
+\[
+=(X^{T}X)^{-1}X^{T}(X\beta+\epsilon)
+\]
+\[
+=\beta+(X^{T}X)^{-1}X^{T}\epsilon
+\]
+whence
+\begin{align*}
+E[(\hat{\beta}_{MLE}-\beta)(\hat{\beta}_{MLE}-\beta)^{T}] &= E[(X^{T}X)^{-1}X^{T}\epsilon((X^{T}X)^{-1}X^{T}\epsilon)^{T}] \\
+&= E[(X^{T}X)^{-1}X^{T}\epsilon\epsilon^{T}X(X^{T}X)^{-1}] \\
+&= (X^{T}X)^{-1}X^{T}E[\epsilon\epsilon^{T}]X(X^{T}X)^{-1} \\
+&= (X^{T}X)^{-1}X^{T}\sigma^{2}I_{n}X(X^{T}X)^{-1} \\
+&= \sigma^{2}(X^{T}X)^{-1}X^{T}X(X^{T}X)^{-1} \\
+&= \sigma^{2}(X^{T}X)^{-1} .
+\end{align*}
+La dimostrazione del risultato sullo stimatore della varianza richiede alcune
+ulteriori discussioni e sarà riportata più avanti.
+\end{proof}
+
+\begin{remark}
+Lo stimatore $\hat{\beta}_{MLE}$ è anche noto come OLS (Ordinary Least
+Squares).
+\end{remark}
+
+\subsection*{16.1 Il rapporto con i teoremi di proiezione}
+Lo stimatore di massima verosimiglianza nel modello lineare multivariato si
+presta ad una importante interpretazione usando gli strumenti dell'algebra lineare.
+In particolare, notiamo che il valor medio di Y dato X è dato da $E[Y]=$
+$X\beta;$
+il valore di $\beta$ è ignoto, ma è naturale definire il valore $\hat{Y}:=X\hat{\beta}$ come il
+valore "previsto" per il vettore Y sulla base delle stime $\hat{\beta}$ e del valore dei regressori X. Analogamente, il vettore degli "errori" $\epsilon=Y-X\beta$ si può stimare
+\[
+\hat{\epsilon}=Y-X\hat{\beta}.
+\]
+Notiamo ora che
+\[
+\hat{Y}:=X\hat{\beta}=X(X^{T}X)^{-1}X^{T}Y=P_{X}Y ,
+\]
+\[
+P_{X}:=X(X^{T}X)^{-1}X^{T} .
+\]
+\begin{spiegazione}
+    \textbf{La "Hat Matrix" (Matrice Cappello)}
+    
+    Questa è un'interpretazione geometrica molto potente.
+    
+    Il vettore $Y$ (i nostri dati osservati) vive in uno spazio a $n$ dimensioni. Lo spazio "permesso" per le nostre previsioni (lo spazio "generato dalle colonne di $X$") è un sottospazio più piccolo (a $k$ dimensioni).
+    
+    La formula $\hat{Y} = X(X^T X)^{-1} X^T Y$ può essere riscritta come $\hat{Y} = P_X Y$.
+    
+    La matrice $P_X = X(X^T X)^{-1} X^T$ è chiamata la "Hat Matrix" (matrice cappello) perché, se moltiplicata per il vettore $Y$, "gli mette il cappello" ($\hat{Y}$).
+    
+    Geumetricamente, $P_X$ è una \textbf{matrice di proiezione}: "schiaccia" il vettore $Y$ (dati veri) sul sottospazio $X$ (lo spazio delle previsioni possibili), trovando il punto $\hat{Y}$ in quello spazio che è \textit{più vicino} a $Y$. Questo è esattamente ciò che fa la minimizzazione dei quadrati.
+\end{spiegazione}
+
+E' immediato verificare che $P_{X}$ è una matrice di proiezione, cioè è simmetrica
+ed idempotente; infatti
+\[
+P_{X}^{2}=X(X^{T}X)^{-1}X^{T}X(X^{T}X)^{-1}X^{T}=X(X^{T}X)^{-1}X^{T}
+\]
+In particolare, l'azione della matrice $P_{X}$ (che ha dimensioni $n\times n$) corrisponde
+a proiettare il vettore Y sullo spazio vettoriale di dimensione k generato dalle
+colonne di X (ricordiamo che queste colonne sono linearmente indipendenti per
+ipotesi). Analogamente abbiamo
+\[
+\hat{\epsilon}=Y-X\hat{\beta}=M_{X}Y
+\]
+\[
+M_{X}=I-P_{X}=I-X(X^{T}X)^{-1}X^{T} .
+\]
+Anche $M_{X}$ è simmetrica ed idempotente:
+\[
+M_{X}^{2}=(I-P_{X})^{2}=I-2P_{X}+P_{X}^{2}=I-2P_{X}+P_{X}=M_{X}
+\]
+In particolare, l'azione di $M_{X}$ consiste nel proiettare Y nello spazio ortogonale
+a quello generato dalle colonne di X. Questo ha alcune conseguenze importanti;
+si ha infatti
+\[
+M_{X}P_{X}=P_{X}M_{X}=0,
+\]
+dove intendiamo con 0 la matrice $n\times n$ costituita da tutti zeri. Come ulteriore
+conseguenza, notiamo che
+\[
+X^{T}\hat{\epsilon}=0,
+\]
+ed in particolare il vettore dei residui stimati è ortogonale a qualsiasi vettore
+che giaccia nello spazio generato dalle colonne di X.
+
+\begin{spiegazione}
+    \textbf{I Residui e l'Ortogonalità}
+    
+    \begin{itemize}
+        \item \textbf{$\hat{\epsilon} = Y - \hat{Y} = (I - P_X)Y = M_X Y$:} Se $P_X$ proietta $Y$ sullo spazio $X$ per ottenere $\hat{Y}$ (la previsione), allora $M_X = I - P_X$ fa l'opposto: calcola ciò che rimane, $\hat{\epsilon}$ (il residuo).
+        
+        \item \textbf{$X^T \hat{\epsilon} = 0$ (Ortogonalità):} Questo è un risultato cruciale. Dice che il vettore dei residui $\hat{\epsilon}$ è "ortogonale" (perpendicolare, in senso geometrico) allo spazio dei regressori $X$.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{remark}
+Supponiamo che la matrice X contenga un termine costante, cioè
+una colonna della forma $e=(1,...,1)^{T}$.
+Allora abbiamo $e^{T}\hat{\epsilon}=0$, cioè $\sum_{i=1}^{n}\hat{\epsilon}_{i}=$
+0; in altre parole, la somma dei residui di regressione è sempre nulla se tra i
+regressori è incluso un termine costante.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{La somma dei residui è 0}
+    
+    Questa è la conseguenza pratica più famosa dell'ortogonalità.
+    Se il tuo modello include un'intercetta (la colonna di "1", $X_1$), la condizione $X^T \hat{\epsilon} = 0$ implica che la colonna "intercetta" moltiplicata per i residui fa 0.
+    
+    $(1, 1, \dots, 1) \cdot (\hat{\epsilon}_1, \dots, \hat{\epsilon}_n)^T = \sum \hat{\epsilon}_i = 0$.
+    
+    In qualsiasi regressione OLS con un'intercetta, la somma (e quindi la media) degli errori di previsione (residui) è \textit{sempre} esattamente zero.
+\end{spiegazione}
+
+\begin{remark}
+Il fatto che lo stimatore di massima verosimiglianza nel modello
+lineare multivariato coincida con la soluzione di un problema puramente geometrico di proiezione su sottospazi vettoriali è assolutamente degno di nota.
+Si
+tratta dell'ennesima sorprendente proprietà della legge Gaussiana.
+\end{remark}
+
+Possiamo ora enunciare le seguenti ulteriori proprietà delle matrici $P_{X}$ $M_{X}$
+
+\begin{lemma}
+Le matrici $P_{X},M_{X}$ hanno tutti autovalori pari a zero o uno e
+rango k, $n-k$ rispettivamente.
+\end{lemma}
+
+\begin{proof}
+Poichè le matrici sono reali e simmetriche, possiamo diagonalizzarle
+come
+\[
+P_{X}=Q\Lambda Q^{T} , \text{ con } QQ^{T}=Q^{T}Q=I_{n}
+\]
+\[
+\Lambda=\begin{pmatrix}\lambda_{1}&0&...&0\\ 0&\lambda_{2}&0&...\\ ...&0&...&0\\ 0&...&0&\lambda_{n}\end{pmatrix}
+\]
+Si ha allora
+\[
+P_{X}^{2}=Q\Lambda Q^{T}Q\Lambda Q^{T}=Q\Lambda^{2}Q^{T}=Q\Lambda Q^{T},
+\]
+da cui segue che necessariamente $\lambda_{i}=0$ o 1, per $i=1,2,...,n;$ ragionamento
+identico si applica a $M_{X}$.
+Per quello che riguarda il rango, notiamo che esso
+eguaglia il numero di autovalori diversi da zero (con molteplicità), quindi nel
+caso di matrici di proiezioni la traccia (cioè la sommadi autovalori, uguale al
+numero di quelli che valgono 1).
+Ricordando che $Tr(AB)=Tr(BA)$, possiamo
+scrivere
+\[
+Tr(P_{X})=Tr(X(X^{T}X)^{-1}X^{T})=Tr((X^{T}X)^{-1}X^{T}X)=Tr(I_{k})=k=Rg(P_{X}).
+\]
+La dimostrazione per $M_{X}$ è identica.
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{Proprietà delle Matrici di Proiezione (Tecnico)}
+    
+    Questo lemma analizza le matrici $P_X$ e $M_X$.
+    
+    \begin{itemize}
+        \item \textbf{Idempotente ($P_X^2 = P_X$):} "Proiettare" qualcosa che è \textit{già} stato proiettato non cambia nulla. (Come "appiattire" qualcosa che è già piatto). La prova mostra che questo implica che gli autovalori (le "forze" della trasformazione) possono essere solo 0 o 1.
+        \item \textbf{Rango (Traccia):} La traccia di una matrice è la somma della sua diagonale (e anche dei suoi autovalori). Per una matrice di proiezione, la traccia conta quanti autovalori sono 1.
+        \item \textbf{$Tr(P_X) = k$:} Lo spazio delle "previsioni" ha $k$ dimensioni (una per ogni regressore).
+        \item \textbf{$Tr(M_X) = n - k$:} Lo spazio dei "residui" ha $n-k$ dimensioni. Questo $n-k$ è il famoso numero di \textbf{"gradi di libertà"} che si usa per i test statistici (es. test t) nella regressione.
+    \end{itemize}
+\end{spiegazione}
+
+Siamo ancora in grado di concludere la dimostrazionne sul comportamento
+dello stimatore di massima verosimiglianza della varianza.
+Ricordiamo innanzitutto la densità delle variabili aleatorie $\Gamma(\alpha,\beta)$ :
+\[
+f_{\Gamma}(t)=\frac{1}{\Gamma(\alpha)\beta^{\alpha}}t^{\alpha-1}exp(-\frac{t}{\beta})\mathbb{I}_{[0,\infty)}(t),
+\]
+(Nota: $\beta^{\alpha-1}$ nel testo originale è stato corretto in $\beta^{\alpha}$ per la forma standard della Gamma)
+
+a cui corrisponde un valor medio pari a $\alpha\beta$ ed una varianza pari a $\alpha\beta^{2}$. Ricordiamo che la variabile chi-quadro con p gradi di libertà corrisponde ad una
+Gamma di parametri $\alpha=\frac{p}{2}$ , $\beta=2,$ e quindi con valor medio p e varianza 2p.
+La
+proprietà fondamentale dellle chi-quadro e che esse sono uguali in distribuzioni
+alla somma di p Gaussiane standard indipendneti elevate al quadrato:
+\[
+\chi_p^2 = Z_1^2 + ... + Z_p^2, \quad Z_{i}\triangleq N(0,1).
+\]
+Poniamo ora senza perdita di generalita $\sigma^{2}=1$, e notiamo che
+\[
+\hat{\epsilon}^{T}\hat{\epsilon}=(M_{X}\epsilon)^{T}M_{X}\epsilon=\epsilon^{T}M_{X}^{2}\epsilon=\epsilon^{T}M_{X}\epsilon.
+\]
+Ricordiamo ora la diagonalizzazione $M_{X}=Q\tilde{\Lambda}Q^{T}$, dove $\tilde{\Lambda}$ ha $n-k$ elementi
+pari ad uno sulla diagonale principale ed i restanti tutti nulli.
+Otteniamo quindi
+\[
+\epsilon^{T}M_{X}\epsilon=\epsilon^{T}Q\tilde{\Lambda}Q^{T}\epsilon
+\]
+\[
+=u^{T}\tilde{\Lambda}u \quad ,con~u:=Q^{T}\epsilon \sim N(0,I_{n}) ,
+\]
+\[
+=\sum_{i=1}^{n}\tilde{\lambda}_{i}u_{i}^{2}
+\]
+\[
+=\sum_{i=1}^{n-k}u_{i}^{2}
+\]
+perchè la legge Gaussiana standard è invariante per rotazioni. L'ultimo termine ha una legge chi-quadro per quanto scritto sopra, il che completa la dimostrazione.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Perché la varianza segue una Chi-Quadro ($\chi^2$)?}
+    
+    Questa è la dimostrazione della seconda parte della Proposizione 129 ($\hat{\sigma}^2 \sim \chi^2_{n-k}$).
+    
+    \begin{enumerate}
+        \item Lo stimatore $\hat{\sigma}^2$ dipende dalla "somma dei quadrati dei residui", $\hat{\epsilon}^T \hat{\epsilon}$.
+        \item L'algebra mostra che $\hat{\epsilon}^T \hat{\epsilon} = \epsilon^T M_X \epsilon$.
+        \item La matrice $M_X$ (come visto nel Lemma 133) è una proiezione ortogonale su uno spazio di dimensione $n-k$.
+        \item Una proiezione ortogonale di un vettore di Gaussiane standard $\epsilon$ (qui $u = Q^T \epsilon$) è ancora un vettore di Gaussiane standard.
+        \item L'operazione $\epsilon^T M_X \epsilon$ "seleziona" $n-k$ di queste Gaussiane standard, le eleva al quadrato e le somma.
+        \item Per definizione, la \textbf{somma di $n-k$ Gaussiane standard al quadrato} è una variabile \textbf{Chi-Quadro con $n-k$ gradi di libertà}.
+    \end{enumerate}
+\end{spiegazione}
+
+\begin{example}
+Si noti che anche il problema della stima del valor medio per
+variabili indipendenti $Y_{i}\sim N(\mu,\sigma^{2})$ può essere riletta in termini di regressione.
+Possiamo infatti scrivere
+\[
+Y=\begin{pmatrix}1\\ 1\\ ...\\ ...\\ 1\end{pmatrix}\mu+\epsilon. \quad \epsilon=Y-\begin{pmatrix}1\\ ...\\ ...\\ 1\end{pmatrix}\mu;
+\]
+lo stimatore diventa
+\[
+\hat{\mu}=(e^{T}e)^{-1}e^{T}Y=(\sum_{i=1}^{n}1)^{-1}\times\sum_{i=1}^{n}(1\cdot Y_{i})=\overline{Y}_{n}
+\]
+con
+\[
+\hat{\mu}\sim N(\mu,\sigma^{2}(e^{T}e)^{-1})=N(\mu,\frac{\sigma^{2}}{n})
+\]
+Nel caso $k=2$ (con costante) il modello diviene
+\[
+Y_{i}=\beta_{1}+\beta_{2}X_{i}+\epsilon_{i}
+\]
+ed un poco di algebra mostra che
+\[
+\hat{\beta}_{1}=\overline{Y}_{n}-\hat{\beta}_{2}\overline{X}_{n}
+\]
+\[
+\hat{\beta}_{2}=\frac{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})(Y_{i}-\overline{Y}_{n})}{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}}
+\]
+con
+\[
+\hat{\beta}_{2}\sim N(\beta_{2},\frac{\sigma^{2}}{\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}})
+\]
+\end{example}
+
+\subsection*{16.2 Lo stimatore GLS (Generalized Least Squares)}
+Possiamo ora generalizzare il modello che abbiamo studiato sinora, immaginando che i residui $\epsilon$ abbiano una struttura di dipendenza molto più complessa
+di variabili indipendenti.
+In particolare, ipotizziamo che $E[\epsilon\epsilon^{T}]=\Omega$ con matrice positiva definita di rango (pieno) n.
+La funzione di verosimiglianza prende
+la forma
+\[
+L(\beta;Y,X)=\frac{1}{(2\pi)^{n/2}}\frac{1}{\sqrt{det(\Omega)}}exp\{-\frac{1}{2}(Y-X\beta)^{T}\Omega^{-1}(Y-X\beta)\}
+\]
+(Nota: il testo originale presenta $\Omega^{-1/2}$ e $(Y-X\beta)^T$ due volte, è stato corretto)
+
+Potremmo procedere come nel Caso ordinario, ma c'è una strategia più semplice.
+La matrice $\Omega$ si può diagonalizzare come $\Omega=Q\Lambda_{\Omega}Q^{T}$ per qualche matrice
+ortonormale Q che non corrisponde a quelle che abbiamo introdotto prima.
+Possiamo definire quindi $\Omega^{-1/2}=Q\Lambda_{\Omega}^{-1/2}Q^{T}$ con l'ovvia proprietà che
+\begin{align*}
+\Omega^{-1/2}\Omega\Omega^{-1/2} &= Q\Lambda_{\Omega}^{-1/2}Q^{T}Q\Lambda_{\Omega}Q^{T}Q\Lambda_{\Omega}^{-1/2}Q^{T} \\
+&= Q\Lambda_{\Omega}^{-1/2}\Lambda_{\Omega}\Lambda_{\Omega}^{-1/2}Q^{T} \\
+&= QQ^{T} \\
+&= I_{n}
+\end{align*}
+Possiamo dunque definire il vettore $\tilde{\epsilon}:=\Omega^{-1/2}\epsilon$ che (si verifica facilmente) ha
+matrice di varianza/covarianza pari all'identità. Quindi
+\[
+Y=X\beta+\epsilon\mapsto\Omega^{-1/2}Y=\Omega^{-1/2}X\beta+\Omega^{-1/2}\epsilon\mapsto\tilde{Y}=\tilde{X}\beta+\tilde{\epsilon},
+\]
+con
+\[
+\tilde{Y}:=\Omega^{-1/2}Y, \quad \tilde{X}:=\Omega^{-1/2}X \quad \tilde{\epsilon}:=\Omega^{-1/2}\epsilon.
+\]
+Lo stimatore diventa quindi
+\[
+\tilde{\beta}_{GLS}=(\tilde{X}^{T}\tilde{X})^{-1}\tilde{X}^{T}\tilde{Y}=(X^{T}\Omega^{-1}X)^{-1}X^{T}\Omega^{-1}Y,
+\]
+che è uno stimatore non distorto con legge Gaussiana e matrice di varianza e
+covarianza
+\[
+E[(\tilde{\beta}_{GLS}-\beta)(\tilde{\beta}_{GLS}-\beta)^{T}]=(X^T\Omega^{-1}X)^{-1}.
+\]
+(Nota: il testo originale riporta $\Omega^{-1}$, la forma corretta è $(X^T\Omega^{-1}X)^{-1}$)
+
+\begin{spiegazione}
+    \textbf{Cosa succede se gli errori NON sono i.i.d.? (GLS)}
+    
+    Il modello OLS standard (Prop. 129) assume che gli errori $\epsilon$ siano indipendenti e con la stessa varianza $\sigma^2$ (cioè $E[\epsilon \epsilon^T] = \sigma^2 I$).
+    
+    \textbf{Il problema:} Cosa succede se gli errori sono \textit{correlati} tra loro (es. dati finanziari) o hanno \textit{varianze diverse} (eteroschedasticità)? In questo caso, la matrice $\Omega$ non è più $I$ (l'identità), ma una matrice complessa.
+    
+    \textbf{La Soluzione (GLS - Generalized Least Squares):} L'OLS $\hat{\beta}=(X^TX)^{-1}X^TY$ non è più lo stimatore migliore (non è più "efficiente").
+    
+    La soluzione GLS consiste in un "trucco" algebrico:
+    \begin{enumerate}
+        \item Troviamo una "radice quadrata" $\Omega^{-1/2}$ della matrice $\Omega^{-1}$.
+        \item \textbf{Trasformiamo i dati:} Moltiplichiamo \textit{tutto} (sia $Y$ che $X$) per questa matrice: $\tilde{Y} = \Omega^{-1/2} Y$ e $\tilde{X} = \Omega^{-1/2} X$.
+        \item \textbf{Magia:} Questo "sbianca" (whitens) gli errori. I nuovi errori $\tilde{\epsilon}$ \textit{sono} i.i.d. (hanno matrice $I$).
+        \item \textbf{Conclusione:} Applichiamo la \textit{vecchia} formula OLS ai \textit{nuovi} dati $(\tilde{Y}, \tilde{X})$:
+        $\hat{\beta}_{GLS} = (\tilde{X}^T \tilde{X})^{-1} \tilde{X}^T \tilde{Y}$
+        Sostituendo $\tilde{Y}$ e $\tilde{X}$, si ottiene la formula finale del GLS:
+        $\hat{\beta}_{GLS} = (X^T \Omega^{-1} X)^{-1} X^T \Omega^{-1} Y$.
+    \end{enumerate}
+\end{spiegazione}
+
+\begin{remark}
+Lo stimatore GLS può essere visto come i coefficienti di proiezione
+su un sottospazio generato dalle colonen di X quando la proiezione sia effettuata
+con una metrica Riemanniana indotta dalla matrice positive definita $\Omega^{-1}$.
+\end{remark}
+
+\begin{exercise}
+Calcolare la forma dello stimatore GLS quando la matrice $\Omega$ sia
+nulla al di fuori della diagonale, nel caso $k=1$.
+\end{exercise}
+
+\begin{exercise}
+Calcolare la matrice di varianza e covarianza dello stimatore
+OLS (non GLS) quando la matrice di varianza di $\epsilon$ sia $\Omega$ non diagonale (cioè
+quando lo stimatore OLS sia applicato assumendo ipotesi in realtà non soddisfatte).
+\end{exercise}
+
+\end{document}

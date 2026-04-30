@@ -1,0 +1,235 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{positioning, fit, backgrounds, arrows.meta}
+
+% Impostazioni margini
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+
+% Titolo e Autore
+\title{\textbf{Strategie di Difesa Cibernetica: Dai Playbook Statici alla Modellazione Dinamica su Grafi Temporali}}
+\author{Chiappini Mario \\ \textit{Corso di Cybersecurity}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Il presente documento analizza l'evoluzione delle strategie di difesa cibernetica, contrapponendo la gestione statica degli incidenti tramite Playbook alla necessità di modelli dinamici per la rilevazione delle anomalie. Vengono esaminate le tecniche di attacco avanzate, come il movimento laterale e le Advanced Persistent Threats (APT), e le vulnerabilità intrinseche dei sistemi (es. Smart Card). Infine, si propone un modello teorico basato su grafi temporali ed entropia per identificare deviazioni comportamentali e attacchi complessi, superando i limiti della semplice analisi statistica del traffico.
+\end{abstract}
+
+\section{Introduzione: Il Perimetro e la Superficie d'Attacco}
+La cybersecurity moderna può essere modellata come un gioco non cooperativo tra attaccante e difensore. Le regole di questo confronto sono dettate da due concetti fondamentali:
+\begin{itemize}
+    \item \textbf{Perimetro:} L'insieme di tutte le componenti dell'infrastruttura (risorse umane, applicativi, hardware).
+    \item \textbf{Superficie d'Attacco:} La totalità dei possibili \textit{access point} sfruttabili per una compromissione.
+\end{itemize}
+Mentre il difensore opera spesso vincolato da regole predefinite, il "miglior attaccante" è colui che è in grado di cambiare le carte in tavola durante le varie fasi dell'offensiva, rendendo il perimetro un concetto fluido.
+
+\section{Gestione Operativa: Il Playbook}
+Il \textit{Playbook} rappresenta lo strumento fondamentale per la risposta strutturata agli incidenti. Esso descrive l'insieme delle contromisure da attuare al verificarsi di un \textit{alert} o di un attacco accertato. Le fonti informative che alimentano il playbook includono report ufficiali (dataset pubblici, liste di URL malevoli) e report interni standardizzati.
+
+\subsection{Contenimento e Contromisure Attive}
+All'interno del playbook, le azioni di risposta si dividono in due macro-categorie, spesso svolte in parallelo:
+\begin{enumerate}
+    \item \textbf{Contenimento:} Azioni volte ad "ammorbidire" il rischio e limitare i danni immediati. Queste decisioni sono tipicamente delegate alla struttura tecnica e ai referenti della protezione.
+    \item \textbf{Contromisura Attiva:} Interventi più radicali che richiedono una piena consapevolezza dell'impatto sul business e sull'operatività (es. isolamento totale di un segmento di rete).
+\end{enumerate}
+
+\section{Metodologie di Attacco e Anomalie}
+Gli attaccanti moderni sfruttano tecniche che mirano a eludere i controlli perimetrali classici.
+
+\subsection{Movimento Laterale}
+Il movimento laterale consiste in una serie di azioni apparentemente "legali" che consentono all'attaccante di avvicinarsi progressivamente all'obiettivo (tecnica tipica nei Ransomware). 
+Un esempio di catena di attacco è il seguente:
+$$ \text{Click (Phishing)} \rightarrow \text{Accesso File Condiviso} \rightarrow \text{Registrazione Utente} \rightarrow \text{Privilege Escalation} $$
+L'obiettivo è rendersi indistinguibile da un utente legittimo mentre si esegue lo \textit{scheme up} verso il target.
+
+\subsection{Case Study: Vulnerabilità Smart Card}
+Un esempio storico di sfruttamento di logiche firmware fallaci riguarda le Smart Card. 
+Sia $K$ la chiave asimmetrica utilizzata per la cifratura interna. Durante l'interrogazione del protocollo $P1$ per una transazione, la memoria fisica allocata era di $2k$ byte, mentre la \textit{challenge} prevista era di $1k$. I primi 100 byte erano riservati ai comandi di esecuzione, i restanti vuoti.
+Un attaccante, accedendo tramite un server infedele, poteva scaricare un payload malevolo che scriveva nello spazio "vuoto" oltre i comandi legittimi. Poiché il firmware:
+\begin{enumerate}
+    \item Era settato per calcolare/validare solo i primi 100 byte;
+    \item Eseguiva tuttavia le istruzioni sulla lunghezza maggiorata;
+\end{enumerate}
+L'attacco risultava "legale" ai controlli superficiali, ma eseguiva codice arbitrario (tecnica attribuita a gruppi cinesi).
+
+\subsection{APT e WebShell}
+Le \textit{Advanced Persistent Threats} (APT) prevedono il posizionamento di software su server legittimi, rimanendo silenti per mesi nell'inconsapevolezza della vittima.
+Spesso utilizzano \textbf{WebShell}: piccoli programmi ("uova") agganciati a estensioni browser o HTTP che agiscono come \textit{sniffer}, osservando il traffico e profilando l'infrastruttura. L'anomalia principale generata da una WebShell è un flusso dati non autorizzato (il server che "parla" con l'esterno in modo anomalo).
+
+\section{Rilevazione: Dall'Analisi Statistica ai Grafi}
+
+\subsection{Analisi del Traffico e Machine Learning}
+Un approccio classico alla difesa è l'analisi della curva gaussiana del traffico server. Si cercano gli \textit{outliers}, ovvero comportamenti che deviano dalla distribuzione normale.
+Tuttavia, questo metodo presenta criticità:
+\begin{itemize}
+    \item \textbf{Falsi Positivi:} Picchi di traffico plausibili ma benigni.
+    \item \textbf{Attacchi Rapidi:} Se l'attacco provoca una piccola deviazione ma si propaga istantaneamente, il danno avviene prima che la statistica possa rilevarlo come anomalia significativa ("la statistica cancella i passi negativi brevi").
+\end{itemize}
+L'utilizzo di algoritmi di \textbf{Machine Learning non supervisionato} migliora la capacità di scan e ricerca di anomalie in dataset complessi.
+
+\subsection{Modellazione tramite Grafi Temporali ed Entropia}
+Per superare i limiti statici, il problema viene modellato come un sistema dinamico su grafi.
+Siano:
+\begin{itemize}
+    \item $C_1$: Il grafo dei contesti legittimi (infrastruttura nota).
+    \item $C_2$: Il grafo dell'attaccante.
+\end{itemize}
+L'attacco si configura come l'aggancio dei nodi di $C_2$ al grafo $C_1$. Occupare un nodo di $C_1$ significa espandere $C_2$ in quel punto.
+
+\subsubsection{L'Entropia come Metrica}
+Definiamo $E(x_i, y_i)$ come l'entropia associata all'arco tra il nodo $x_i$ e il nodo $y_i$. L'entropia rappresenta qui il "peso" informativo o la complessità della relazione.
+$$ E_{tot} = \sum_{(x,y) \in G} E(x, y) $$
+Una variazione repentina dell'entropia $E$ che si propaga attraverso i nodi del grafo è un indicatore sufficiente per generare un \textit{alert}. Questo approccio trasforma la rilevazione in un problema di analisi delle variazioni topologiche e informative nel tempo, permettendo di identificare anche attacchi che eludono le soglie statistiche semplici.
+
+\section{Conclusioni}
+La difesa cibernetica richiede un'evoluzione dal semplice utilizzo di playbook reattivi verso modelli predittivi e dinamici. Formalizzare l'infrastruttura come un grafo temporale, dove l'attacco è visto come un'interferenza strutturale misurabile tramite l'entropia, offre una prospettiva promettente per contrastare minacce sempre più sofisticate come le APT e i movimenti laterali occulti.
+
+
+\section{Introduzione esercizio: Dal Playbook alla Dinamica}
+Mentre il \textit{Playbook} rappresenta la risposta statica e procedurale a un incidente noto, la realtà di un attacco informatico è un processo stocastico che evolve nel tempo. Per catturare questa complessità, non è sufficiente osservare lo stato del sistema in un istante $t_0$, ma è necessario modellare l'evoluzione delle connessioni nel tempo.
+
+Definiamo il dominio del conflitto come l'intersezione di due grafi: il grafo del contesto legittimo ($C_1$) e il grafo dell'attaccante ($C_2$).
+
+\section{Formalizzazione del Modello}
+
+\subsection{Il Grafo Temporale}
+Sia $G_t = (V, E_t)$ un grafo temporale dove l'insieme dei vertici $V$ è l'unione di tutti i nodi possibili, e l'insieme degli archi $E_t$ varia in funzione del tempo discreto $t \in \mathbb{N}$.
+
+Il sistema globale al tempo $t$ è definito come:
+$$ G_{global}(t) = C_1(t) \cup C_2(t) \cup E_{cross}(t) $$
+Dove:
+\begin{itemize}
+    \item $C_1 = (V_1, E_1)$ rappresenta l'infrastruttura bersaglio (nodi statici, connessioni legittime).
+    \item $C_2 = (V_2, E_2)$ rappresenta l'infrastruttura dell'attaccante (C\&C servers, nodi compromessi).
+    \item $E_{cross}(t)$ è l'insieme degli archi che connettono nodi di $V_2$ a nodi di $V_1$ (l'attacco in corso).
+\end{itemize}
+
+L'obiettivo dell'attaccante è espandere $C_2$ all'interno di $C_1$, trasformando nodi $v \in V_1$ in nodi controllati.
+
+\subsection{Il "Gioco" Cybernetico}
+Possiamo modellare l'attacco come un gioco sequenziale tra due giocatori: \textbf{Attacker (A)} e \textbf{Defender (D)}.
+
+\begin{itemize}
+    \item \textbf{Stato $S_t$:} La topologia del grafo $G_{global}$ al tempo $t$.
+    \item \textbf{Mosse dell'Attaccante ($M_A$):}
+    \begin{enumerate}
+        \item \textit{Scan:} Identificare un nodo vulnerabile in $V_1$.
+        \item \textit{Exploit:} Creare un arco $(u, v)$ dove $u \in V_2, v \in V_1$.
+        \item \textit{Lateral Movement:} Creare un arco $(v_i, v_j)$ entrambi in $V_1$ ma controllato da logiche di $A$.
+    \end{enumerate}
+    \item \textbf{Mosse del Difensore ($M_D$):}
+    \begin{enumerate}
+        \item \textit{Monitor:} Calcolare l'entropia $E(G_t)$.
+        \item \textit{Contain:} Rimuovere archi sospetti (isolamento).
+    \end{enumerate}
+\end{itemize}
+
+\section{Caso di Studio: $C_2$ (3 Server) vs $C_1$ (5 Nodi)}
+Analizziamo un esempio pratico per visualizzare la propagazione.
+
+\textbf{Configurazione Iniziale ($t=0$):}
+\begin{itemize}
+    \item $C_1$ (Target): 5 nodi $\{n_1, n_2, n_3, n_4, n_5\}$ connessi in una topologia a stella (server centrale $n_1$).
+    \item $C_2$ (Attacker): 3 server $\{s_1, s_2, s_3\}$ (es. Command \& Control, Payload Server, Exfiltration Server).
+\end{itemize}
+
+\subsection{Fase 1: Infiltrazione (Tempo $t=1$)}
+L'attaccante usa $s_1$ per inviare una WebShell su $n_3$ (nodo esposto, es. Web Server).
+$$ E_{cross}(1) = \{(s_1, n_3)\} $$
+In questo momento, il grafo $C_2$ si è "agganciato" a $C_1$. Il nodo $n_3$ è ora un punto di contatto.
+
+\subsection{Fase 2: Movimento Laterale (Tempo $t=2$)}
+L'attaccante, controllando $n_3$, esegue uno scan interno e trova $n_1$ (Database centrale). Tenta l'accesso.
+$$ E_{malicious}(2) = \{(n_3, n_1)\} $$
+Questo arco esiste già fisicamente in $C_1$ (poiché il web server parla col database), ma cambia la natura del flusso.
+
+\begin{center}
+\begin{tikzpicture}[
+    % Stili definiti
+    node distance=1.5cm and 1.5cm, % Distanza verticale e orizzontale standard
+    server/.style={circle, draw=red!80, fill=red!20, thick, minimum size=10mm},
+    target/.style={circle, draw=blue!80, fill=blue!20, thick, minimum size=10mm},
+    hacked/.style={circle, draw=orange!80, fill=orange!20, thick, minimum size=10mm},
+    link/.style={-Latex, thick}, % Freccia più carina
+    groupbox/.style={draw, dashed, inner sep=15pt, rounded corners} % Stile per i box C1 e C2
+]
+
+    % --- C2 Attacker Nodes ---
+    % Posiziono s2 (il centrale) per primo, poi gli altri sopra e sotto
+    \node[server] (s2) {$s_2$};
+    \node[server] (s1) [above=of s2] {$s_1$};
+    \node[server] (s3) [below=of s2] {$s_3$};
+    
+    % --- C1 Target Nodes ---
+    % Posiziono n3 (il web server bucato) ben distante a destra di s2
+    \node[hacked] (n3) [right=4cm of s2] {$n_3$};
+    
+    % Posiziono il Database (n1) a destra di n3
+    \node[target] (n1) [right=2.5cm of n3] {$n_1$};
+    
+    % Satelliti attorno a n1
+    \node[target] (n2) [above=of n1] {$n_2$};
+    \node[target] (n4) [below=of n1] {$n_4$};
+    \node[target] (n5) [right=of n1] {$n_5$};
+
+    % --- Raggruppamenti (Background) ---
+    \begin{scope}[on background layer]
+        % Box Attaccante
+        \node[groupbox, draw=red, fit=(s1) (s3), label={[red]above:$C_2$ Attacker}] {};
+        
+        % Box Target (includo tutti i nodi n)
+        \node[groupbox, draw=blue, fit=(n3) (n5) (n2) (n4), label={[blue]above:$C_1$ Target}] {};
+    \end{scope}
+
+    % --- Links ---
+    % Attacco da s1 a n3
+    \draw[link, red, dashed] (s1) -- node[above, sloped, font=\tiny, yshift=2pt]{Attack} (n3);
+    
+    % Connessioni interne C1
+    \draw[link] (n3) -- (n1);
+    \draw[link] (n1) -- (n2);
+    \draw[link] (n1) -- (n4);
+    \draw[link] (n1) -- (n5);
+    
+    % Movimento Laterale (curvo)
+    % Aumento l'angolo di curvatura (bend) per non sovrapporsi alla linea dritta
+    \draw[link, orange, very thick] (n3) to[bend right=45] node[below, font=\tiny]{Lat. Mov.} (n1);
+
+\end{tikzpicture}
+\\
+\textit{Fig. 1: Rappresentazione dell'aggancio del Grafo $C_2$ sul nodo $n_3$ di $C_1$ e successivo movimento laterale.}
+\end{center}
+
+\section{Rilevazione tramite Entropia}
+Come distinguiamo l'arco $(n_3, n_1)$ legittimo da quello malevolo al tempo $t=2$? Utilizziamo l'entropia come misura del disordine o della "sorpresa" nel flusso dati.
+
+Definiamo $P(i, j)$ come la probabilità (basata sullo storico/playbook) che il nodo $i$ comunichi con il nodo $j$ con un certo payload. L'entropia dell'arco è:
+$$ H(i, j) = - P(i, j) \log_2 P(i, j) $$
+
+\subsection{Dinamica dell'Alert}
+\begin{enumerate}
+    \item \textbf{Stato Normale:} Il traffico $n_3 \to n_1$ è costante (query SQL standard). $H(n_3, n_1) \approx k$ (bassa/stabile).
+    \item \textbf{Stato Attacco:} L'attaccante scarica dati in massa o esegue comandi OS. La distribuzione dei pacchetti cambia drasticamente.
+    \item \textbf{Variazione:}
+    $$ \Delta H = |H_{t=2}(n_3, n_1) - H_{t=1}(n_3, n_1)| > \theta $$
+    Dove $\theta$ è la soglia di tolleranza definita nel Playbook.
+\end{enumerate}
+
+Se $\Delta H$ supera la soglia e questa variazione si propaga (es. $n_1$ inizia improvvisamente a parlare con $n_5$ con alta entropia), il sistema dinamico genera un \textbf{Alert}.
+
+\section{Conclusioni}
+Modellare la cybersecurity come l'interazione dinamica tra grafi ($C_1$ e $C_2$) permette di astrarre il problema tecnico in un problema topologico.
+L'attacco non è più visto solo come un "malware", ma come un'espansione non autorizzata del grafo $C_2$ sui nodi di $C_1$. L'entropia fornisce la metrica quantitativa per rilevare queste espansioni anche quando le firme statiche (antivirus) falliscono, permettendo l'attivazione tempestiva delle contromisure previste dal Playbook.
+
+\end{document}

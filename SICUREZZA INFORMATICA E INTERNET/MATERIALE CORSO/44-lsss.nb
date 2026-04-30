@@ -1,0 +1,154 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 7.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[      4305,        145]
+NotebookOptionsPosition[      3871,        125]
+NotebookOutlinePosition[      4214,        140]
+CellTagsIndexPosition[      4171,        137]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"m", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "x1", ",", 
+       SuperscriptBox["x1", "2"]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "x2", ",", 
+       SuperscriptBox["x2", "2"]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "x4", ",", 
+       SuperscriptBox["x4", "2"]}], "}"}]}], "}"}]}], " ", 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"c", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{"c1", ",", "c2", ",", "c3"}], "}"}]}], " ", 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "0", ",", "0"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Transpose", "[", "m", "]"}], " ", "//", " ", 
+  "MatrixForm"}]}], "Input",
+ CellChangeTimes->{{3.546705312585718*^9, 3.546705376639431*^9}, {
+  3.546705425124316*^9, 3.5467054525491643`*^9}, {3.546705562669758*^9, 
+  3.546705565618163*^9}, {3.546705612683446*^9, 3.546705692680386*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"1", "1", "1"},
+     {"x1", "x2", "x4"},
+     {
+      SuperscriptBox["x1", "2"], 
+      SuperscriptBox["x2", "2"], 
+      SuperscriptBox["x4", "2"]}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{{3.546705566148564*^9, 3.5467055726069756`*^9}, 
+   3.5467056257406683`*^9, {3.546705662260333*^9, 3.5467056931327868`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Solve", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"Transpose", "[", "m", "]"}], ".", "c"}], "\[Equal]", "b"}], ",",
+    "c"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5466921600544806`*^9, 3.546692162266779*^9}, {
+   3.5466922173188477`*^9, 3.5466922263624425`*^9}, 3.546692305258991*^9, 
+   3.5467054954024396`*^9, {3.546705635022685*^9, 3.546705642573098*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"c1", "\[Rule]", 
+     FractionBox[
+      RowBox[{"x2", " ", "x4"}], 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"x1", "-", "x2"}], ")"}], " ", 
+       RowBox[{"(", 
+        RowBox[{"x1", "-", "x4"}], ")"}]}]]}], ",", 
+    RowBox[{"c2", "\[Rule]", 
+     RowBox[{"-", 
+      FractionBox[
+       RowBox[{"x1", " ", "x4"}], 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"x1", "-", "x2"}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{"x2", "-", "x4"}], ")"}]}]]}]}], ",", 
+    RowBox[{"c3", "\[Rule]", 
+     FractionBox[
+      RowBox[{"x1", " ", "x2"}], 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"x1", "-", "x4"}], ")"}], " ", 
+       RowBox[{"(", 
+        RowBox[{"x2", "-", "x4"}], ")"}]}]]}]}], "}"}], "}"}]], "Output",
+ CellChangeTimes->{3.5466922268970723`*^9, 3.546692305670993*^9, 
+  3.5467054959484406`*^9, 3.546705644304701*^9, 3.546705704786007*^9}]
+}, Open  ]]
+},
+WindowSize->{607, 537},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"7.0 for Microsoft Windows (32-bit) (November 10, 2008)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[567, 22, 1034, 29, 94, "Input"],
+Cell[1604, 53, 851, 23, 74, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2492, 81, 398, 9, 31, "Input"],
+Cell[2893, 92, 962, 30, 87, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

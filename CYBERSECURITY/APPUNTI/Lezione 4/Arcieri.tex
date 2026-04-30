@@ -1,0 +1,363 @@
+\documentclass[a4paper, 12pt]{article}
+
+% --- Pacchetti Standard ---
+\usepackage[utf8]{inputenc}    % Codifica input
+\usepackage[T1]{fontenc}       % Codifica font
+\usepackage[italian]{babel}    % Lingua italiana
+\usepackage{geometry}          % Per i margini
+\usepackage{amsmath}           % Per la matematica
+\usepackage{amssymb}           % Per simboli matematici
+\usepackage{graphicx}          % Per le immagini
+\usepackage{hyperref}          % Per i link
+\usepackage{fvextra}           % Per verbatim migliorato
+\usepackage{parskip}           % Spazio tra paragrafi invece di indentazione
+
+% --- Impostazione Pagina ---
+\geometry{
+    a4paper,
+    total={170mm,257mm},
+    left=20mm,
+    top=20mm,
+}
+
+% --- Informazioni Documento ---
+\title{Appunti di Cybersecurity: Meccanismi TCP e Attacchi}
+\author{Appunti dalla Lezione}
+\date{\today}
+
+% Migliore formattazione per il codice/testo verbatim
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small, frame=single, framerule=0.5pt, framesep=4pt}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Evoluzione dei Protocolli: Da TCP a UDP (HTTP/3)}
+% ===================================================================
+
+Si osserva un'evoluzione nei protocolli web, come HTTP/3 (riferito in lezione come HTTP 4.0), che segna un passaggio significativo dal protocollo TCP (Transmission Control Protocol) a UDP (User Datagram Protocol).
+
+In questo nuovo modello, è l'applicazione stessa a dover gestire l'affidabilità dei dati. Questo contrasta con l'approccio tradizionale di TCP, che gestisce nativamente l'affidabilità (controllo di sequenza, ritrasmissione dei pacchetti persi, controllo di congestione), ma la cui rigida gestione dell'ordine può creare inefficienze (es. \textit{Head-of-Line Blocking}). L'uso di UDP permette all'applicazione (es. QUIC per HTTP/3) di implementare meccanismi di affidabilità più flessibili e ottimizzati per il web moderno.
+
+% ===================================================================
+\section{Analisi del Funzionamento di TCP}
+% ===================================================================
+
+Per comprendere le vulnerabilità, è essenziale analizzare come TCP gestisce la comunicazione, l'affidabilità e l'ordinamento dei dati.
+
+% -------------------------------------------------------------------
+\subsection{Segmentazione e Riassemblaggio}
+% -------------------------------------------------------------------
+
+Quando un'applicazione invia un flusso di dati (es. 4000 byte), TCP deve gestirlo tenendo conto dei limiti della rete sottostante. La \textbf{Maximum Transmission Unit (MTU)} definisce la dimensione massima di un pacchetto (spesso 1500 byte).
+
+Se Peer 1 invia 4000 byte a Peer 2, TCP (o IP) segmenterà (o frammenterà) i dati:
+\begin{itemize}
+    \item \textbf{Frammento 1 (F1):} byte da 0 a 1500
+    \item \textbf{Frammento 2 (F2):} byte da 1500 a 3000
+    \item \textbf{Frammento 3 (F3):} byte da 3000 a 4000
+\end{itemize}
+
+A livello TCP, si esegue una singola \texttt{send(4000)}. Il protocollo TCP al lato ricevente deve garantire che i dati siano riassemblati nell'ordine corretto, anche se i pacchetti arrivano in ordine errato (es. F2, F1, F3).
+
+% -------------------------------------------------------------------
+\subsection{Handshake: Sequence (SEQ) e Acknowledgment (ACK)}
+% -------------------------------------------------------------------
+
+Il riordinamento è possibile grazie ai numeri di sequenza (\textbf{SEQ}) e di riscontro (\textbf{ACK}), negoziati durante la fase di \textit{challenge} (handshake).
+
+\begin{enumerate}
+    \item \textbf{Peer 1 (Client):} Invia un pacchetto \texttt{SYN} (Synchronize) per iniziare la connessione. Questo pacchetto contiene un numero di sequenza iniziale randomico.
+    \begin{code}
+    Peer 1 -> Peer 2: SYN (SEQ = 7254)
+    \end{code}
+    
+    \item \textbf{Peer 2 (Server):} Risponde con un flag \texttt{SYN-ACK}. Invia il proprio numero di sequenza (es. 10) e imposta l'ACK al numero di sequenza del client + 1, confermando la ricezione.
+    \begin{code}
+    Peer 2 -> Peer 1: SYN-ACK (SEQ = 10, ACK = 7255)
+    \end{code}
+    
+    \item \textbf{Peer 1 (Client):} Completa l'handshake inviando un \texttt{ACK} finale.
+    \begin{code}
+    Peer 1 -> Peer 2: ACK (SEQ = 7255, ACK = 11)
+    \end{code}
+\end{enumerate}
+
+Una comunicazione TCP è quindi completamente definita non solo dalla 5-tupla (IP Sorgente, Porta Sorgente, IP Destinazione, Porta Destinazione, Protocollo) ma anche dalla relazione $SEQ \leftrightarrow ACK$ tra i due peer.
+
+% -------------------------------------------------------------------
+\subsection{Controllo di Flusso, Buffering e Ritrasmissione}
+% -------------------------------------------------------------------
+
+La comunicazione prosegue con la convalida dei dati inviati tramite i numeri di sequenza, che agiscono come \textit{offset} nel flusso di byte.
+
+Se P1 invia F1 (1500 byte) partendo da $SEQ=7255$:
+\begin{itemize}
+    \item \textbfBuffering fuori ordine: Se P2 riceve prima F2 (byte 1500-3000), non può ancora consegnare i dati all'applicazione. Inserisce F2 in uno "storage" (buffer di ricezione).
+    \item \textbfRiassemblaggio: Quando P2 riceve F1 (byte 0-1500), riempie il buffer con i primi 1500 byte. Ora può "attaccare" F2, che era nello storage, all'offset corretto (1500).
+    \item \textbfACK Cumulativo: A questo punto, P2 conferma a P1 di aver ricevuto correttamente i primi 3000 byte (F1+F2) e svuota la coda (consegnando i dati all'applicazione). L'ACK inviato sarà $SEQ_{P1} + 3000$.
+\end{itemize}
+
+Grazie all'uso degli offset (numeri di sequenza), non si possono avere duplicati (dati duplicati con lo stesso SEQ vengono scartati).
+
+\subsubsection*{Gestione delle Perdite}
+
+Se P2 non riceve F3 entro un certo timeout (es. > 10 millisecondi), non può confermare i dati oltre i 3000 byte. P2 potrebbe quindi rimandare lo stesso pacchetto \texttt{ACK} (ACK duplicato) comunicando che gli sono arrivati solo i primi due segmenti. Questo segnala a P1 di ritrasmettere F3.
+
+Se la connessione attraversa reti con MTU diverse (es. una rete ATM) che frammentano ulteriormente i pacchetti (es. da 1000 a 500 byte), il peer può rispondere con un nuovo ACK specifico per il re-invio (\textit{re-transmitted}) dei dati persi.
+
+La connessione TCP è una \textbf{macchina a stati finiti} e questi meccanismi di affidabilità sono attivi finché la connessione non viene chiusa.
+
+% ===================================================================
+\section{Superficie d'Attacco in TCP}
+% ===================================================================
+
+% -------------------------------------------------------------------
+\subsection{Man-in-the-Middle (MITM) e Sequence Number Attack}
+% -------------------------------------------------------------------
+
+Dato che la comunicazione è definita dai numeri SEQ e ACK, un attore malevolo (Man-in-the-Middle, MITM) che può osservare e modificare i pacchetti può sabotare la connessione.
+
+\textbf{Esempio (su rete locale):}
+\begin{enumerate}
+    \item P1 invia \texttt{SYN} con $SEQ=30$.
+    \item Il MITM intercetta il pacchetto e lo modifica, inoltrando a P2 un \texttt{SYN} con $SEQ=40$.
+    \item P2 risponde (al MITM, pensando sia P1) con \texttt{SYN-ACK} e $ACK=41$.
+    \item Il MITM può continuare la conversazione con P2, mentre P1 non riceverà mai una risposta corretta al suo $SEQ=30$ originale, sabotando l'intera conversazione.
+\end{enumerate}
+
+% -------------------------------------------------------------------
+\subsection{Vulnerabilità lungo il Percorso di Rete}
+% -------------------------------------------------------------------
+
+Quando un peer si connette a un sito web (es. \texttt{ftp.com}), la comunicazione attraversa molteplici macchine (router, switch) intermedi (es. 20 hop).
+
+\begin{itemize}
+    \item \textbf Superficie d'attacco: Ognuna di queste 20 macchine è un potenziale punto di attacco. È impossibile conoscere a priori tutte le vulnerabilità presenti lungo l'intera catena.
+    \item \textbf Difesa applicativa: La componente applicativa (es. TLS/SSL) deve agire per difendere il \textit{percorso} (garantendo crittografia e integrità dei dati end-to-end).
+    \item \textbf Limiti della difesa: Tuttavia, la difesa applicativa non protegge dal basso livello di rete.
+\end{itemize}
+
+L'introduzione di pacchetti anomali (spoofing) da parte di un attaccante e la gestione dei "non-care" (pacchetti inattesi o malformati) possono portare alla mancata ricezione del messaggio originale ed effettivo (Denial of Service) o all'iniezione di dati malevoli.
+Questa immagine mostra il **diagramma a stati finiti (Finite State Machine, FSM)** del protocollo TCP. È fondamentalmente la "mappa logica" che ogni computer utilizza per gestire il ciclo di vita di una connessione TCP, dall'apertura al trasferimento dati fino alla chiusura.
+
+Gli ovali rappresentano gli **stati**, mentre le frecce rappresentano le **transizioni**. Le transizioni sono attivate da eventi (es. un comando dall'applicazione, \texttt{app\_}, o un pacchetto ricevuto, \texttt{recv\_}) e possono causare l'invio di un pacchetto (es. \texttt{send\_}).
+
+\begin{figure}[h!]
+     \centering
+     \includegraphics[width=\textwidth]{images/tcp.png}
+     \caption{Diagramma a Stati Finiti del Protocollo TCP}
+     \label{fig:tcp_fsm}
+\end{figure}
+% ---------------------------------
+
+\section{Apertura della Connessione (Handshake a 3 vie)}
+
+Questo processo coinvolge un lato "attivo" (il client, che inizia la connessione) e un lato "passivo" (il server, che ascolta).
+
+\subsection{Lato Server (Apertura Passiva)}
+\begin{enumerate}
+    \item \textbf{\texttt{CLOSED}}: Lo stato di partenza. Non c'è connessione.
+    \item \textbf{\texttt{LISTEN}}: Il server esegue un \texttt{app\_passive open} (es. un server web che si avvia) e si mette in ascolto su una porta, in attesa di richieste.
+    \item \textbf{\texttt{SYN\_RCVD}}: Il server (in \texttt{LISTEN}) riceve un pacchetto \texttt{SYN} (Synchronize) dal client. Risponde inviando il proprio \texttt{SYN} e l' \texttt{ACK} (Acknowledgment) del \texttt{SYN} del client. Ora attende l'\texttt{ACK} finale.
+\end{enumerate}
+
+\subsection{Lato Client (Apertura Attiva)}
+\begin{enumerate}
+    \item \textbf{\texttt{CLOSED}}: Stato di partenza.
+    \item \textbf{\texttt{SYN\_SENT}}: L'applicazione (es. il browser) esegue un \texttt{app\_active open} per connettersi. Invia un pacchetto \texttt{SYN} al server e attende la risposta \texttt{SYN\_ACK}.
+\end{enumerate}
+
+\subsection{Completamento dell'Handshake}
+\begin{itemize}
+    \item Quando il Client (in \texttt{SYN\_SENT}) riceve il \texttt{SYN\_ACK} dal server, invia l'ultimo \texttt{ACK} e passa allo stato \textbf{\texttt{ESTABLISHED}}.
+    \item Quando il Server (in \texttt{SYN\_RCVD}) riceve l'ultimo \texttt{ACK} dal client, passa anch'esso allo stato \textbf{\texttt{ESTABLISHED}}.
+\end{itemize}
+
+\section{Trasferimento Dati}
+
+\begin{itemize}
+    \item \textbf{\texttt{ESTABLISHED}}: Questo è lo stato principale della connessione. L'handshake è completo e i due peer possono scambiarsi liberamente dati (pacchetti PSH+ACK). È lo stato in cui avvengono la segmentazione e il riassemblaggio.
+\end{itemize}
+
+\section{Chiusura della Connessione (Handshake a 4 vie)}
+
+La chiusura di TCP è gestita in modo che ogni lato possa terminare la sua parte di invio ("half-close") indipendentemente.
+
+\subsection{Lato che inizia la chiusura (Chiusura Attiva)}
+\begin{enumerate}
+    \item \textbf{\texttt{ESTABLISHED}}: L'applicazione decide di chiudere (\texttt{app\_close}).
+    \item \textbf{\texttt{FIN\_WAIT\_1}}: Il sistema invia un pacchetto \texttt{FIN} (Finish) e attende l' \texttt{ACK} da parte dell'altro peer.
+    \item \textbf{\texttt{FIN\_WAIT\_2}}: Riceve l' \texttt{ACK} per il suo \texttt{FIN}. Ora sa che l'altro peer ha ricevuto la sua richiesta di chiusura. Rimane in attesa del \texttt{FIN} dall'altro lato (che indica che anche l'altro peer ha finito di inviare dati).
+    \item \textbf{\texttt{TIME\_WAIT}}: Riceve il \texttt{FIN} dall'altro peer, invia l'ultimo \texttt{ACK} e entra in questo stato. È uno stato di "quarantena" (che dura \texttt{2MSL}, \textit{Two Maximum Segment Lifetime}) per assicurarsi che l'ultimo \texttt{ACK} sia arrivato e per evitare che pacchetti "orfani" di questa connessione vengano confusi con una nuova connessione.
+\end{enumerate}
+
+\subsection{Lato che riceve la richiesta di chiusura (Chiusura Passiva)}
+\begin{enumerate}
+    \item \textbf{\texttt{ESTABLISHED}}: Riceve un \texttt{FIN} dal peer che ha iniziato la chiusura.
+    \item \textbf{\texttt{CLOSE\_WAIT}}: Invia un \texttt{ACK} per confermare la ricezione del \texttt{FIN}. Informa la propria applicazione che la connessione è in chiusura (l'altro lato non invierà più dati). L'applicazione locale deve finire le sue operazioni e chiudere a sua volta.
+    \item \textbf{\texttt{LAST\_ACK}}: L'applicazione locale esegue \texttt{app\_close}. Il sistema invia il proprio \texttt{FIN} e attende l'ultimo \texttt{ACK}.
+    \item \textbf{\texttt{CLOSED}}: Riceve l'ultimo \texttt{ACK} (quello inviato dal peer che è entrato in \texttt{TIME\_WAIT}) e chiude definitivamente la connessione.
+\end{enumerate}
+
+Infine, anche il peer in \texttt{TIME\_WAIT} scadrà il suo timer e tornerà a \texttt{CLOSED}.
+
+\section{\texttt{traceroute} (o \texttt{tracert})}
+% ===================================================================
+
+\subsection{Definizione}
+\texttt{traceroute} (noto come \texttt{tracert} su sistemi Windows) è un programma diagnostico a riga di comando per reti di computer. Il suo scopo è tracciare il percorso (la rotta) che i pacchetti IP seguono da un host sorgente a un host destinazione.
+
+\subsection{Utilizzo e Funzionamento}
+L'uso principale di \texttt{traceroute} è la diagnosi dei problemi di rete. Permette di:
+\begin{itemize}
+    \item Identificare ogni singolo "salto" (hop), solitamente un router, che un pacchetto attraversa per raggiungere la sua destinazione.
+    \item Misurare il tempo di latenza (Round Trip Time, RTT) per ogni hop, aiutando a individuare colli di bottiglia o punti in cui la connessione è lenta.
+    \item Rilevare la perdita di pacchetti lungo il percorso.
+\end{itemize}
+
+\subsubsection*{Principio di Funzionamento}
+\texttt{traceroute} opera inviando una serie di pacchetti (tipicamente pacchetti ICMP Echo Request o UDP) verso la destinazione. La sua peculiarità è quella di manipolare il campo \textbf{Time-To-Live (TTL)} nell'intestazione IP.
+
+\begin{enumerate}
+    \item Inizia inviando un pacchetto con $TTL = 1$. Il primo router lungo il percorso decrementa il TTL a 0, scarta il pacchetto e invia un messaggio ICMP \texttt{Time Exceeded} (Tempo scaduto) all'host sorgente.
+    \item La sorgente registra l'indirizzo IP del primo router (dall'intestazione del messaggio ICMP) e il tempo impiegato.
+    \item Ripete l'operazione con $TTL = 2$. Il primo router inoltra il pacchetto, ma il secondo router lo scarta (decrementando il TTL da 1 a 0) e invia un ICMP \texttt{Time Exceeded}.
+    \item Questo processo continua, incrementando il TTL di 1 per ogni "giro", fino a quando il pacchetto raggiunge la destinazione finale.
+    \item Quando la destinazione viene raggiunta, essa risponde con un messaggio diverso (es. ICMP \texttt{Port Unreachable} se si usano pacchetti UDP, o \texttt{Echo Reply} se si usa ICMP), segnalando a \texttt{traceroute} che il percorso è stato completato.
+\end{enumerate}
+
+% ===================================================================
+\section{\texttt{netstat} (Network Statistics)}
+% ===================================================================
+
+\subsection{Definizione}
+\texttt{netstat} è un'utility a riga di comando che fornisce informazioni e statistiche sulle connessioni di rete attive, le tabelle di instradamento e le interfacce di rete. È disponibile sulla maggior parte dei sistemi operativi, inclusi Windows, Linux e macOS.
+
+\subsection{Utilizzo}
+\texttt{netstat} è uno strumento fondamentale per il monitoraggio e la diagnosi dello stato della rete locale di un host. I suoi casi d'uso più comuni includono:
+\begin{itemize}
+    \item \textbfElencare connessioni attive: Mostra tutte le connessioni TCP e UDP attive, includendo l'indirizzo IP locale, l'indirizzo IP straniero (remoto) e le rispettive porte.
+    \item \textbfIdentificare porte in ascolto: Permette di vedere quali porte sul computer sono aperte e in stato \texttt{LISTENING}, ovvero in attesa di connessioni in entrata (es. un server web sulla porta 443).
+    \item \textbfMappare connessioni ai processi: Su molti sistemi, con le opzioni appropriate (es. \texttt{-b} su Windows, \texttt{-p} su Linux), può mostrare quale programma o processo (PID) sta utilizzando una determinata porta o connessione.
+    \item \textbfVisualizzare tabelle di routing: Mostra la tabella di routing IP locale, utile per diagnosticare problemi di instradamento.
+    \item \textbfControllare statistiche di interfaccia: Fornisce statistiche sul traffico di rete per ciascuna interfaccia (pacchetti inviati/ricevuti, errori, ecc.).
+\end{itemize}
+È particolarmente utile in cybersecurity per una rapida analisi: se si sospetta una connessione non autorizzata, \texttt{netstat} può rivelare se il computer sta comunicando con indirizzi IP sospetti.
+
+% ===================================================================
+\section{\texttt{base64}}
+% ===================================================================
+
+\subsection{Definizione}
+\texttt{Base64} non è un protocollo o un comando diagnostico di rete, ma uno \textbf{schema di codifica}. È un metodo standardizzato per convertire dati binari (come immagini, file eseguibili, o qualsiasi sequenza di byte) in un formato di testo ASCII.
+
+Il nome deriva dal fatto che utilizza un set di 64 caratteri (A-Z, a-z, 0-9, \texttt{+} e \texttt{/}) per rappresentare i dati binari.
+
+\subsection{Utilizzo e Funzionamento}
+L'obiettivo principale di \texttt{Base64} è garantire che i dati binari possano essere trasmessi o memorizzati in sistemi che sono progettati per gestire esclusivamente dati testuali.
+\begin{itemize}
+    \item \textbf Allegati E-mail (MIME): Storicamente, il protocollo SMTP (per le email) era progettato solo per testo ASCII a 7-bit. \texttt{Base64} è usato per codificare gli allegati (immagini, PDF) in modo che possano viaggiare come testo nel corpo del messaggio email.
+    \item \textbf Incorporamento in URL e HTML: A volte è utile incorporare piccole immagini o dati direttamente in un file HTML o CSS (\textit{Data URI}) senza dover fare una richiesta di rete separata.
+    \item \textbf API e JSON/XML:} I formati JSON e XML sono testuali. Se un'API deve restituire un file binario (es. un certificato) all'interno di una risposta JSON, lo codificherà in \texttt{Base64}.
+\end{itemize}
+
+\subsubsection*{Principio di Funzionamento}
+\texttt{Base64} funziona prendendo 3 byte di dati binari (3 byte = 24 bit) e rappresentandoli come 4 caratteri ASCII.
+\begin{enumerate}
+    \item Prende 3 byte (24 bit) di input.
+    \item Suddivide questi 24 bit in 4 gruppi da 6 bit ciascuno.
+    \item Ogni gruppo da 6 bit può rappresentare $2^6 = 64$ valori diversi (da 0 a 63).
+    \item Mappa ognuno di questi 64 valori a un carattere specifico della tabella \texttt{Base64}.
+    \item Se i dati di input non sono un multiplo di 3 byte, viene aggiunto un padding (carattere \texttt{=}) alla fine della stringa per indicare quanti byte mancavano.
+\end{enumerate}
+\textbfNota Importante:} La codifica \texttt{Base64} \emph{non} è crittografia e non offre alcuna sicurezza. È facilmente reversibile (decodificabile). Il suo unico scopo è la rappresentazione dei dati. Comporta inoltre un aumento della dimensione dei dati di circa il 33\%.
+
+\section{Il Protocollo HTTP (HyperText Transfer Protocol)}
+
+\subsection{Definizione e Contesto}
+Il protocollo HTTP è un protocollo di comunicazione a livello applicativo. La sua struttura si compone di una \textbf{parte di controllo} (le intestazioni o headers) e una \textbf{parte dati} (il corpo o body). Questo messaggio HTTP viene incapsulato, a sua volta, nella parte dati di un segmento TCP.
+
+La porta "suggerita" (standard) per il protocollo HTTP è la porta \textbf{80}.
+
+\subsection{Struttura di una Richiesta HTTP}
+Una comunicazione HTTP è basata su un modello client-server. Il client invia una richiesta (request) e il server risponde (response).
+
+La struttura di una richiesta client è la seguente:
+\begin{enumerate}
+    \item \textbf{Riga di Richiesta (Request Line):}
+    \begin{itemize}
+        \item \texttt{Metodo}: L'azione richiesta (es. GET).
+        \item \texttt{URI (Uniform Resource Identifier)}: L'identificativo della risorsa (es. /index.html).
+        \item \texttt{Versione Protocollo}: Solitamente \texttt{HTTP/1.1} o superiore.
+        \item Terminatore di riga (CRLF).
+    \end{itemize}
+    \item \textbf{Intestazioni (Headers):}
+    \begin{itemize}
+        \item Una serie di coppie \texttt{chiave: valore} che forniscono informazioni aggiuntive.
+        \item \textbf{Campo Host:} Obbligatorio dalla versione 1.1. Indica il dominio a cui è destinata la richiesta (es. \texttt{Host: ftp.com}).
+        \item Altre intestazioni comuni: \texttt{User-Agent}, \texttt{Accept}, \texttt{Content-Length}, ecc.
+        \item Ogni header è terminato da CRLF.
+    \end{itemize}
+    \item \textbf{Riga Vuota (CRLF):} Una riga vuota (solo CRLF) che separa gli header dal corpo del messaggio.
+    \item \textbf{Corpo (Body):} (Opzionale) Contiene i dati inviati al server, ad esempio con un metodo POST.
+\end{enumerate}
+
+Sia nella richiesta che nella risposta, i dati (body) seguono sempre la riga vuota. Nelle prime versioni di HTTP (1.0), il client doveva attendere che il server chiudesse la connessione per sapere che i dati erano terminati. Con \texttt{HTTP/1.1} è stato introdotto l'header \texttt{Content-Length}, che specifica la lunghezza esatta del corpo del messaggio, permettendo connessioni persistenti.
+
+\subsection{Metodi HTTP}
+I metodi HTTP definiscono l'azione che si desidera eseguire sulla risorsa specificata:
+\begin{itemize}
+    \item \textbf{GET}: Richiede una rappresentazione della risorsa. È il metodo più comune (es. scaricare una pagina web).
+    \item \textbf{POST}: Invia dati al server (es. compilare un modulo) affinché li processi. I dati sono contenuti nel corpo (body) della richiesta.
+    \item \textbf{PUT}: Carica una risorsa sul server, sostituendo qualsiasi versione esistente all'URI specificato.
+    \item \textbf{HEAD}: Identico a GET, ma richiede solo gli header della risposta, senza il corpo. Utile per controllare la validità di una risorsa senza scaricarla.
+    \item \textbf{DELETE}: Rimuove la risorsa specificata.
+    \item \textbf{OPTIONS}: Richiede informazioni sulle opzioni di comunicazione disponibili per una risorsa (es. quali metodi sono supportati).
+    \item \textbf{CONNECT}: Stabilisce un tunnel verso il server identificato dall'URI (usato principalmente per proxy HTTPS).
+\end{itemize}
+
+\subsection{Sintassi Completa della URI}
+L'URI (Uniform Resource Identifier) ha una sintassi complessa che può includere diverse parti:
+\begin{code}
+HTTP://username:password@domain:porta/path?chiave=valore#tag
+\end{code}
+\begin{itemize}
+    \item \texttt{HTTP://}: Schema del protocollo.
+    \item \texttt{username:password@}: (Obsoleto) Credenziali per l'autenticazione di base.
+    \item \texttt{domain}: Il dominio o l'indirizzo IP del server.
+    \item \texttt{:porta}: La porta su cui il server è in ascolto (opzionale, default 80 per HTTP).
+    \item \texttt{/path}: Il percorso della risorsa sul server.
+    \item \texttt{?chiave=valore}: La "query string", usata per passare parametri (es. in un GET).
+    \item \texttt{\#tag}: Un frammento o "anchor", usato dal client (browser) per posizionarsi in un punto specifico della pagina (non viene inviato al server).
+\end{itemize}
+
+\subsection{Protocollo Stateless (Senza Stato)}
+HTTP è un protocollo \textbf{stateless}: ogni richiesta è indipendente e il server non mantiene memoria delle richieste precedenti. Se una risorsa è "pregiata" (protetta), il client deve inviare le credenziali (es. \texttt{username:password}) per \emph{ogni} richiesta di accesso.
+
+Storicamente, software come Apache Web Server permettevano di limitare l'accesso a specifiche directory o pagine tramite file \texttt{.htaccess}, ma oggi questa forma di autenticazione (HTTP Basic Auth) è considerata insicura se non usata su HTTPS, poiché le credenziali viaggiano in chiaro.
+
+\subsection{Evoluzione: da HTTP 1.0 a 1.1 e il Campo Host}
+Con HTTP 1.0, per accedere a un sito (es. \texttt{ftp.com}), un client doveva:
+\begin{enumerate}
+    \item Risolvere il dominio \texttt{ftp.com} in un indirizzo IP tramite una query DNS.
+    \item Effettuare una \texttt{connect(IP)} sulla porta 80.
+\end{enumerate}
+Questo modello presupponeva una relazione 1:1 tra indirizzo IP e dominio.
+
+Il protocollo HTTP 1.0 \textbf{non prevedeva il campo Host}. Con l'avvento del \textit{virtual hosting} (più siti web sullo stesso server, con lo stesso IP), è diventato necessario specificare quale sito si intendeva visitare.
+
+Con \textbf{HTTP 1.1}, l'header \texttt{Host} è diventato obbligatorio. Dopo la connessione TCP, il client invia:
+\begin{code}
+GET / HTTP/1.1
+Host: ftp.com
+...
+\end{code}
+Il server legge l'header \texttt{Host} e può così instradare la richiesta al sito corretto (es. \texttt{ftp.com}) tra i tanti che ospita su quell'IP.
+
+Tutta questa comunicazione, se avviene su HTTP (porta 80), è una \textbf{connessione in chiaro}: chiunque in ascolto sulla rete (es. un Man-in-the-Middle) può leggere l'intera richiesta e risposta, inclusi eventuali username, password o cookie.
+
+\end{document}

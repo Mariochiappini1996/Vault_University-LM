@@ -1,0 +1,279 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{example}[definition]{Example}
+\newtheorem{exercise}[definition]{Exercise}
+\setcounter{definition}{77} % L'ultimo era 77 (implicito), quindi il prossimo è 78
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{9 Stimatori e loro proprietà}
+
+\begin{definition}
+Dediniamo campione aleatorio (random sample) un insieme di
+variabili aleatorie indipendenti ed identicamente distribuite $X_{1},...,X_{n}$ definite
+su uno spazio di probabilità $\{\Omega, \mathfrak{S}, \mathbb{P}\}$.
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cos'è un "Campione Aleatorio"?}
+    
+    Questa è la definizione base della statistica. Un "campione aleatorio" è un insieme di $n$ osservazioni (i tuoi dati, $X_1, \dots, X_n$) che rispetta due condizioni cruciali:
+    
+    \begin{itemize}
+        \item \textbf{Indipendenti (I):} Il valore di un'osservazione non influenza le altre. (Es. L'esito del primo lancio di un dado non ha effetto sul secondo lancio).
+        \item \textbf{Identicamente Distribuite (ID):} Tutte le osservazioni provengono dalla stessa "fonte", cioè seguono la stessa identica distribuzione di probabilità. (Es. Tutti i lanci provengono dallo \textit{stesso} dado, non da dadi truccati diversi).
+    \end{itemize}
+    
+    Queste due condizioni insieme sono abbreviate in \textbf{i.i.d.} e sono l'ipotesi di partenza per la maggior parte dei teoremi statistici.
+\end{spiegazione}
+
+\begin{remark}
+In realtà né l'ipotesi di indipendenza né quella di identica distribuzione sono necessarie e saranno entrambe abbandonate più avanti;
+partiamo
+da queste condizioni super-semplificate per necessità.
+\end{remark}
+
+Supponiamo ora che la misura di probabilità P sia nota solo a meno del
+valore di un certo parametro $\theta$. In genere, si definisce Statistica Parametrica la
+disciplina che studia le tecniche per risalire al valore di $\theta$ nel caso in cui esso
+appartenga ad uno spazio di dimensione finita, $\theta\in\mathbb{R}^{p}$, $p\in\mathbb{N};$ si parla invece di
+Statistica NonParametrica la disciplina che studia il caso in cui $\theta$ ha dimensione
+infinita.
+Ad esempio, se sappiamo che P è una legge Gaussiana ma ne ignoriamo
+valor medio e varianza siamo nell'ambito della Statistica Parametrica;
+se sappiamo che P ammette una densità e cerchiamo di ricavarla senza sapere che tipo
+di legge sia, siamo nell'ambito della Statistica Nonparametrica.
+Per distinguere
+un valore generico del parametro dal valore "vero" che caratterizza la legge da
+cui è stato estratto un certo campione aleatorio, puòà essere conveniente scrivere
+$\theta_{0}$ in questo ultimo caso.
+
+\begin{spiegazione}
+    \textbf{Statistica Parametrica vs. Nonparametrica}
+    
+    Questo passaggio definisce i due rami principali della statistica:
+    
+    \begin{itemize}
+        \item \textbf{Statistica Parametrica:} È come giocare a un indovinello in cui \textit{conosci già le regole}. Tu \textit{ipotizzi} che i tuoi dati seguano una forma specifica (es. una curva a campana Gaussiana), ma non conosci i "parametri" che la definiscono (es. la media $\mu$ o la varianza $\sigma^2$). Il tuo obiettivo è "indovinare" (stimare) questi parametri.
+        
+        \item \textbf{Statistica Nonparametrica:} È come giocare a un indovinello in cui \textit{non conosci le regole}. Non fai nessuna ipotesi sulla forma della distribuzione da cui provengono i dati. Il tuo obiettivo è molto più difficile: cercare di "ricostruire" la forma stessa della distribuzione (che è un oggetto a "dimensione infinita").
+    \end{itemize}
+\end{spiegazione}
+
+\begin{definition}[Stimatore]
+Uno stimatore di un certo parametro $\theta\in\mathbb{R}^{p}$ è una
+funzione (o meglio una successione di funzioni) misurabile $T_{n}:\mathbb{R}^{n}\rightarrow\mathbb{R}^{p}$ di un
+campione aleatorio;
+scriveremo equivalentemente
+\[
+T_n = \hat{\theta}_n = T_n(X_1, ..., X_n).
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cos'è uno "Stimatore"?}
+    
+    Uno stimatore (indicato con $\hat{\theta}_n$, letto "theta-cappello") è semplicemente una \textbf{ricetta} (una formula matematica) che usa i dati del tuo campione ($X_1, \dots, X_n$) per produrre una "stima", cioè un tentativo di indovinare il valore del parametro vero $\theta$.
+    
+    \begin{itemize}
+        \item \textbf{Parametro $\theta$:} Il valore \textit{vero} e ignoto nella popolazione (es. la vera altezza media di tutti gli italiani).
+        \item \textbf{Stimatore $T_n$:} La \textit{ricetta} che usi (es. la formula della media aritmetica).
+        \item \textbf{Stima $\hat{\theta}_n$:} Il \textit{numero} che ottieni applicando la ricetta al tuo campione (es. 175cm, la media calcolata sul tuo campione di 100 persone).
+    \end{itemize}
+\end{spiegazione}
+
+\begin{remark}
+La definizione è volutamente molto generica: qualsiasi funzione
+misurabile può essere considerata uno stimatore, quindi il punto cruciale sarà
+determinare quali siano le proprietà che consentono di valutare la bontà della
+scelta fatta.
+\end{remark}
+
+\begin{example}
+L'esempio più ovvio di stimatore (per il valore medio $\mu=E[X_{i}])$
+è la media aritmetica, cioè
+\[
+\tilde{X}_{n}=\tilde{\mu}_{n}:=\frac{1}{n}\sum_{i=1}^{n}X_{i}
+\]
+Altro stimatore naturale è la cosiddetta varianza empirica (che stima $\sigma^{2}=$
+$Var[X_{i}]),$ cioè
+\[
+S_{n}^{2}=\tilde{\sigma}_{n}^{2}=\frac{1}{n}\sum_{i=1}^{n}(X_{i}-\tilde{\mu}_{n})^{2}.
+\]
+\end{example}
+
+\subsection*{9.1 Criteri per Valutare gli stimatori}
+\begin{itemize}
+    \item Non-distorsione/asintotica non distorsione
+    \item Consistenza (in probabilità, in media r-esima, quasi certa, completa)
+    \item Efficienza (assoluta e relativa)
+    \item Asintotica Gaussianità
+\end{itemize}
+
+\begin{spiegazione}
+    \textbf{La "Pagella" di uno Stimatore}
+    
+    Dato che "qualsiasi formula" può essere uno stimatore (come dice il Remark 81), come facciamo a dire se uno stimatore è "buono"? Controlliamo queste quattro proprietà.
+    
+    \begin{enumerate}
+        \item \textbf{Non-distorsione (Unbiasedness):} Lo stimatore è "onesto"? In media, ci azzecca, o tende a sbagliare sempre un po' troppo in alto o troppo in basso? Se $\mathbb{E}[\hat{\theta}_n] = \theta$, è non-distorto (onesto). Se no, $\mathbb{E}[\hat{\theta}_n] - \theta$ è il suo "bias" (distorsione).
+        
+        \item \textbf{Consistenza (Consistency):} Lo stimatore "impara" dai dati? Se aumentiamo la dimensione del campione ($n \to \infty$), la stima $\hat{\theta}_n$ converge al valore vero $\theta$? (Questa è la proprietà fondamentale. Se non è consistente, è inutile).
+        
+        \item \textbf{Efficienza (Efficiency):} Lo stimatore è "preciso"? Tra due stimatori onesti (non distorti), preferiamo quello che ha la varianza più bassa, cioè quello i cui valori "ballano" di meno attorno al valore vero.
+        
+        \item \textbf{Asintotica Gaussianità (Asymptotic Normality):} Per campioni grandi ($n$ grande), la distribuzione degli errori dello stimatore $\hat{\theta}_n$ assomiglia a una curva a campana (Gaussiana)? Questo è fondamentale perché ci permette di usare il Teorema del Limite Centrale per costruire intervalli di confidenza (es. "siamo al 95\% sicuri che il valore vero sia...").
+    \end{enumerate}
+\end{spiegazione}
+
+\begin{example}
+Media aritmetica banale mostrare non-distorsione, consistenza
+ed asintotica Gaussianità;
+si può mostrare con Cramer-Rao (vedi dopo) che
+efficiente in senso assoluto nel caso Gaussiano, nel caso non-Gaussiano, si
+consideri un altro stimatore lineare
+\[
+\sum_{i=1}^{n}c_{i}X_{i},\sum_{i=1}^{n}c_{i}=1
+\]
+(dove la condizione che la somma dei pesi sia 1 garantisce la non-distorsione).
+La varianza è evidentemente $\sum_{i=1}^{n}c_{i}^{2}Var[X_{i}],$ e pertanto nel caso di variabili
+incorrelate ed identicamente distribuite possiamo porcil problema di massimo
+vincolato
+\[
+\min_{c_i} \sum_{i=1}^n c_i^2 \quad \text{s.t.} \sum_{i=1}^n c_i = 1.
+\]
+Con i moltiplicatori di Lagrange troviamo
+\[
+\psi(c_{1},...,c_{n};\lambda)=\sum_{i=1}^{n}c_{i}^{2}+\lambda\{\sum_{i=1}^{n}c_{i}-1\}
+\]
+con derivate prime
+\[
+\frac{\partial\psi(c_{1},...,c_{n};\lambda)}{\partial c_{i}}=2c_{i}+\lambda .
+\]
+Ne segue che il problema di minimo sarà risolto imponendo che i coefficienti $c_i$
+siano tutti uguali e pertanto pari a $n^{-1}$;
+questo rende la media aritmetica uno
+stimatore BLUE (Best Linear Unbiased Estimator).
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Perché la media aritmetica è così speciale? (BLUE)}
+    
+    Questo esempio dimostra che la media aritmetica ($\overline{X}$) ha un'ottima pagella. In particolare, è il \textbf{BLUE}: \textit{Best Linear Unbiased Estimator} (Miglior Stimatore Lineare Non Distorto).
+    
+    \begin{itemize}
+        \item \textbf{Linear (Lineare):} È una combinazione lineare (una somma pesata) dei dati: $c_1 X_1 + \dots + c_n X_n$.
+        \item \textbf{Unbiased (Non Distorto):} Per essere non distorto, la somma dei pesi deve fare 1 ($\sum c_i = 1$).
+        \item \textbf{Best (Migliore):} Tra \textit{tutti} gli stimatori lineari non distorti, la media aritmetica (dove $c_i = 1/n$ per tutti) è quello che ha la varianza più piccola in assoluto.
+    \end{itemize}
+    
+    La dimostrazione nel testo usa l'analisi matematica (i moltiplicatori di Lagrange) per trovare i $c_i$ che minimizzano la varianza, con il vincolo che la loro somma sia 1. Il risultato è $c_i = 1/n$.
+\end{spiegazione}
+
+\begin{example}[Varianza Campionaria]
+In questo caso possiamo scrivere
+\begin{align*}
+S_{n}^{2} &= \frac{1}{n}\sum_{i=1}^{n}(X_{i}-\tilde{\mu}_{n})^{2}=\frac{1}{n}\sum_{i=1}^{n}X_{i}^{2}-\tilde{\mu}_{n}^{2} \\
+E[S_{n}^{2}] &= \frac{1}{n}\sum_{i=1}^{n}E[X_{i}^{2}]-(E[\tilde{\mu}_{n}])^{2}-Var[\tilde{\mu}_{n}] \\
+&= \frac{1}{n}\sum_{i=1}^{n}(\sigma^2 + \mu^2) - \mu^2 - \frac{\sigma^2}{n} \\
+&= (\sigma^2 + \mu^2) - \mu^2 - \frac{\sigma^2}{n} = \sigma^2 - \frac{\sigma^2}{n} = \frac{n-1}{n}\sigma^{2}.
+\end{align*}
+
+La varianza campionaria risulta quindi distorta, anche se asintoticamente non-
+distorta;
+in un certo senso è come se perdessimo un grado di liberta centrando
+le osservazioni sulla media empirica invece di quella teorica (per $n=1$ la varianza campionaria è identicamente nulla).
+Per quello che riguarda la consistenza
+debole, è una semplice conseguenza del Lemma di Slutzky;
+se le $X_{i}$ hanno momenti quarti finiti, si può dimostrare la convergenza in media quadratica usando
+la disuguaglianza di Chebyshev.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Il problema della Varianza Campionaria (Bias)}
+    
+    Questo è un risultato classico e importante.
+    
+    \begin{itemize}
+        \item \textbf{Lo stimatore $S_n^2$:} La formula intuitiva per la varianza, dove si divide per $n$.
+        \item \textbf{Il risultato $E[S_n^2] = \frac{n-1}{n}\sigma^2$:} La media di questo stimatore \textit{non} è $\sigma^2$ (il valore vero), ma è $\sigma^2$ moltiplicato per $\frac{n-1}{n}$ (un numero leggermente più piccolo di 1).
+        \item \textbf{Conclusione: $S_n^2$ è distorto (biased).} Tende a sottostimare \textit{leggermente} la vera varianza.
+    \end{itemize}
+    
+    \textbf{Perché?}
+    Come dice il testo, "perdiamo un grado di libertà". Stiamo usando la media campionaria $\tilde{\mu}_n$ (calcolata dai dati) al posto della vera media $\mu$ (che non conosciamo). I dati sono, in media, più vicini alla \textit{loro} media $\tilde{\mu}_n$ di quanto non lo siano alla media \textit{vera} $\mu$. Questo fa sì che la somma dei quadrati degli scarti sia leggermente più piccola di quanto dovrebbe essere.
+    
+    \textbf{La soluzione:} Per "correggere" questa distorsione, gli statistici usano la \textit{varianza campionaria corretta}, $S_{n-1}^2$, che divide per $n-1$ invece che per $n$.
+    
+    \textbf{Asintoticamente non distorta:} Per $n$ grande (es. $n=1000$), il fattore $\frac{999}{1000}$ è quasi 1. Quindi, anche se $S_n^2$ è tecnicamente distorto, il suo bias (errore) svanisce man mano che il campione cresce.
+\end{spiegazione}
+
+\begin{exercise}
+Determinare opportune condizioni per dimostrare la convergenza
+quasi certa della varianza campionaria al valore della varianza $\sigma^{2};$ sotto quali
+condizioni vale il teorema del limte centrale?
+\end{exercise}
+
+\end{document}

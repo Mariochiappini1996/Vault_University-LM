@@ -1,0 +1,232 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione delle definizioni per iniziare da 58
+% (Assumendo che questa sia la continuazione dei capitoli precedenti)
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}[theorem]{Remark}
+\setcounter{theorem}{57}
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{5 Teoremi Limite}
+
+\begin{theorem}[Legge dei grandi numeri per sequenze uniformemente integrabili]
+Sia $\{X_{n}\}$ una sequenza di variabili aleatorie con valor medio nullo, indipendenti e uniformemente integrabili. Allora
+\[
+\overline{X}_{n}=n^{-1}\sum_{i=1}^{n}X_{i}\rightarrow_{1}0.
+\]
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Cosa dice questo teorema?}
+    Questo è un altro tipo di Legge dei Grandi Numeri (LLN). La LLN dice che la media di un campione ($\overline{X}_n$) converge alla media vera (qui 0).
+
+    \textbf{Perché è speciale?}
+    La Legge dei Grandi Numeri "Debole" (di Chebyshev, vista nel Capitolo 1) richiedeva un'ipotesi forte: che le variabili avessero \textit{momento secondo finito} (cioè una varianza finita).
+
+    Questo teorema è più generale. Sostituisce l'ipotesi "varianza finita" con "uniformemente integrabili" (UI). Come abbiamo visto nel Capitolo 4, l'UI è una condizione più debole che serve a "controllare le code" (i valori estremi).
+
+    Questo teorema ci dice che basta l'UI (e l'indipendenza) per garantire che la media campionaria converga in media ($r=1$) alla media vera.
+\end{spiegazione}
+
+\begin{proof}
+Notiamo innanzitutto che non abbiamo ipotizzato che queste variabili
+abbiano momento secondo finito e limitato, altrimenti il risultato seguirebbe
+banalmente dalla legge dei grandi numeri di Chebyshev.
+Le ipotesi del Lemma
+sono verificate, ad esempio, se le variabili sono identicamente distribuite. Possiamo scrivere
+\[
+X_{n}=X_{n}I_{\{|X_{N}|\le M\}}+X_{n}I_{\{|X_{N}|>M\}}
+\]
+perché
+\[
+=X_{n}^{\prime}+X_{n}^{\prime\prime}=X_{n}^{\prime}-E[X_{n}^{\prime}]+X_{n}^{\prime\prime}-E[X_{n}^{\prime\prime}] ,
+\]
+$E[X_{n}^{\prime}]+E[X_{n}^{\prime\prime}]=0$. Abbiamo
+\[
+\frac{1}{n}\sum_{i=1}^{n}X_{i}=\frac{1}{n}\sum_{i=1}^{n}\{X_{i}^{\prime}-E[X_{i}^{\prime}]\}+\frac{1}{n}\sum_{i=1}^{n}\{X_{i}^{\prime\prime}-E[X_{i}^{\prime\prime}]\}
+\]
+La prima sequenza aleatoria è la media aritmetica di variabili aleatore con valor
+medio nullo e varianza uniformemente limitata da $M^{2}$ quindi va a zero in media
+quadratica per la legge dei grandi numeri di Chebyshev.
+Per la seconda parte
+possiamo scrivere
+\[
+E[|\frac{1}{n}\sum_{i=1}^{n}\{X_{i}^{\prime\prime}-E[X_{i}^{\prime\prime}]\}|]\le2~\sup_{i=1,2,3,...}E[|X_{n}I_{\{|X_{N}|>M\}}|]
+\]
+per l'uniforme integrabilità, scegliendo M in modo appropriato.
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{Come funziona la dimostrazione (in breve)?}
+    Questa è una tecnica standard chiamata \textit{truncation} (troncamento).
+    \begin{enumerate}
+        \item \textbf{Si divide la variabile $X_n$ in due parti:}
+            \begin{itemize}
+                \item $X_n'$: la parte "buona" (i valori "normali" sotto la soglia $M$).
+                \item $X_n''$: la parte "cattiva" (i valori "estremi" sopra la soglia $M$).
+            \end{itemize}
+        \item \textbf{Si dimostra che la media della parte "buona" converge a 0:} La parte $X_n'$ è limitata (non può superare $M$), quindi ha varianza finita. Per la Legge dei Grandi Numeri di Chebyshev, la sua media converge.
+        \item \textbf{Si dimostra che la media della parte "cattiva" converge a 0:} L'ipotesi di Uniforme Integrabilità (UI) è stata creata apposta per questo. Ci garantisce che, scegliendo $M$ abbastanza grande, il contributo medio delle "code" ($X_n''$) è trascurabile (vicino a 0).
+    \end{enumerate}
+    Se entrambe le parti vanno a zero, la loro somma (la $X_n$ originale) deve anch'essa convergere a zero in media.
+\end{spiegazione}
+
+\begin{theorem}[Legge forte dei grandi numeri - Borel]
+Sia $\{X_{n}\}_{n\in\mathbb{N}}$ una successione di variabili aleatorie indipendenti ed identicamente distribuite con valor
+medio $\mathbb{E}[X]=\mu$ momento quarto finito $\mathbb{E}[X^{4}]=\mu_{4}$ Allora
+\[
+\overline{X}_{n}:=\frac{1}{n}\sum_{i=1}^{n}X_{i}\rightarrow_{c.c.}\mu .
+\]
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Legge Debole vs. Legge Forte}
+    
+    Questo è un teorema molto famoso, la \textbf{Legge Forte dei Grandi Numeri (SLLN)}.
+    
+    \begin{itemize}
+        \item \textbf{Legge Debole (WLLN)} (vista prima, $\to_p$): Ci dice che per $n$ grande, è \textit{improbabile} essere lontani dalla media $\mu$. (La probabilità di essere lontani $\to 0$).
+        
+        \item \textbf{Legge Forte (SLLN)} (questa, $\to_{c.c.}$): Ci dice che, per $n$ grande, \textit{quasi certamente} (con probabilità 100\%) la media $\overline{X}_n$ \textit{converge} a $\mu$ e \textit{ci rimane} vicina per sempre. È una garanzia molto più forte.
+    \end{itemize}
+    
+    \textbf{L'ipotesi $\mathbb{E}[X^4] < \infty$:}
+    Questa è un'ipotesi molto restrittiva (chiede che il "momento quarto" sia finito). La SLLN vale anche solo con il momento primo finito ($\mathbb{E}[|X|] < \infty$, Teorema di Kolmogorov), ma quella dimostrazione è molto più difficile. Questa (di Borel) è una versione più vecchia e più facile da dimostrare, ma richiede ipotesi più forti.
+\end{spiegazione}
+
+\begin{proof}
+Senza perdita di generalità consideriamo $\mu=0;$ infatti
+\[
+\overline{X}_n \rightarrow_{c.c.} 0, \quad \text{se} \quad \overline{X}_n := \frac{1}{n}\sum_{i=1}^n (X_i - \mu)
+\]
+Notiamo innanzitutto che $\mathbb{E}[\overline{X}_{n}^{4}]=O(\frac{1}{n^{2}})$;
+infatti
+\begin{align*}
+\mathbb{E}[\overline{X}_{n}^{4}] &= \frac{1}{n^{4}}\sum_{i_{1},i_{2},i_{3},i_{4}=1}^{n}\mathbb{E}[X_{i_{1}}X_{i_{2}}X_{i_{3}}X_{i_{4}}] \\
+&= \frac{1}{n^{4}}\sum_{i=1}^{n}\mathbb{E}[X_{i}^{4}]+\frac{3}{n^{4}}\sum_{i_{1} \ne i_{2}}^{n}\mathbb{E}[X_{i_{1}}^{2}]\mathbb{E}[X_{i_{2}}^{2}] \\
+&= \frac{n}{n^{4}}\mathbb{E}[X_{1}^{4}]+\frac{3n(n-1)}{n^{4}}\mathbb{E}[X_{1}^{2}]\mathbb{E}[X_{2}^{2}] \\
+&= O(n^{-2}) .
+\end{align*}
+La prima uguaglianza è dovuta al fatto che $\mathbb{E}[X_{i_{1}}X_{i_{2}}X_{i_{3}}X_{i_{4}}]=0$ se c'è almeno
+un indice diverso da tutti gli altri;
+basta quindi focalizzarsi sul caso in cui gli
+indici siano tutti uguali, oppure uguali a coppie (diverse tra loro).
+Ci sono n
+termini del primo tipo, $3n(n-1)$ del secondo.
+A questo punto, utilizzando la
+disuguaglianza di Markov, per ogni $\epsilon>0$ si ha
+\[
+\sum_{n=1}^{\infty}Pr\{|\overline{X}_{n}|>\epsilon\} \le \sum_{n=1}^{\infty} \frac{\mathbb{E}[\overline{X}_n^4]}{\epsilon^4} \le Const\times\sum_{n=1}^{\infty}\frac{1}{n^{2}\epsilon^{4}}<\infty ,
+\]
+e la disuguaglianza è dimostrata.
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{Come funziona la dimostrazione (in breve)?}
+    Questa dimostrazione usa un trucco molto potente:
+    \begin{enumerate}
+        \item \textbf{Calcolare un momento alto:} Si calcola la media del 4° momento della media campionaria, $\mathbb{E}[\overline{X}_n^4]$. Dopo molti calcoli (che sfruttano l'indipendenza per annullare i termini misti), si scopre che questo valore è $O(n^{-2})$, cioè va a zero molto velocemente, come $1/n^2$.
+        
+        \item \textbf{Usare Markov:} Si usa la disuguaglianza di Markov (vista nel Cap. 1) per "tradurre" questo risultato sui momenti in un risultato sulle probabilità.
+        $\mathbb{P}(|\overline{X}_n| > \epsilon) \le \frac{\mathbb{E}[\overline{X}_n^4]}{\epsilon^4}$.
+        Poiché il numeratore è $O(n^{-2})$, l'intera probabilità è $O(n^{-2})$.
+        
+        \item \textbf{Usare la Convergenza Completa (Borel-Cantelli):} Questo è il passaggio chiave. Si sommano le probabilità:
+        $\sum \mathbb{P}(|\overline{X}_n| > \epsilon) \le \sum O(n^{-2})$.
+        Poiché la serie $\sum 1/n^2$ converge (è un numero finito), abbiamo la \textit{Convergenza Completa} (vista nel Cap. 4).
+        
+        \item \textbf{Concludere:} Come sappiamo dal Cap. 4, la Convergenza Completa (tipo 5) implica la Convergenza Quasi Certa (tipo 4). Fine.
+    \end{enumerate}
+    L'ipotesi del 4° momento serve solo a far funzionare il punto 3, garantendo che la serie $\sum 1/n^2$ converga.
+\end{spiegazione}
+
+\begin{remark}
+$E^{\prime}$ interessante notare come questa legge forte dei grandi numeri
+sia stata enunciata per la prima volta all'inizio del novecento da Emile Borel
+all'interno di problemi di Teoria dei Numeri.
+In particolare, Borel la utilizzo
+per dimostrare che i numeri tra [0,1], espressi in forma binaria, hanno quasi
+sempre una proporzione uguale di 0 e di 1. Questo esclude automaticamente tutti
+i numeri con espansione finita o periodica, cioè i razionali;
+ma in realtà dimostra
+che hanno misura nulla anche numeri di classi più ampie.
+Paradossalmente, per
+pochissimi numeri conosciuti è stato effettivamente dimostrato che hanno questa
+struttura "normale".
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Cosa sono i "Numeri Normali"?}
+    Questo è un'applicazione affascinante della SLLN.
+    
+    Prendi un numero a caso tra 0 e 1 e scrivi le sue cifre binarie (0 e 1) all'infinito.
+    Puoi pensare a ogni cifra come a un lancio di moneta ($X_n$). Se la moneta è onesta ($\mu=0.5$), la SLLN dice che la media delle cifre ($\overline{X}_n$) convergerà \textit{quasi certamente} a 0.5.
+    
+    Questo significa che "quasi tutti" i numeri reali (con probabilità 1) hanno esattamente il 50\% di 0 e il 50\% di 1 nella loro espansione binaria. Questi sono chiamati "numeri normali".
+    
+    I numeri \textit{razionali} (come $1/3 = 0.010101...$ in binario) non sono normali (in questo caso hanno 50\% di 0 e 50\% di 1, ma la SLLN si applica anche a blocchi di cifre, e $1/3$ non ha il 25\% di "00", "01", "10", "11").
+    
+    La parte paradossale è che, sebbene "quasi tutti" i numeri siano normali, è incredibilmente difficile dimostrarlo per un numero specifico che ci viene in mente (come $\pi$ o $e$).
+\end{spiegazione}
+
+\end{document}

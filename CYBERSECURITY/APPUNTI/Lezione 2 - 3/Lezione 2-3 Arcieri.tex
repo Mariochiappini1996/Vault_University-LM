@@ -1,0 +1,213 @@
+\documentclass[a4paper, 11pt]{article}
+
+% --- PACHETTI PREAMBOLO ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italiano]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{fancyhdr} 
+\usepackage{enumitem} 
+
+% --- IMPOSTAZIONI PAGINA ---
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.2em} 
+
+% --- INFORMAZIONI DOCUMENTO ---
+\title{Relazione Approfondita di Cybersecurity \\ \large Analisi dei Protocolli di Rete}
+\author{Basata sulle lezioni del Prof. Franco Arcieri \\ \textit{Report a cura di: Chiappini Mario e Salvucci Franco}}
+\date{Anno Accademico 2025-2026}
+
+% --- INIZIO DOCUMENTO ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+% --- INTRODUZIONE AI MODELLI DI RETE ---
+\section{Introduzione ai Modelli di Rete}
+
+Le lezioni introducono i due principali modelli di rete a strati, che servono a standardizzare e organizzare le complesse funzioni della comunicazione di rete.
+
+\begin{itemize}
+    \item \textbf{Modello OSI (Open Systems Interconnection)}: Presentato come un modello concettuale e di riferimento. È strutturato in 7 livelli (Physical, Data Link, Network, Transport, Session, Presentation, Application). La sua utilità è primariamente didattica e per definire standard in modo rigoroso.
+    \item \textbf{Modello TCP/IP}: Definito come il modello pratico e operativo su cui si basa Internet. È composto da 4 livelli (Network Access, Network, Transport, Application) che raggruppano le funzioni del modello OSI in modo più pragmatico.
+\end{itemize}
+
+% --- LIVELLO DATA LINK ---
+\section{Livello 2: Network Access e Data Link}
+
+Questo livello è fondamentale perché gestisce la comunicazione diretta tra dispositivi connessi allo stesso segmento di rete locale (LAN). È responsabile dell'indirizzamento fisico (MAC) e del controllo degli errori sul mezzo trasmissivo.
+
+\subsection{Struttura Pacchetto Ethernet}
+Il frame Ethernet è l'unità dati del livello 2. La sua struttura è cruciale per il corretto instradamento locale:
+\begin{itemize}
+    \item \textbf{Destination/Source Ethernet Address} (6 bytes ciascuno): Sono gli indirizzi MAC (Media Access Control). Ogni scheda di rete ha un indirizzo MAC unico. L'indirizzo di destinazione può essere \textit{broadcast} (tutti 1) per inviare un pacchetto a tutti i dispositivi sulla rete.
+    
+    \item \textbf{Length or Type Field} (2 bytes): Questo campo è "intelligente" e serve a due scopi:
+        \begin{itemize}
+            \item \textbf{Length (IEEE 802.3)}: Se il valore è $\leq 1500$ ($0x05DC$), indica la lunghezza in byte del campo dati che segue.
+            \item \textbf{Type (Ethernet II)}: Se il valore è $> 1500$ ($0x05DC$), indica l'EtherType, ovvero quale protocollo di livello superiore (es. IP, ARP) è incapsulato nel payload. Valori noti sono $0x0800$ per IP e $0x0806$ per ARP.
+        \end{itemize}
+    
+    \item \textbf{Dati (Payload)} (da 46 a 1500 bytes): Contiene i dati del protocollo di livello superiore. Il limite minimo di 46 bytes assicura che il frame sia sufficientemente lungo per essere rilevato correttamente sulla rete. Se il payload è più corto, viene aggiunto del \textit{padding} (riempimento) per raggiungere la dimensione minima.
+    
+    \item \textbf{Frame Check Sequence (FCS)} (4 bytes): Un checksum calcolato sull'intero frame. Serve al ricevente per verificare se il pacchetto è stato corrotto durante la trasmissione.
+\end{itemize}
+
+\subsection{Address Resolution Protocol (ARP)}
+L'ARP è un protocollo di servizio essenziale che colma il divario tra il Livello 3 (logico) e il Livello 2 (fisico).
+\begin{itemize}
+    \item \textbf{Problema}: Per inviare un pacchetto IP (Livello 3) a un host sulla stessa rete locale, un dispositivo conosce l'indirizzo IP di destinazione, ma ha bisogno di conoscere l'indirizzo MAC (Livello 2) corrispondente per costruire il frame Ethernet.
+    \item \textbf{Soluzione}: L'ARP utilizza un semplice formato di richiesta e risposta. I pacchetti ARP sono trasportati direttamente all'interno dei frame Ethernet, identificati dall'EtherType $0x0806$.
+    \item \textbf{Processo (IPv4 su Ethernet)}:
+        \begin{enumerate}
+            \item L'host A (mittente) invia un \textbf{ARP Request} (Operazione 1) in broadcast (MAC destinazione $FF:FF:FF:FF:FF:FF$) chiedendo "Chi ha l'indirizzo IP $X$?". L'host A include il proprio MAC (SHA) e IP (SPA).
+            \item Tutti gli host sulla LAN ricevono la richiesta, ma solo l'host B (destinatario) che possiede l'IP $X$ risponde.
+            \item L'host B invia un \textbf{ARP Reply} (Operazione 2) in unicast (direttamente al MAC di A) dicendo "Io ho l'indirizzo IP $X$, e il mio MAC è $Y$".
+        \end{enumerate}
+    \item Questa informazione (associazione IP-MAC) viene poi memorizzata in una cache ARP su ogni host per ridurre il traffico futuro.
+\end{itemize}
+
+% --- NETWORK SNIFFING ---
+\subsection{Network Sniffing}
+Lo sniffing è la tecnica di intercettazione e analisi del traffico di rete.
+\begin{itemize}
+    \item \textbf{Obiettivo}: "Ascoltare" i pacchetti che transitano su un segmento di rete, anche se non sono destinati all'host che esegue lo sniffing. Questo è possibile ponendo la scheda di rete in \textit{modalità promiscua}.
+    \item \textbf{Tool}: I due strumenti principali menzionati sono \texttt{tcpdump} (un potente tool da riga di comando) e \texttt{Wireshark} (un analizzatore grafico più intuitivo e semplice da usare).
+    \item \textbf{Tecniche}: Nelle reti moderne basate su switch, lo sniffing non è banale come nelle vecchie reti basate su hub. Per intercettare il traffico tra altri host è necessario posizionarsi in un punto strategico, ad esempio utilizzando un \textbf{TAP (Test Access Point)}, un dispositivo hardware che duplica il traffico che lo attraversa verso una porta di monitoraggio.
+\end{itemize}
+
+% --- LIVELLO DI RETE ---
+\section{Livello 3: Network Layer}
+
+Questo livello è responsabile dell'indirizzamento logico (IP) e dell'instradamento dei pacchetti (\textit{datagrammi}) attraverso reti diverse (Internet).
+
+\subsection{Protocollo IP (DOD IP)}
+Il protocollo IP (Internet Protocol), descritto in RFC791, è il pilastro del Livello 3. È un protocollo \textit{connectionless} e \textit{best-effort} (non garantisce la consegna, l'ordine o l'assenza di errori).
+\begin{itemize}
+    \item \textbf{Version} e \textbf{IHL}: I primi 4 bit indicano la versione (es. 4 per IPv4), i successivi 4 bit (IHL) la lunghezza dell'header in parole da 32 bit. Un IHL minimo di 5 corrisponde a 20 byte ($5 \times 4$ byte), l'header IP minimo senza opzioni.
+    
+    \item \textbf{Total Length}: Indica la dimensione totale dell'intero datagramma (header + dati) in byte. La dimensione massima è 65.535 byte, anche se raramente utilizzata.
+    
+    \item \textbf{Frammentazione (Identification, Flags, Fragment Offset)}: Campi usati per dividere i datagrammi in pezzi più piccoli (frammenti) per attraversare reti con una MTU (Maximum Transmission Unit) inferiore.
+        \begin{itemize}
+            \item \textbf{Identification}: Un valore unico per tutti i frammenti di un singolo datagramma, per permetterne il riassemblaggio.
+            \item \textbf{Flags}: 3 bit. Il bit 'Don't Fragment' (DF) impedisce la frammentazione. Il bit 'More Fragments' (MF) è attivo per tutti i frammenti tranne l'ultimo.
+            \item \textbf{Fragment Offset}: Indica la posizione di questo frammento all'interno del datagramma originale, misurata in unità di 8 byte.
+        \end{itemize}
+
+    \item \textbf{Time to Live (TTL)}: Un contatore a 8 bit che previene i loop di instradamento. È impostato dal mittente e decrementato di almeno uno da ogni router (gateway) che processa il pacchetto. Quando il TTL raggiunge lo zero, il pacchetto viene scartato e (generalmente) viene inviato un messaggio ICMP "Time Exceeded" al mittente.
+    
+    \item \textbf{Protocol}: Un campo a 8 bit che identifica il protocollo di Livello 4 incapsulato nel payload. I valori più comuni sono 1 (ICMP), 6 (TCP) e 17 (UDP).
+    
+    \item \textbf{Header Checksum}: Un checksum a 16 bit calcolato solo sull'header IP. Poiché il TTL (e potenzialmente le opzioni) cambia ad ogni hop, questo checksum deve essere ricalcolato da ogni router.
+    
+    \item \textbf{Source/Destination Address}: Gli indirizzi IP a 32 bit (per IPv4) del mittente e del destinatario finale.
+\end{itemize}
+
+\subsection{Internet Control Message Protocol (ICMP)}
+Definito in RFC792, ICMP è un protocollo di supporto per IP. Non trasporta dati utente, ma messaggi di controllo, diagnostica e errore. I pacchetti ICMP sono incapsulati direttamente in IP (Protocollo IP 1).
+\begin{itemize}
+    \item \textbf{Header}: Composto da \textbf{Type} (tipo di messaggio), \textbf{Code} (sottotipo/specifica del motivo) e \textbf{Checksum}.
+    \item \textbf{Tipi di Messaggi Comuni}:
+        \begin{itemize}
+            \item \textbf{Type 8 (Echo Request)} e \textbf{Type 0 (Echo Reply)}: Usati dal comando \texttt{ping} per verificare la raggiungibilità e misurare la latenza.
+            \item \textbf{Type 3 (Destination Unreachable)}: Inviato quando un router o l'host di destinazione non può consegnare il pacchetto. I codici specificano il motivo, es: \textit{Code 1 (Host Unreachable)}, \textit{Code 3 (Port Unreachable)} (molto comune, indica che il servizio/porta non è in ascolto).
+            \item \textbf{Type 11 (Time Exceeded)}: Inviato da un router quando scarta un pacchetto perché il suo TTL è arrivato a zero. Questo è il meccanismo sfruttato da \texttt{traceroute} per mappare la rotta verso una destinazione.
+            \item \textbf{Type 5 (Redirect)}: Usato dai router per informare un host su una rotta migliore per una specifica destinazione.
+        \end{itemize}
+\end{itemize}
+
+% --- LIVELLO DI TRASPORTO ---
+\section{Livello 4: Transport Layer}
+
+Questo livello fornisce la comunicazione logica tra processi applicativi su host diversi. Introduce il concetto di \textbf{porta} per il multiplexing.
+
+\subsection{User Datagram Protocol (UDP)}
+Definito in RFC768, UDP è un protocollo \textit{semplice}, \textit{connectionless} e \textit{inaffidabile} (unreliable).
+\begin{itemize}
+    \item \textbf{Caratteristiche}: Non stabilisce una connessione prima di inviare dati. Non garantisce la consegna, l'ordine di arrivo o l'assenza di duplicati.
+    \item \textbf{Header}: Estremamente leggero (8 byte):
+        \begin{itemize}
+            \item \textbf{Source Port} e \textbf{Destination Port} (16 bit ciascuno): Permettono di indirizzare i dati all'applicazione corretta (servizio) sull'host.
+            \item \textbf{Length} (16 bit): Lunghezza totale del datagramma UDP (header + dati).
+            \item \textbf{Checksum} (16 bit): Un checksum opzionale (sebbene fortemente raccomandato) che copre header UDP, dati e uno "pseudo-header" IP.
+        \end{itemize}
+    \item \textbf{Casi d'uso}: Ideale per applicazioni "transaction-oriented" dove la velocità è prioritaria sulla affidabilità, come DNS, DHCP, streaming video/audio e giochi online.
+\end{itemize}
+
+\subsection{Transmission Control Protocol (TCP)}
+Definito in RFC793, TCP è il protocollo \textit{affidabile} e \textit{orientato alla connessione} di Internet.
+\begin{itemize}
+    \item \textbf{Caratteristiche}: Fornisce un flusso di byte affidabile e ordinato. Gestisce il controllo di flusso (per non sovraccaricare il ricevente) e il controllo di congestione (per non sovraccaricare la rete).
+    \item \textbf{Header TCP} (minimo 20 byte):
+        \begin{itemize}
+            \item \textbf{Source/Destination Port} (16 bit ciascuno).
+            \item \textbf{Sequence Number (SN)} (32 bit): Usato per ordinare i segmenti e rilevare duplicati. Indica il numero di sequenza del primo byte di dati nel segmento.
+            \item \textbf{Acknowledgment Number (ACK)} (32 bit): Se il bit ACK è attivo, questo campo indica il prossimo SN che il mittente si aspetta di ricevere. È il meccanismo base per la conferma di ricezione.
+            \item \textbf{Data Offset} (4 bit): Indica la lunghezza dell'header TCP in parole da 32 bit.
+            \item \textbf{Control Bits} (6 bit): Flag fondamentali per la gestione della connessione:
+                \begin{itemize}
+                    \item \textbf{SYN}: Usato per iniziare una connessione ("Synchronize").
+                    \item \textbf{ACK}: Indica che il campo Acknowledgment Number è valido.
+                    \item \textbf{FIN}: Usato per terminare una connessione ("Finish").
+                    \item \textbf{RST}: Resetta la connessione in modo anomalo.
+                \end{itemize}
+            \item \textbf{Window} (16 bit): Usato per il \textit{controllo di flusso}. Indica quanti byte di dati il mittente di questo segmento è disposto ad accettare.
+            \item \textbf{Checksum} (16 bit): Calcolato su header, dati e uno "pseudo-header" IP per garantire l'integrità.
+            \item \textbf{Options}: Campo opzionale per funzionalità avanzate (es. MSS, Window Scale).
+        \end{itemize}
+\end{itemize}
+
+\subsection{TCP State Machine e Handshake}
+Una connessione TCP è un'entità complessa che progredisce attraverso vari stati.
+\begin{itemize}
+    \item \textbf{Stati Principali}: Includono \textbf{LISTEN} (server in attesa), \textbf{SYN-SENT} (client in attesa di risposta), \textbf{SYN-RECEIVED} (server in attesa di conferma), ed \textbf{ESTABLISHED} (connessione attiva, trasferimento dati).
+    
+    \item \textbf{Three-Way Handshake (Apertura)}: Il processo per stabilire una connessione:
+        \begin{enumerate}
+            \item Il client (active open) invia un segmento \textbf{SYN} e passa allo stato SYN-SENT.
+            \item Il server (passive open) riceve il SYN, invia un segmento \textbf{SYN+ACK} e passa a SYN-RECEIVED.
+            \item Il client riceve il SYN+ACK, invia un segmento \textbf{ACK} e passa a ESTABLISHED. L'invio di dati può iniziare.
+            \item Il server riceve l'ACK e passa anch'esso a ESTABLISHED.
+        \end{enumerate}
+    
+    \item \textbf{Chiusura della Connessione (FIN)}: La chiusura è gestita indipendentemente per ciascuna direzione.
+        \begin{itemize}
+            \item Un lato invia un \textbf{FIN} (passando a FIN-WAIT-1).
+            \item L'altro lato riceve il FIN, invia un \textbf{ACK} (passando a CLOSE-WAIT).
+            \item Quando anche il secondo lato ha finito di inviare dati, invia il suo \textbf{FIN} (passando a LAST-ACK).
+            \item Il primo lato riceve il FIN, invia un \textbf{ACK} e passa a TIME-WAIT (uno stato di attesa per garantire che l'ultimo ACK sia ricevuto).
+        \end{itemize}
+\end{itemize}
+
+% --- PROTOCOLLI APPLICATIVI ---
+\section{Protocolli e Servizi Aggiuntivi}
+
+\subsection{Dynamic Host Configuration Protocol (DHCP)}
+Definito in RFC1531, DHCP è un protocollo fondamentale per l'amministrazione di rete che automatizza l'assegnazione dei parametri di configurazione IP.
+\begin{itemize}
+    \item \textbf{Scopo}: Fornisce agli host (client) i parametri necessari per operare su una rete IP, come indirizzo IP, subnet mask, default gateway e server DNS.
+    \item \textbf{Funzionamento}: È un'estensione del protocollo BOOTP. Utilizza messaggi \textbf{BOOTREQUEST} (dal client) e \textbf{BOOTREPLY} (dal server), incapsulati in UDP.
+    \item \textbf{Header DHCP}: Include campi cruciali per il processo di allocazione:
+        \begin{itemize}
+            \item \textbf{Xid} (Transaction ID): Usato per associare richieste e risposte.
+            \item \textbf{Chaddr} (Client Hardware Address): Il MAC address del client, usato dal server per identificare il dispositivo.
+            \item \textbf{Ciaddr} (Client IP Address): Usato dal client quando sta rinnovando un lease esistente.
+            \item \textbf{Yiaddr} ("Your" IP Address): Il campo dove il server inserisce l'indirizzo IP che sta offrendo/assegnando al client.
+            \item \textbf{Siaddr} (Server IP Address): L'indirizzo IP del server DHCP.
+        \end{itemize}
+    \item Il processo (non esplicitato ma implicito) segue i passi DORA (Discover, Offer, Request, Acknowledge), che utilizzano questi campi per negoziare e confermare un lease di un indirizzo IP.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,137 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margAini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione delle definizioni per iniziare da 53
+% (Assumendo che questa sia la continuazione dei capitoli precedenti)
+\newtheorem{definition}{Definition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{lemma}[definition]{Lemma}
+\setcounter{definition}{52}
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{4 Uniforme Integrabilità}
+Abbiamo visto in precedenza che la convergenza in probablità può implicare la
+convergenza in media r-esima per sequenze di variabili aleatorie uniformemente
+limitate, perché la limitatezza impedisce che con probabilità anche sempre più
+piccola si assumano valori sempre più grandi.
+E' naturale domandarsi se questa
+richiesta di uniforme limitatezza non sia eccessiva;
+dovrebbe essere possibile
+"compensare" il comportamento sulle code in modo da far sì che la massa corrispondente decada comunque a zero.
+Questa è proprio l'intuizione dietro alla
+nozione di Uniforme Integrabilità.
+
+\begin{definition}
+La sequenza di variabili aleatorie $\{X_{n}\}$ è detta Uniformemente
+Integrabile se
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=0 .
+\]
+\end{definition}
+
+\begin{remark}
+Notiamo innanzitutto che il fatto che i momenti siano uniformemente limitati non è sufficiente a garantire l'uniforme integrabilità: basta infatti
+considerare l'esempio visto precedentemente, con:
+\[
+X_n = \begin{cases} 0 & \text{con probabilità } 1-\frac{1}{n^{2}} \\ n^2 & \text{con probabilità } \frac{1}{n^{2}} \end{cases}
+\]
+Qui $E[X_{n}]=1$ per ogni n, quindi il valor medio è unifomemente limitato, però
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=1 ,
+\]
+quindi la sequenza non è uniformemente integrabile. D'altra parte si vede subito
+che la limitatezza dei momenti è una condizione necessaria.
+\end{remark}
+
+\begin{lemma}[Condizione necessaria per uniforme integrabilità]
+Se $\{X_{n}\}$ è uniformemente integrabile, $E[X_{n}]$ è uniformemente limitato.
+\end{lemma}
+
+\begin{proof}
+Si scelga $M=M_{\epsilon}$ tale per cui
+\[
+\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]<\epsilon
+\]
+allora
+\[
+E[|X_{n}|]=E[|X_{n}|I_{\{|X_{n}|\le M_{\epsilon}\}}]+E[|X_{n}|I_{\{|X_{n}|>M_{\epsilon}\}}]\le M_{\epsilon}+\epsilon,
+\]
+da cui segue
+che il valor medio è limitato uniformemente in n..
+\end{proof}
+
+E' interessante enunciare due condizioni sufficienti per l'Uniforme Integrabilità.
+
+\begin{lemma}[Condizioni sufficienti per l'uniforme integrabilità]
+\begin{itemize}
+    \item[a)] Se la sequenza $\{X_{n}\}$ è costituita da variabili aleatorie identicamente distribuite con valor medio finito, essa è uniformememente integrabile
+    \item[b)] Se esiste $\eta>0$ tale per cui $E[|X_{n}|^{1+\eta}]<M_{\eta}<\infty$ per ogni n, allora la
+sequenza è uniformemente integrabile
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+Per a), è sufficiente notare che
+\[
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}]=\lim_{M\rightarrow\infty}E[|X_{1}|I_{\{|X_{1}|>M\}}]=0
+\]
+per l'ipotesi del momento primo finito. Per la b), abbiamo che
+\begin{align*}
+\lim_{M\rightarrow\infty}\sup_{n}E[|X_{n}|I_{\{|X_{n}|>M\}}] &\le \lim_{M\rightarrow\infty}\sup_{n}E[\frac{|X_{n}|^{\eta}}{M^{\eta}}|X_{n}|I_{\{|X_{n}|>M\}}] \\
+&= \lim_{M\rightarrow\infty}\frac{1}{M^{\eta}}\sup_{n}E[|X_{n}|^{1+\eta}I_{\{|X_{n}|>M\}}] \\
+&\le \lim_{M\rightarrow\infty}\frac{M_{\eta}}{M^{\eta}}=0 .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+Sia $\{X_{n}\}$ una sequenza uniformemente integrabile. Allora $X_{n}\rightarrow_{p}$
+X implica $X_{n}\rightarrow_{1}X.$
+\end{lemma}
+
+\begin{proof}
+Basta scrivere
+\[
+E[|X_n - X|] \le E[|X_n - X_n I_{\{|X_n| \le M\}}|] + E[|X_n I_{\{|X_n| \le M\}} - X I_{\{|X| \le M\}}|] + E[|X I_{\{|X| \le M\}} - X|].
+\]
+(Nota: La formula nel PDF è poco chiara, $E[XX] \le E X-XM|]+E[X-XM] + E[XAM- ]$. Quella sopra è un'interpretazione plausibile della scomposizione con una variabile troncata $X_M$).
+
+Il primo elemento può essere reso arbitrariamente piccolo per l'uniforme integrabilità, il secondo perché X ha necessariamente valor medio finito (dimostrarlo),
+il terzo perché abbiamo a che fare con variabili limitate che convergono in probabilità, quindi possiamos fruttare il risultato dimostrato precedentemente.
+\end{proof}
+
+\end{document}

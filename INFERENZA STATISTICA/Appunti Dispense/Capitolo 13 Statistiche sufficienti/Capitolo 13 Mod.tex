@@ -1,0 +1,443 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{example}[definition]{Example}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{remark}[definition]{Remark}
+\setcounter{definition}{115} % L'ultimo era 115, quindi il prossimo è 116
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{13 Statistiche sufficienti}
+Una domanda naturale che possiamo porci, specialmente in un momento in cui
+masse enormi di dati sono a disposizione, è la seguente: posso comprimere un
+campione di dati osservati senza perdere informazione sul parametro che mi
+interessa?
+Questa domanda ci porta alla nozione di statistiche sufficienti.
+
+\begin{spiegazione}
+    \textbf{Cos'è una "Statistica Sufficiente"?}
+    
+    L'idea è molto intuitiva: una statistica (come la media campionaria, $\overline{X}$) è "sufficiente" se \textbf{contiene tutta l'informazione} sul parametro $\theta$ (come la media vera, $\mu$) che era contenuta nell'intero campione originale ($X_1, \dots, X_n$).
+    
+    È un metodo di "compressione dati" perfetto: ci permette di buttare via l'intero dataset (che possono essere Terabyte di dati) e tenere solo un numero (o un piccolo set di numeri), con la garanzia di non aver perso \textit{nessuna informazione} utile per stimare il nostro parametro.
+    
+    Ad esempio, se voglio stimare la media $\mu$ di una popolazione Gaussiana, non mi serve sapere i 1000 valori individuali; mi "è sufficiente" conoscere la loro somma $\sum X_i$ (o la loro media $\overline{X}$).
+\end{spiegazione}
+
+\begin{definition}[Statistiche sufficienti]
+Una statistica $T_{n}=T(X_{1},...,X_{n})$ si
+dice sufficiente per il parametro $\theta$ se la distribuzione del campione condizionata
+a $T_{n}$ non dipende da $\theta$.
+In altre parole, la legge $p(X_{1},...,X_{n}|T_{n})$ non dipende dal parametro.
+In
+questa sezione, supponiamo sempre per semplicità di avere a che fare con variabili aleatorie discrete;
+in questo ambito, è immediato verificare che conoscendo
+solo la statistica sufficiente possiamo generare un nuovo campione uguale in distribuzione all'originale.
+Abbiamo infatti, per qualsiasi scelta di valori $(x_{1},x_{2},...,x_{n})$
+\begin{align*}
+Pr(X_{1}=x_{1},...,X_{n}=x_{n}) \\
+= Pr(X_{1}=x_{1},...,X_{n}=x_{n}\cap T(X_{1},...,X_{n})=T(x_{1},...,x_{n})) \\
+= Pr(X_{1}=x_{1},...,X_{n}=x_{n}|T(X_{1},...,X_{n})=T(x_{1},...,x_{n})) Pr(T(X_{1},...,X_{n})=T(x_{1},...,x_{n})) \\
+= Pr(Y_{1}=x_{1},...,Y_{n}=x_{n}|T(Y_{1},...,Y_{n})=T(x_{1},...,x_{n})) Pr(T(X_{1},...,X_{n})=T(x_{1},...,x_{n})) \\
+= Pr(Y_{1}=x_{1},...,Y_{n}=x_{n})
+\end{align*}
+dove le $Y_{i}$ sono generate dalla distribuzione condizionata delle $X_{i}$ a T;
+poichè
+l'uguaglianza vale per tutte le scelte di $(x_{1},...,x_{n})$ abbiamo quindi dimostrato
+che
+\[
+(Y_{1},...,Y_{n})\underline{d}(X_{1},...,X_{n}).
+\]
+Si noti che nella dimostrazione (primo passaggio) abbiamo anche utilizzato il
+fatto che l'evento $X_{1}=x_{1},...,X_{n}=x_{n}$ è contenuto nell'evento $T(X_{1},...,X_{n})=$
+$T(x_{1},...,x_{n})$, e pertanto la probabilità della loro intersezione è uguale alla probabilità di $X_{1}=x_{1},...,X_{n}=x_{n}$. Più in generale, denotiamo $q(T(X_{1},...,X_{n});\theta)$ la
+funzione di probabilità della statistica sufficiente T;
+dalla definizione di probabilità condizionata è immediato verificare che T è sufficiente se e solo se $p(X_{1},...,X_{n};\theta)/q(T(X_{1},...,X_{n});\theta)$
+non dipende da $\theta$.
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Cosa significa la Definizione Formale?}
+    
+    La definizione $p(X_1, \dots, X_n | T_n)$ "non dipende da $\theta$" è un modo molto tecnico per dire: "Una volta che ti ho detto il valore della statistica $T_n$ (es. la somma è 7), il campione originale ($X_1, \dots, X_n$) non contiene più nessuna informazione \textit{aggiuntiva} sul parametro $\theta$."
+    
+    Tutta l'informazione su $\theta$ è stata "aspirata" e si trova ora in $T_n$. Sapere l'ordine esatto in cui sono usciti i dati (es. T-C-T-C... vs T-T-C-C...) non ci aiuta in alcun modo a stimare $\theta$, una volta che sappiamo già che la somma è $T_n$.
+\end{spiegazione}
+
+\begin{example}
+Si consideri un campione IID di variabili Bernoulliane $X_{i}\sim$
+$Ber(\theta)$. La loro legge congiunta è data da
+\[
+p(X_{1},...,X_{n};\theta)=\theta^{\sum_{i=1}^{n}X_{i}}(1-\theta)^{n-\sum_{i=1}^{n}X_{i}}.
+\]
+Verifichiamo che $T_{n}:=\sum_{i=1}^{n}X_{i}$ sia una statistica sufficiente; la sua funzione
+di probabilità è una binomiale, data quindi da
+\[
+q(T_{n}(X_{1},...,X_{n});\theta)=\binom{n}{\sum_{i=1}^{n}X_{i}}\theta^{\sum_{i=1}^{n}X_{i}}(1-\theta)^{n-\sum_{i=1}^{n}X_{i}}
+\]
+e quindi
+\[
+\frac{p(X_{1},...,X_{n};\theta)}{q(T_{n}(X_{1},...,X_{n});\theta)}=\frac{1}{\binom{n}{\sum_{i=1}^{n}X_{i}}}
+\]
+che è indipendente da $\theta$.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio 1: Lancio di Monete (Bernoulli)}
+    
+    \begin{itemize}
+        \item \textbf{Campione ($X_1, \dots, X_n$):} L'elenco esatto dei risultati dei lanci (es. $X_1=1, X_2=0, X_3=1, \dots$).
+        \item \textbf{Parametro ($\theta$):} La probabilità (ignota) che esca Testa ($p$).
+        \item \textbf{Statistica ($T_n$):} La somma $\sum X_i$, cioè il numero totale di Teste (es. $k=7$).
+    \end{itemize}
+    
+    Per stimare $\theta$, ci interessa l'ordine in cui sono uscite Teste e Croci? No. L'unica cosa che ci serve è il \textit{numero totale} di Teste (la somma $T_n$).
+    
+    La formula $p(X|T) = 1 / \binom{n}{k}$ (che non dipende da $\theta$) lo dimostra: una volta che ti ho detto che "su $n$ lanci, $k$ sono Teste", la probabilità di una specifica sequenza (es. T-T-C) è $1$ diviso il numero di tutte le sequenze possibili con $k$ Teste. Il parametro $\theta$ è sparito.
+\end{spiegazione}
+
+\begin{example}
+Si consideri un campione IID di variabili Gaussiane $X_{i}\sim N(\theta,1).$
+La loro legge congiunta è data da
+\[
+p(X_{1},...,X_{n};\mu)=\frac{1}{(2\pi)^{n/2}}exp(-\frac{1}{2}\sum_{i=1}^{n}(X_{i}-\mu)^{2}) ;
+\]
+consideriamo ora la statistica $\overline{X}_{n}=n^{-1}\sum_{i=1}^{n}X_{i}$ con legge $N(\mu,\frac{1}{n})$ cioè
+\[
+q(\overline{X}_{n};\mu)=\frac{\sqrt{n}}{(2\pi)^{1/2}}exp(-\frac{n}{2}(\overline{X}_{n}-\mu)^{2}) .
+\]
+E' facile verificare che
+\[
+\sum_{i=1}^{n}(X_{i}-\mu)^{2}=\sum_{i=1}^{n}(X_{i}-\overline{X}_{n}+\overline{X}_{n}-\mu)^{2}=\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}+n(\overline{X}_{n}-\mu)^{2}
+\]
+da cui
+\begin{align*}
+\frac{p(X_{1},...,X_{n};\mu)}{q(\overline{X}_{n};\mu)} &= Const\times\frac{exp(-\frac{1}{2}\sum_{i=1}^{n}(X_{i}-\mu)^{2})}{exp(-\frac{n}{2}(\overline{X}_{n}-\mu)^{2})} \\
+&= Const\times exp(-\frac{1}{2}\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}) ,
+\end{align*}
+e la dimostrazione della sufficienza è completata.
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio 2: Media Gaussiana}
+    
+    Allo stesso modo, se abbiamo $n$ misurazioni da una distribuzione Gaussiana $N(\mu, 1)$ e vogliamo stimare la media vera $\mu$.
+    
+    La media campionaria $\overline{X}_n$ (o la somma, sono equivalenti) è una statistica sufficiente.
+    
+    L'algebra (che scompone $\sum (X_i - \mu)^2$ in $\sum(X_i - \overline{X}_n)^2 + n(\overline{X}_n - \mu)^2$) mostra che il rapporto $p(X | \overline{X})$ dipende solo da $\sum(X_i - \overline{X}_n)^2$, che è la varianza campionaria. Questo termine non contiene $\mu$ (il parametro $\theta$).
+    
+    Ancora una volta, $\overline{X}_n$ ha "catturato" tutta l'informazione su $\mu$ contenuta nel campione.
+\end{spiegazione}
+
+A metà del ventesimo secolo Halmos e Savage hanno dato una caratterizzazione della suffiicenza leggermente più generale, come segue.
+
+\begin{theorem}[Criterio di Fattorizzazione di Halmos e Savage]
+Una statistica
+è sufficiente se e solo se la funzione di probabilità (o di densità) di $X_{1},...,X_{n}$
+si fattorizza come
+\[
+p(X_1, ..., X_n; \theta) = g(T(X_1,..., X_n);\theta))h(X_1,..., X_n)
+\]
+dove la funzione $h(.)$ non dipende da $\theta$.
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Un "Test" Pratico per la Sufficienza}
+    
+    La definizione formale (Def. 116) che usa la probabilità condizionata $p(X|T)$ è un incubo da usare per le dimostrazioni.
+    
+    Questo teorema (il Criterio di Fattorizzazione) ci dà un "test" molto più semplice. Per dimostrare che $T$ è sufficiente, ti basta fare un po' di algebra:
+    
+    \begin{enumerate}
+        \item Prendi la funzione di verosimiglianza $p(X_1, \dots, X_n; \theta)$.
+        \item Prova a "spezzarla" (fattorizzarla) in due pezzi moltiplicati tra loro:
+            \begin{itemize}
+                \item \textbf{Pezzo $g$:} Una funzione $g$ che dipende dal parametro $\theta$, ma che "vede" i dati $X$ \textit{solo} attraverso la statistica $T(X)$.
+                \item \textbf{Pezzo $h$:} Una funzione $h$ che può dipendere da tutti i dati $X$ in modo complicato, ma \textit{non deve} contenere il parametro $\theta$.
+            \end{itemize}
+    \end{enumerate}
+    
+    Se riesci a fare questa separazione, hai dimostrato che $T(X)$ è sufficiente.
+\end{spiegazione}
+
+\begin{proof}
+L'implicazione sufficienza $\Rightarrow$ fattorizzazione è ovvia: basta prendere
+per $g(T;\theta)=q(T;\theta)$ (la legge di q) e h la legge delle $X_{i}$ condizionata a T,
+che sappiamo essere indipendente da $\theta$. L'interesse del Teorema è quindi nella
+seconda parte, cioè nel caso in cui la fattorizzazione non corrisponda necessariamente alla coppia legge di T/ legge di $X_{1},...,X_{n}$ condizionata a T. Come
+sempre in questa sezione ci limitiamo il caso discreto, e partizioniamo il dominio
+di $X_{1},...,X_{n}$ in classi di equivalenza corrispondenti ai valori della statistica sufficiente;
+definiamo cioè i sottoinsiemi di $\mathbb{R}^n$
+\[
+A_{T(x_{1},...,x_{n})}=\{(x_{1}^{\prime},...,x_{n}^{\prime}):T(x_{1}^{\prime},...,x_{n}^{\prime})=T(x_{1},...,x_{n})\}.
+\]
+Andiamo a calcolare, per $x_{1},...,x_{n}$ qualsiasi ma fissati
+\begin{align*}
+\frac{p(x_{1},...,x_{n};\theta)}{q(T(x_{1},...,x_{n});\theta)} &= \frac{g(T(x_{1},...,x_{n};\theta))h(x_{1},...,x_{n})}{q(T(x_{1},...,x_{n});\theta)} \\
+&= \frac{g(T(x_{1},...,x_{n};\theta))h(x_{1},...,x_{n})}{\sum_{(x_{1}^{\prime},...,x_{n}^{\prime})\in A_{T(x_{1},...,x_{n})}}p(x_{1}^{\prime},...,x_{n}^{\prime};\theta)} \\
+&= \frac{g(T(x_{1},...,x_{n};\theta))h(x_{1},...,x_{n})}{\sum_{(x_{1}^{\prime},...,x_{n}^{\prime})\in A_{T(x_{1},...,x_{n})}}g(T(x_{1},...,x_{n};\theta))h(x_{1}^{\prime},...,x_{n}^{\prime})} \\
+&= \frac{h(x_{1},...,x_{n})}{\sum_{(x_{1}^{\prime},...,x_{n}^{\prime})\in A_{T(x_{1},...,x_{n})}}h(x_{1}^{\prime},...,x_{n}^{\prime})} ;
+\end{align*}
+l'ultima frazione non dipende da $\theta$, il che è sufficiente a concludere la dimostrazione della sufficienza.
+\end{proof}
+
+\subsection*{13.1 Il Teorema di Rao-Blackwell}
+L'idea intutiva dietro le statistiche sufficienti è quella di condensare l'informazione
+del campione aleatorio conservando quello che è utile per risalire al valore "vero"
+del parametro.
+Sembra quindi inuitivo che gli stimatori efficienti debbano essere costruiti solo a partire da statistiche sufficienti.
+Questa idea è resa rigorosa
+dal teorema di Rao-Blackwell; prima di enunciarlo, dobbiamo ricordare alcune
+nozioni sul valor medio condizionato, restringendoci solamente al caso discreto.
+Siano X Y valori aleatorie discrete con momento secondo finito e funzione
+di probabilità congiunta $P_{XY}(x,y)$;
+la densità di X condizionata a $Y=y$ è data
+da
+\[
+p_{X|Y}(x|y)=\begin{cases}\frac{p_{XY}(x,y)}{p_{Y}(y)}, & se~p_{Y}(y)>0\\ 0 & altrimenti\end{cases}
+\]
+(Nota: il testo originale riporta $p_X(x)$ al denominatore e $p_{X|Y}(x,y)$ a sinistra, ma $p_Y(y)$ e $p_{X|Y}(x|y)$ sono corretti)
+
+ed il valor medio condizionato a $Y=y$ naturalmente
+\[
+E[X|Y=y] = \sum_{x \in Dom(X)} x p_{X|Y}(x|y)
+\]
+(Nota: il testo originale presenta una formula parziale e diversa $E[X|Y=y] = \sum x p_{XY}(x,y) / p_Y$)
+
+Se evitiamo di fissare il valore della variabile aleatoria Y, avremo ora una nuova
+variabile aleatoria (funzione di Y) della forma $\psi(Y)=E[X|Y],$ che ad ogni
+valore di Y associa il valore del valor medio condizionato corrispondente a quel
+valore
+\[
+E[X|Y]=\sum_{x\in Dom(X)}x\frac{p_{XY}(x,Y)}{p_{Y}(Y)}=\sum_{x\in Dom(X)}xp_{X|Y}(x|Y) ;
+\]
+in altre parole, $\psi(Y)$ assume il valore $\psi(y)=E[X|Y=y]$ con probabilità $p_{Y}(y)$
+(la legge marginale di Y. E' immediato verificare che (la cosiddetta legge del
+valor medio iterato)
+\[
+E[E[X|Y]] = E[X];
+\]
+infatti
+\begin{align*}
+E[E[X|Y]] &= \sum_{y}E[X|Y=y]p_{Y}(y)=\sum_{y}\sum_{x\in Dom(X)}x\frac{p_{XY}(x,y)}{p_{Y}(y)}p_{Y}(y) \\
+&= \sum_{x\in Dom(X)}x\sum_{y}p_{XY}(x,y) \\
+&= \sum_{x\in Dom(X)}xp_{X}(x)=E[X] .
+\end{align*}
+Allo stesso modo possiamo definire la variabile aleatoria (funzione di Y)
+\[
+Var[X|Y]=\sum_{x\in Dom(X)}(x-E[X|Y])^{2}p_{X|Y}(x|Y) ,
+\]
+che corrisponde alla varianza condizionata di X, in funzione del valore aleatorio
+di Y. Vale il seguete risultato.
+
+\begin{lemma}
+Siano X,Y variabili aleatorie di quadrato integrabile definite sullo
+stesso spazio di probabilità. Abbiamo
+\[
+Var[X]=E[Var[X|Y]]+Var[E[X|Y]].
+\]
+\end{lemma}
+
+\begin{spiegazione}
+    \textbf{Scomposizione della Varianza}
+    
+    Questo lemma è un risultato fondamentale della probabilità, noto come \textbf{Legge della Varianza Totale}. Dice che la variabilità (Varianza) totale di una variabile $X$ può essere scomposta in due parti:
+    
+    \begin{enumerate}
+        \item \textbf{$E[Var[X|Y]]$:} La \textbf{varianza interna media}. È la variabilità \textit{residua} di $X$ che \textit{non} è spiegata da $Y$. (Quanto "balla" ancora $X$ \textit{dopo} che $Y$ è noto, in media).
+        
+        \item \textbf{$Var[E[X|Y]]$:} La \textbf{varianza esterna}. È la variabilità di $X$ che \textit{è spiegata} da $Y$. (Quanto "balla" la media di $X$ al variare di $Y$).
+    \end{enumerate}
+    
+    Varianza Totale = Varianza non Spiegata + Varianza Spiegata.
+\end{spiegazione}
+
+\begin{proof}
+Abbiamo che
+\begin{align*}
+Var[X] &= E[(X-E[X])^{2}] \\
+&= E[(X-E[X|Y]+E[X|Y]-E[X])^{2}] \\
+&= E[(X-E[X|Y])^{2}]+E[(E[X|Y]-E[X])^{2}] \\
+&\quad + 2E[(X-E[X|Y])(E[X|Y]-E[X])].
+\end{align*}
+Ora per definizione abbiamo
+\[
+E[(E[X|Y]-E[X])^{2}]=E_{Y}[(E[X|Y]-E[X])^{2}]=Var[E[X|Y]];
+\]
+inoltre
+\begin{align*}
+E[(X-E[X|Y])(E[X|Y]-E[X])] &= E_{Y}[E[(X-E[X|Y])(E[X|Y]-E[X])|Y]] \\
+&= E_{Y}[(E[X|Y]-E[X])E[(X-E[X|Y])|Y]] \\
+&= 0 ,
+\end{align*}
+perché $E[(X-E[X|Y])|Y]=0.$ Infine
+\[
+E[(X-E[X|Y])^{2}]=E[E[(X-E[X|Y])^{2}|Y]]=E[Var[X|Y]],
+\]
+e il Lemma è dimostrato.
+\end{proof}
+
+Possiamo finalmente arrivare al risultato principale, che ci garantisce che
+condizionando uno stimatore non distorto su una statistica sufficiente se ne
+ottiene un altro ancora non distorto e con varianza non maggiore.
+
+\begin{theorem}[Rao-Blackwell]
+Sia $W_{n}=W_{n}(X_{1},...,X_{n})$ uno stimatore non
+distorto e con varianza finita del parametro $\theta$, e sia $T_{n}=T(X_{1},...,X_{n})$ una
+statistica sufficente per $\theta$. Definiamo $\psi(T)=E[W_{n}|T]$;
+allora abbiamo
+\[
+E[\psi(T)]=\theta~e~Var[\psi(T)]\le Var[W_{n}]
+\]
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Perché le Statistiche Sufficienti sono così importanti?}
+    
+    Questo teorema è la risposta. Ci fornisce una \textbf{ricetta per migliorare uno stimatore}.
+    
+    \begin{enumerate}
+        \item \textbf{Partenza:} Hai uno stimatore $W_n$ che è "onesto" (non distorto, $E[W_n]=\theta$) ma magari non molto "preciso" (ha una varianza $Var[W_n]$ alta).
+        
+        \item \textbf{Ingrediente Chiave:} Trovi una statistica \textit{sufficiente} $T_n$ (che "aspira" tutta l'informazione su $\theta$ dal campione).
+        
+        \item \textbf{Ricetta:} Crei un nuovo stimatore $\psi(T)$ calcolando la media del tuo vecchio stimatore $W_n$ \textit{dato} $T_n$. (In pratica, $\psi(T) = E[W_n | T_n]$).
+    \end{enumerate}
+    
+    \textbf{Risultato:} Il tuo nuovo stimatore $\psi(T)$ è \textbf{sempre migliore} (o al peggio uguale) del vecchio $W_n$:
+    \begin{itemize}
+        \item È ancora "onesto" (non distorto): $E[\psi(T)] = \theta$.
+        \item È più "preciso" (ha una varianza minore): $Var[\psi(T)] \le Var[W_n]$.
+    \end{itemize}
+    
+    Questo teorema ci dice che se stiamo cercando lo stimatore "migliore" (con varianza minima), dobbiamo cercarlo \textit{solo} tra le funzioni di statistiche sufficienti.
+\end{spiegazione}
+
+\begin{proof}
+La dimostrazione è una applicazione immediata dei risultati precedenti
+sul valor medio condizionato. In particolare
+\[
+E[\psi(T)]=E[E[W_{n}|T]]=E[W_n]=\theta ,
+\]
+\[
+Var[W_{n}]=E[Var[W_{n}|T]]+Var[E[W_{n}|T]]
+\]
+\[
+\ge Var[E[W_{n}|T]]=Var[\psi(T)].
+\]
+\end{proof}
+
+\begin{spiegazione}
+    \textbf{La Dimostrazione (spiegata dal Lemma 120)}
+    
+    La dimostrazione è incredibilmente elegante e usa direttamente il Lemma 120 (Legge della Varianza Totale):
+    
+    $Var[W_n] = E[Var[W_n|T]] + Var[E[W_n|T]]$
+    
+    Guardiamo i due pezzi:
+    \begin{itemize}
+        \item $Var[E[W_n|T]]$: Questa è la varianza del nostro \textit{nuovo} stimatore $\psi(T)$.
+        \item $E[Var[W_n|T]]$: Questa è la "varianza interna media". Poiché una varianza non può mai essere negativa, questo termine è sempre $\ge 0$.
+    \end{itemize}
+    
+    Quindi, la formula ci dice:
+    $Var(\text{Vecchio Stimatore}) = (\text{Termine } \ge 0) + Var(\text{Nuovo Stimatore})$
+    
+    Questo implica matematicamente che $Var(\text{Vecchio Stimatore}) \ge Var(\text{Nuovo Stimatore})$.
+\end{spiegazione}
+
+\begin{remark}
+Dove abbiamo usato nella dimostrazione precedente la sufficienza?
+Apparentemente non gioca alcun ruolo, ma in realtà ci garantisce che il valor
+medio condizionato non dipenda dal parametro, e quindi che $\psi(T)$ sia effettivamente uno stimatore.
+Ad esempio consideriamo un campione di sole due
+osservazioni $X_{1}$, $X_{2}$ Gaussiane indipendenti con valor medio $\mu$ e varianza 1, e
+consideriamo lo stimatore $\overline{X}_{2}=\frac{1}{2}(X_{1}+X_{2})$.
+Consideriamo
+\[
+\psi(X_{1}):=E[\overline{X_{2}}|X_{1}]=\frac{X_{1}+\mu}{2}
+\]
+Questa variabile aleatoria ha valor medio $\mu$ e varianza $\frac{1}{4}<Var(\overline{X}_{2})=\frac{1}{2}$; non
+si tratta però di uno stimatore, perchè il suo valore non può essere determinato
+senza conoscere il valore del parametro $\mu$.
+\end{remark}
+
+\begin{spiegazione}
+    \textbf{Perché la "Sufficienza" è la chiave? (Un punto sottile)}
+    
+    Questo remark è cruciale. La dimostrazione $Var(W_n) \ge Var(\psi(T))$ funziona sempre, ma \textit{non serve a nulla} se $\psi(T) = E[W_n | T]$ non è un vero stimatore.
+    
+    Uno "stimatore" (Def. 80) deve essere una formula calcolabile \textit{solo} dai dati ($X_1, \dots, X_n$), senza conoscere il parametro $\theta$ (altrimenti che stima è?).
+    
+    \begin{itemize}
+        \item \textbf{L'esempio fallimentare:} Il testo usa $T=X_1$ (che \textit{non} è sufficiente per $\mu$). Se proviamo ad applicare Rao-Blackwell, il "nuovo stimatore" è $\psi(X_1) = E[\overline{X}_2 | X_1] = \frac{X_1 + \mu}{2}$.
+        Questa formula è \textit{inutilizzabile}: per calcolarla serve $\mu$, che è proprio il valore che non conosciamo!
+        
+        \item \textbf{Perché la sufficienza salva tutto:} Se $T$ è \textit{sufficiente} (Def. 116), la distribuzione $p(X|T)$ \textit{non dipende da $\theta$}. Di conseguenza, anche la media $E[W_n | T]$ (che si calcola usando $p(X|T)$) non dipenderà da $\theta$. Sarà una vera formula calcolabile solo dai dati, e quindi un vero stimatore.
+    \end{itemize}
+\end{spiegazione}
+
+\end{document}

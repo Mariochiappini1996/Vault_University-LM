@@ -1,0 +1,12 @@
+
+node_modules/
+dist/
+build/
+*.zip
+*.tar
+*.mp4
+*.log
+.env
+CYBERSECURITY/ArcieriDocker/va20250925.tar
+
+CYBERSECURITY/ArcieriDocker/va20250925.tar

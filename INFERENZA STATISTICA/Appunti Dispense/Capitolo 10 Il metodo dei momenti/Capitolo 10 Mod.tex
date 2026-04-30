@@ -1,0 +1,317 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{definition}{Definition}
+\newtheorem{condition}[definition]{Condition}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{example}[definition]{Example}
+\setcounter{definition}{85} % L'ultimo era 85, quindi il prossimo è 86
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{10 Il metodo dei momenti}
+I due stimatori più naturali sono media e varianza empirica;
+in entrambi i casi
+possono essere interpretati come lo stimatore che si ottiene sostituendo la distribuzione empirica a quella teorica nel calcolo di parametri che possono esser
+visti come valori medi di momenti del campione aleatorio.
+Il metodo dei momenti può essere visto come la generalizzazione di questa idea.
+
+\begin{spiegazione}
+    \textbf{Cos'è il "Metodo dei Momenti" (MoM)?}
+    
+    È una "ricetta" (un metodo) per creare degli stimatori per i parametri $\theta$ di una distribuzione.
+    
+    L'idea è incredibilmente semplice e intuitiva: \textbf{"Facciamo in modo che i 'momenti' del nostro campione siano uguali ai 'momenti' veri della distribuzione."}
+    
+    \begin{itemize}
+        \item \textbf{Momento Teorico (o "della popolazione"):} È una formula che dipende dai parametri veri $\theta$.
+        Esempio: Il 1° momento teorico è la media vera, $\mu_1 = \mathbb{E}[X]$.
+        
+        \item \textbf{Momento Empirico (o "del campione"):} È la stessa cosa, ma calcolata sui nostri dati.
+        Esempio: Il 1° momento empirico è la media campionaria, $m_1 = \frac{1}{n}\sum X_i$.
+    \end{itemize}
+    
+    Il metodo consiste nel:
+    \begin{enumerate}
+        \item Scrivere le equazioni per i primi $k$ momenti teorici in funzione dei $k$ parametri $\theta$.
+        \item Calcolare i primi $k$ momenti empirici dai dati.
+        \item "Eguagliare" i due: $\mu_1 = m_1$, $\mu_2 = m_2$, ecc.
+        \item Risolvere questo sistema di equazioni per trovare gli stimatori $\tilde{\theta}$.
+    \end{enumerate}
+\end{spiegazione}
+
+Supponiamo ora di avere un campione aleatorio $X_{1},...,X_{n}$ estratto da una
+legge di probabilità $P_{\theta}$ con $\theta=(\theta_{1},...,\theta_{k})$.
+Supponiamo anche che questa legge
+ammetta k momenti finiti, cioè $\mu_{j}=E[X_{1}^{j}]$ sia ben definito per $j=1,...,k$. Chiamiamo $m_{j}$ i momenti empirici $m_{j}:=n^{-1}\sum_{i=1}^{n}X_{i}^{j}$; l'idea di fondo è scegliere
+il valore dei parametri $\theta_{1},...,\theta_{k}$ in modo che valga l'uguaglianza vettoriale:
+\begin{align*}
+m_{1} &= \mu_{1}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k}) \\
+m_{2} &= \mu_{2}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k}) \\
+... \\
+m_{k} &= \mu_{k}(\tilde{\theta}_{1},\tilde{\theta}_{2},...,\tilde{\theta}_{k})
+\end{align*}
+Più precisamente
+
+\begin{definition}
+Assumiamo che esista un diffeomorfismo $g:\mathbb{R}^{k}\rightarrow\mathbb{R}^{k}$ tale che
+$g(\mu_{1},...,\mu_{k})=(\theta_{1},...,\theta_{k})$, per ogni valore $(\theta_{1},...,\theta_{k})$.
+Lo stimatore del metodo
+dei momenti è allora definito da
+\[
+(\tilde{\theta}_1, ..., \tilde{\theta}_k) := g(m_1, ..., m_k).
+\]
+\end{definition}
+
+\begin{spiegazione}
+    \textbf{Chi è la funzione "g"?}
+    
+    La funzione $g$ è semplicemente la "formula risolutiva" del sistema di equazioni.
+    
+    \begin{itemize}
+        \item \textbf{Il Sistema:} $m_k = \mu_k(\tilde{\theta})$. (Passo 3)
+        \item \textbf{La Soluzione:} $\tilde{\theta} = g(m_k)$. (Passo 4)
+    \end{itemize}
+    
+    $g$ è la funzione (o l'insieme di formule) che ci permette di calcolare gli stimatori $\tilde{\theta}$ una volta che abbiamo inserito i momenti empirici $m_k$ calcolati dai dati.
+    
+    Il termine "diffeomorfismo" è una parola tecnica per dire che la funzione $g$ è "ben comportata": è invertibile e non ha "salti" o "spigoli", il che ci garantisce che una soluzione esista e sia stabile.
+\end{spiegazione}
+
+Per determinare le proprietà asintotiche del nostro stimatore dobbiamo rinforzare leggermente le nostre ipotesi.
+
+\begin{condition}
+Le variabili aleatorie $X_{1},...X_{n}$ sono indipendenti ed identicamente distribuite con momenti di ordine 2k finiti.
+\end{condition}
+
+\begin{proposition}
+Sotto la precedente condizione, vale il teorema del limite centrale multivariato
+\[
+\sqrt{n}\begin{pmatrix}m_{1}-\mu_{1}\\ ...\\ m_{k}-\mu_{k}\end{pmatrix}\rightarrow_{d}N\left(\begin{pmatrix}0\\ ...\\ 0\end{pmatrix},\Omega\right)
+\]
+dove
+\[
+\Omega:=\begin{pmatrix}
+E[(X_{1}-\mu_{1})^{2}] & E[(X_{1}-\mu_{1})(X_{1}^{2}-\mu_{2})] & ... & E[(X_{1}-\mu_{1})(X_{1}^{k}-\mu_{k})] \\
+... & ... & ... & ... \\ % Simplified dots for brevity
+... & ... & ... & E[(X_{1}^{k}-\mu_{k})^{2}]
+\end{pmatrix}
+\]
+\end{proposition}
+
+\begin{spiegazione}
+    \textbf{La "pagella" dei Momenti Empirici}
+    
+    Prima di valutare lo stimatore finale $\tilde{\theta}$, valutiamo i "mattoni" con cui è costruito: i momenti empirici $m_k$.
+    
+    Questa proposizione ci dice che i momenti empirici $m_k$ sono ottimi stimatori dei momenti veri $\mu_k$.
+    
+    Come per il Teorema del Limite Centrale (Capitolo 7), il loro errore (la differenza $m_k - \mu_k$), "zoomato" con $\sqrt{n}$, non collassa a zero ma si stabilizza in una \textbf{Gaussiana multivariata} (una "campana" a più dimensioni).
+    
+    La matrice $\Omega$ è semplicemente la matrice di covarianza (la "forma" e la "larghezza") di questa campana multivariata.
+\end{spiegazione}
+
+\begin{proposition}
+Sotto la precedente condizione, lo stimatore del metodo dei
+momenti converge in probabilità al valore vero dei parametri e vale il teorema
+del limte centrale:
+\[
+\sqrt{n}\begin{pmatrix}\tilde{\theta}_{1}-\theta_{1}\\ ... \\ \tilde{\theta}_{k}-\theta_{k}\end{pmatrix}\rightarrow_{d}N\left(\begin{pmatrix}0\\ ...\\ 0\end{pmatrix},Jg(\mu_{1},...,\mu_{k})\Omega Jg(\mu_{1},...,\mu_{k})^{T}\right)
+\]
+\end{proposition}
+
+\begin{spiegazione}
+    \textbf{La "pagella" dello Stimatore MoM}
+    
+    Questo è il risultato finale. Ci dice che lo stimatore del Metodo dei Momenti ($\tilde{\theta}$) ha una buona "pagella" (vedi Capitolo 9):
+    
+    \begin{itemize}
+        \item \textbf{È Consistente:} $\tilde{\theta}$ converge in probabilità a $\theta$. (Funziona! Impara dai dati).
+        \item \textbf{È Asintoticamente Gaussiano:} Il suo errore "zoomato" ($\sqrt{n}(\tilde{\theta} - \theta)$) segue una curva a campana (Gaussiana). Questo ci permette di calcolare intervalli di confidenza e p-value.
+    \end{itemize}
+    
+    \textbf{Come si ottiene questo risultato?}
+    Si applica il \textbf{Metodo Delta} (visto nel Capitolo 8) al risultato della Proposizione 88.
+    
+    \begin{itemize}
+        \item \textbf{CLT per i Momenti (Prop 88):} $\sqrt{n}(m - \mu) \to N(0, \Omega)$
+        \item \textbf{Funzione di Mappa (Def 86):} $\tilde{\theta} = g(m)$
+        \item \textbf{Metodo Delta (Teo 74):} $\sqrt{n}(g(m) - g(\mu)) \to N(0, J_g \Omega J_g^T)$
+    \end{itemize}
+    
+    La formula $Jg \Omega Jg^T$ è la versione multivariata della $[g'(\mu)]^2 \sigma^2$ vista nel Metodo Delta, e ci dà la varianza (la "precisione") del nostro stimatore.
+\end{spiegazione}
+
+\begin{proof}
+Delta Method multivariato.
+\end{proof}
+
+\begin{example}[Legge Gamma]
+Supponiamo di avere un campioni di variabili
+IID con legge Gamma di parametri $\alpha$ e $\beta$ cioè con densità
+\[
+f_{X}(x)=\frac{1}{\Gamma(\alpha)\beta^{\alpha}}x^{\alpha-1}exp(-\frac{x}{\beta})I_{[0,\infty)}(x)
+\]
+\[
+\Gamma(\alpha)=\int_{0}^{\infty}x^{\alpha-1}exp(-x)dx .
+\]
+Come noto (si veda l'appendice) abbiamo
+\[
+E[X_{1}]=\alpha\beta,
+\]
+\[
+E[X_{1}^{2}]=(\alpha\beta)^{2}+\alpha\beta^{2}=\alpha\beta^{2}(\alpha+1)
+\]
+\[
+Var[X_{1}]=\alpha\beta^{2}
+\]
+Possiamo pertanto scrivere
+\[
+\frac{\mu_{2}-\mu_{1}^{2}}{\mu_{1}}=\frac{(\alpha\beta)^{2}+\alpha\beta^{2}-(\alpha\beta)^{2}}{\alpha\beta}=\beta
+\]
+\[
+\frac{\mu_{1}^{2}}{\mu_{2}-\mu_{1}^{2}}=\frac{\alpha^{2}\beta^{2}}{\alpha\beta^{2}}=\alpha .
+\]
+Lo stimatore del metodo dei momenti è pertanto
+\[
+\begin{pmatrix}\tilde{\alpha}\\ \tilde{\beta}\end{pmatrix}=\begin{pmatrix}\frac{m_{1}^{2}}{m_{2}-m_{1}^{2}}\\ \frac{m_{2}-m_{1}^{2}}{m_{1}}\end{pmatrix}
+\]
+con matrice Jacobiana
+\begin{align*}
+Jg(\mu_{1}(\alpha,\beta),\mu_{2}(\alpha,\beta)) &= \begin{pmatrix}\frac{2\mu_{1}\mu_{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}&-\frac{\mu_{1}^{2}}{(\mu_{2}-\mu_{1}^{2})^{2}}\\ -\frac{\mu_{2}}{\mu_{1}^2}-1 & \frac{1}{\mu_{1}}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2\alpha\beta(\alpha^{2}\beta^{2}+\alpha\beta^{2})}{(\alpha\beta^{2})^{2}}&-\frac{(\alpha^{2}\beta^{2}+\alpha\beta^{2})}{\alpha^{2}\beta^{2}}-1\\ -\frac{\alpha^{2}\beta^{2}}{(\alpha\beta^{2})^{2}}&\frac{1}{\alpha\beta}\end{pmatrix} \\
+&= \begin{pmatrix}\frac{2(\alpha+1)}{\beta}&-2-\frac{1}{\alpha}\\ -\frac{1}{\beta^{2}}&\frac{1}{\alpha\beta}\end{pmatrix}
+\end{align*}
+(Nota: il testo originale presenta $\frac{m_1^2}{m_2 - m_3^2}$ e una diversa Jacobiana $\begin{pmatrix} \dots & -\frac{\mu_2}{\mu_1^2}-1 \\ \dots & \dots \end{pmatrix}$. Questa trascrizione segue fedelmente il testo del PDF $Jg(\mu_1(\alpha,\beta),\mu_2(\alpha,\beta)) = \dots$)
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio Pratico: Legge Gamma}
+    
+    Qui applichiamo la "ricetta" del MoM a una distribuzione (la Gamma) che ha 2 parametri, $\alpha$ e $\beta$.
+    
+    \begin{enumerate}
+        \item \textbf{Momenti Teorici (Servono 2 equazioni per 2 parametri):}
+            $\mu_1 = \mathbb{E}[X] = \alpha\beta$
+            $\mu_2 = \mathbb{E}[X^2] = \alpha\beta^2(\alpha+1)$
+            
+        \item \textbf{Momenti Empirici:}
+            $m_1 = \overline{X}$ (la media campionaria)
+            $m_2 = \frac{1}{n}\sum X_i^2$ (la media campionaria dei quadrati)
+            
+        \item \textbf{Eguagliare e Risolvere:}
+            Il testo mostra la soluzione: $\beta = \frac{\mu_2 - \mu_1^2}{\mu_1}$ (che è $Var[X] / E[X]$) e $\alpha = \frac{\mu_1^2}{\mu_2 - \mu_1^2}$.
+            
+        \item \textbf{Lo Stimatore Finale (la funzione $g$):}
+            Sostituiamo i momenti teorici ($\mu_k$) con quelli empirici ($m_k$) nelle formule della soluzione. Otteniamo così la "ricetta" per calcolare i parametri $\tilde{\alpha}$ e $\tilde{\beta}$ direttamente dai dati.
+    \end{enumerate}
+    La "Matrice Jacobiana" $Jg$ è la derivata (multivariata) di queste formule di soluzione. Serve per applicare la Proposizione 89 e trovare la varianza (la precisione) dei nostri stimatori $\tilde{\alpha}$ e $\tilde{\beta}$.
+\end{spiegazione}
+
+\begin{example}
+Suipponiamo che in una certa città avvengano una serie di reati;
+poiché però non tutti i reati vengono denunciati, la legge del numero dei crimini
+osservati può essere vista come una binomiale con k e p incogniti, cioè il nostro
+campione aleatorio $X_{1},...,X_{n}$ ha legge
+\[
+\binom{k}{x}p^{x}(1-p)^{k-x},
+\]
+con k, p parametri incogniti da stimare. Abbiamo
+\[
+\mu_{1}=kp,\mu_{2}=k^{2}p^{2}+kp(1-p),
+\]
+e lo stimatore col metodo dei momenti si ottiene invertendo le relazioni
+\[
+\overline{X}_{n}=kp
+\]
+\[
+\frac{1}{n}\sum_{i=1}^{n}X_{i}^{2}=kp(1-p)+k^{2}p^{2}.
+\]
+Si può ottenere
+\[
+\tilde{p}_{n}=\frac{\overline{X}_{n}}{\tilde{k}_{n}}
+\]
+\[
+\tilde{k}_{n}=\frac{\overline{X}_{n}^{2}}{\overline{X}_{n}-\frac{1}{n}\sum_{i=1}^{n}(X_{i}-\overline{X}_{n})^{2}}
+\]
+\end{example}
+
+Il metodo dei momenti fu introdotto da Pearson (1857-1936), matematico ed
+avvocato, che cambiò il nome da Carl in Karl per la sua ammirazione nei riguardi
+di Karl Marx.
+$E^{\prime}$ da notare che non richiede la consocenza completa della legge
+di probabilità delle $X_{i}$ a differenza del metodo della massima verosimiglianza
+che discutiamo nella prossima sezione.
+
+\begin{spiegazione}
+    \textbf{Vantaggi e Svantaggi del Metodo dei Momenti}
+    
+    Questo remark finale è la conclusione perfetta.
+    
+    \begin{itemize}
+        \item \textbf{Vantaggio (Grande):} È facile e "robusto". Come dice il testo, \textbf{non richiede la conoscenza completa della legge di probabilità}. Basta conoscere le formule dei primi $k$ momenti. Spesso è algebricamente semplice.
+        
+        \item \textbf{Svantaggio (che si vedrà dopo):} Non è il metodo più \textit{efficiente} (preciso). Il \textbf{Metodo della Massima Verosimiglianza} (Maximum Likelihood), che richiede la conoscenza dell'intera funzione di densità $f(x)$, è generalmente considerato migliore (ha una varianza più piccola), anche se è computazionalmente più difficile.
+    \end{itemize}
+\end{spiegazione}
+
+\end{document}

@@ -1,0 +1,264 @@
+\documentclass[article,a4paper]{article}
+
+% --- PACHETTI ESSENZIALI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=1in]{geometry} % Imposta i margini della pagina
+
+% --- PACHETTI PER LA MATEMATICA ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Per \mathbb
+\usepackage{amsthm} % Per gli ambienti di proposizione e proof
+\usepackage{mathrsfs} % Per \mathfrak
+\usepackage{bm} % Per il grassetto matematico (es. \bm{\mu})
+\usepackage{cases} % Per l'ambiente cases
+
+% --- PACCHETTO PER LE SPIEGAZIONI (TCOLORBOX) ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- DEFINIZIONE DEGLI AMBIENTI ---
+\newtheoremstyle{miostile}
+  {\topsep} % space before
+  {\topsep} % space after
+  {\itshape} % body font
+  {} % indent
+  {\bfseries} % head font
+  {.} % punctuation after head
+  {.5em} % space after head
+  {} % head spec
+\theoremstyle{miostile}
+
+% Imposta la numerazione per continuare dai capitoli precedenti
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}[lemma]{Theorem}
+\newtheorem{example}[lemma]{Example}
+\setcounter{lemma}{72} % L'ultimo era 72 (implicito), quindi il prossimo è 73
+
+% Rridefiniamo l'ambiente proof in italiano
+\renewcommand{\proofname}{Proof}
+
+% Comandi personalizzati
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+
+
+% --- STILE PER LE SCATOLE DI SPIEGAZIONE ---
+% Definiamo un nuovo ambiente tcolorbox chiamato 'spiegazione'
+\tcbset{
+    spiegazionestyle/.style={
+        colback=gray!10, % Sfondo grigio chiaro
+        colframe=gray!60, % Bordo grigio scuro
+        fonttitle=\bfseries,
+        title=Spiegazione Semplice,
+        sharp corners,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable, % Permette al box di spezzarsi tra le pagine
+    }
+}
+% Creiamo il comando \begin{spiegazione} ... \end{spiegazione}
+\newtcolorbox{spiegazione}{spiegazionestyle}
+
+
+% --- INIZIO DEL DOCUMENTO ---
+\begin{document}
+
+\section*{8 Il Metodo Delta}
+Il Continuous Mapping Theorem ci garantice che se $a_{n}(X_{n}-E[X_{n}])$ è una
+sequenza di variabili aleatorie che converge in distribuzione ad un limite Z e g
+è una funzione continua, allora $g(a_{n}(X_{n}-E[X_{n}]))$ converge in distribuzione a
+$g(Z)$; ad esempio, se $a_{n}(X_{n}-E[X_{n}])$ converge ad una Gaussiana standard e
+$g(x)=x^{2}$, allora $g(a_{n}(X_{n}-E[X_{n}]))$ converge in distribuzione ad una Gaussiana
+con un grado di libertà.
+Ci poniamo ora una domanda diversa; se applichiamo
+la trasformazione direttamente a $X_{n}$ invece che alla sua versione standardizzata,
+cosa possiamo concludere sulla convergenza?
+In altre parole, cosa possiamo dire
+sulla convergenza in distribuzione di $a_{n}(g(X_{n})-E[g(X_{n})])$? A questa domanda
+risponde il cosiddetto metodo delta.
+
+\begin{spiegazione}
+    \textbf{Qual è il problema che stiamo risolvendo?}
+    
+    Nei capitoli precedenti abbiamo visto due cose:
+    \begin{enumerate}
+        \item \textbf{Legge dei Grandi Numeri (LLN):} $X_n \to \mu$. Ci dice \textit{dove} converge.
+        \item \textbf{Teorema del Limite Centrale (CLT):} $a_n(X_n - \mu) \to Z$. Ci dice la \textit{forma} (la distribuzione) dell'errore, "zoomando" su di esso.
+    \end{enumerate}
+    
+    Ora vogliamo sapere: se applichiamo una funzione $g$ (come $\log(x)$, $x^2$, o $e^x$) a $X_n$, cosa succede?
+    
+    \begin{itemize}
+        \item \textbf{Continuous Mapping Theorem (CMT):} Risponde alla domanda 1. Se $X_n \to \mu$, allora $g(X_n) \to g(\mu)$ (se $g$ è continua). Facile.
+        
+        \item \textbf{Metodo Delta (questo capitolo):} Risponde alla domanda 2. Se conosciamo la distribuzione "zoomata" di $X_n$, qual è la distribuzione "zoomata" di $g(X_n)$?
+    \end{itemize}
+    
+    Il Metodo Delta è, in pratica, un \textbf{Teorema del Limite Centrale per le funzioni di variabili aleatorie}.
+\end{spiegazione}
+
+\begin{lemma}
+Sia G una funzione definita in un intorno dell'origine (da $\mathbb{R}^k$ in
+$\mathbb{R}^m$) e ivi continua e tale che $G(h)=o(||h||)$. Allora
+\[
+X_{n}\rightarrow_{p}0\Rightarrow G(X_{n})=o_{p}(||X_{n}||) \text{, cioè } \frac{G(X_{n})}{||X_{n}||}=o_{p}(1) .
+\]
+\end{lemma}
+
+\begin{proof}
+E' sufficiente definire la funzione continua
+\[
+g(h)=\begin{cases}\frac{G(h)}{||h||}, & se \quad ||h||\ne0 \\ 0, & se \quad ||h||=0\end{cases}
+\]
+Se $X_{n}\rightarrow_{p}0$, $g(X_{n})\rightarrow_{p}0$ per il Lemma di Slutzky.
+\end{proof}
+
+\begin{theorem}[Metodo Delta]
+Sia $g:\mathbb{R}^{k}\rightarrow\mathbb{R}^{m}$ differenziabile, con matrice
+Jacobiana limitata in $\bm{\mu}\in\mathbb{R}^{k}$.
+Supponiamo che la sequenza di vettori aleatori
+$X_{n}$ sia tale per cui
+\[
+a_{n}(X_{n}-\bm{\mu})\rightarrow_{d}X,
+\]
+per $a_{n}$ sequenza deterministica che diverge all'infinito. Allora
+\[
+a_{n}(g(X_{n})-g(\bm{\mu}))\rightarrow_{d}(J(g(\bm{\mu}))X
+\]
+dove il vettore X ha dimensioni $k\times1$ e la matrice Jacobiana $(J(g(\bm{\mu}))$ ha dimensioni $m\times k$,
+\[
+J(g(\bm{\mu}))=\begin{pmatrix}\frac{\partial g_{1}}{\partial x_{1}}&...&\frac{\partial g_{1}}{\partial x_{k}}\\ ...&...\\ \frac{\partial g_{m}}{\partial x_{1}}&...&\frac{\partial g_{m}}{\partial x_{k}}\end{pmatrix}
+\]
+\end{theorem}
+
+\begin{spiegazione}
+    \textbf{Cosa dice il Teorema del Metodo Delta?}
+    
+    Dice che se conosciamo la distribuzione limite "zoomata" di $X_n$ (che è $X$), possiamo trovare la distribuzione limite "zoomata" di $g(X_n)$ usando la \textbf{derivata} di $g$.
+    
+    \textbf{L'idea (Approssimazione Lineare):}
+    Quando "zoomiamo" all'infinito su $X_n$ vicino a $\mu$, la funzione $g(X_n)$ si comporta essenzialmente come la sua \textbf{retta tangente} in quel punto (questa è la definizione di derivata!).
+    
+    $g(X_n) \approx g(\mu) + g'(\mu) \times (X_n - \mu)$
+    
+    Riorganizzando:
+    $a_n(g(X_n) - g(\mu)) \approx g'(\mu) \times [ a_n(X_n - \mu) ]$
+    
+    Se il pezzo $[ a_n(X_n - \mu) ]$ converge a $X$ (per il CLT), allora tutto il lato sinistro converge a $g'(\mu) \times X$.
+    
+    \begin{itemize}
+        \item \textbf{Jacobiano (J):} È semplicemente il nome della "derivata" quando si hanno più variabili (vettori).
+        \item \textbf{Il risultato pratico:} Se $a_n(X_n - \mu) \to N(0, \sigma^2)$, allora $a_n(g(X_n) - g(\mu)) \to N(0, [g'(\mu)]^2 \sigma^2)$. La nuova varianza è la vecchia varianza moltiplicata per la derivata al quadrato.
+    \end{itemize}
+\end{spiegazione}
+
+\begin{proof}
+Per il teorema di Taylor multivariato abbiamo che
+\[
+g(\bm{\mu}+y)-g(\bm{\mu})=(J(g(\bm{\mu}))^{T}y+G(y),
+\]
+con $G(y)=o(||y||)$. Prendendo $y=X_{n}-\bm{\mu}$ abbiamo
+\[
+g(X_{n})-g(\bm{\mu})=(J(g(\bm{\mu}))(X_{n}-\bm{\mu})+G(X_{n}-\bm{\mu}),
+\]
+e per il precedente Lemma sappiamo che
+\begin{align*}
+a_{n}G(X_{n}-\bm{\mu}) &= a_{n}||X_{n}-\bm{\mu}||\frac{G(X_{n}-\bm{\mu}))}{||X_{n}-\bm{\mu}||} \\
+&= ||a_{n}(X_{n}-\bm{\mu})||\frac{G(X_{n}-\bm{\mu}))}{||X_{n}-\bm{\mu}||} \\
+&= O_{p}(1)o_{p}(1)=o_{p}(1) .
+\end{align*}
+Segue che
+\[
+a_{n}(g(X_{n})-g(\bm{\mu}))=a_{n}(J(g(\bm{\mu}))(X_{n}-\bm{\mu})+a_{n}G(X_{n}-\bm{\mu})
+\]
+\[
+=(J(g(\bm{\mu}))a_{n}(X_{n}-\bm{\mu})+o_{p}(1)\rightarrow_{d}(J(g(\bm{\mu}))X.
+\]
+\end{proof}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di variabili IID, per le quali si ha
+\[
+\sqrt{n}\frac{\overline{X}_{n}-\mu}{\sigma}\rightarrow_{d}Z\sim N(0,1) .
+\]
+Allora
+\[
+\sqrt{n}(e^{\overline{X}_{n}}-e^{\mu})\rightarrow_{d}N(0,e^{2\mu}\sigma^{2}).
+\]
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio 1: Applicare $g(x) = e^x$}
+    
+    \begin{enumerate}
+        \item \textbf{Teorema di partenza (CLT):} $\sqrt{n}(\overline{X}_{n}-\mu) \rightarrow_{d} N(0, \sigma^2)$. (Ho moltiplicato $\sigma$ al $Z$ del testo).
+        \item \textbf{Funzione:} $g(x) = e^x$.
+        \item \textbf{Derivata:} $g'(x) = e^x$.
+        \item \textbf{Derivata calcolata in $\mu$:} $g'(\mu) = e^\mu$.
+        \item \textbf{Applichiamo il Metodo Delta:} La nuova distribuzione limite è una Gaussiana con la vecchia varianza ($\sigma^2$) moltiplicata per la derivata al quadrato ($[g'(\mu)]^2$).
+        \item \textbf{Nuova Varianza:} $[e^\mu]^2 \times \sigma^2 = e^{2\mu}\sigma^2$.
+        \item \textbf{Risultato:} $\sqrt{n}(e^{\overline{X}_{n}}-e^{\mu})\rightarrow_{d}N(0, e^{2\mu}\sigma^{2})$.
+    \end{enumerate}
+\end{spiegazione}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di variabili IID, per le quali si ha
+\[
+\sqrt{n}\frac{\overline{X}_{n}-\mu}{\sigma}\rightarrow_{d}Z\sim N(0,1) .
+\]
+Allora
+\[
+\sqrt{n}(\overline{X}_{n}^{2}-\mu^{2})\rightarrow_{d}2\mu\sigma Z \sim N(0, 4\mu^2\sigma^2).
+\]
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio 2: Applicare $g(x) = x^2$}
+    
+    \begin{enumerate}
+        \item \textbf{Teorema di partenza (CLT):} $\sqrt{n}(\overline{X}_{n}-\mu) \rightarrow_{d} N(0, \sigma^2)$. (Chiamiamo $X$ questa distribuzione limite).
+        \item \textbf{Funzione:} $g(x) = x^2$.
+        \item \textbf{Derivata:} $g'(x) = 2x$.
+        \item \textbf{Derivata calcolata in $\mu$:} $g'(\mu) = 2\mu$.
+        \item \textbf{Applichiamo il Metodo Delta:} La nuova distribuzione limite è $g'(\mu) \times X = 2\mu \times N(0, \sigma^2)$.
+        \item \textbf{Nuova Distribuzione:} Una Gaussiana $N(0, [2\mu]^2 \sigma^2) = N(0, 4\mu^2\sigma^2)$.
+    \end{enumerate}
+    Il testo scrive $2\mu\sigma Z$ (dove $Z$ è $N(0,1)$), che è la stessa cosa: $\sqrt{n}(\overline{X}_{n}-\mu) \to \sigma Z$, quindi $g'(\mu) \times (\sigma Z) = (2\mu) \times (\sigma Z) = 2\mu\sigma Z$.
+\end{spiegazione}
+
+\begin{example}
+Sia $X_{1},...X_{n}$ una sequenza di vettori aleatori IID, per i quali si
+ha
+\[
+\sqrt{n}(\overline{\bm{X}}_{n}-\bm{\mu})=\sqrt{n}\left\{\begin{pmatrix}\overline{X}_{1n}-\mu_{1}\\ \overline{X}_{2n}-\mu_{2}\end{pmatrix}\right\}\rightarrow d\begin{pmatrix}Z_{1}\\ Z_{2}\end{pmatrix}\sim N\left(0,\begin{pmatrix}\sigma_{1}^{2}&\sigma_{12}\\ \sigma_{12}&\sigma_{2}^{2}\end{pmatrix}\right) .
+\]
+Allora
+\[
+\sqrt{n}(\overline{X}_{1n}\overline{X}_{2n}-\mu_{1}\mu_{2})\rightarrow_{d} \mu_2 Z_1 + \mu_1 Z_2.
+\]
+\end{example}
+
+\begin{spiegazione}
+    \textbf{Esempio 3: Caso Multivariato (Più variabili)}
+    
+    Questo esempio sembra complicato ma segue la stessa logica.
+    
+    \begin{enumerate}
+        \item \textbf{Teorema di partenza (CLT Multivariato):} Abbiamo un vettore di medie $(\overline{X}_{1n}, \overline{X}_{2n})$ che converge a $(\mu_1, \mu_2)$. L'errore "zoomato" converge a un vettore Gaussiano $(Z_1, Z_2)$ con una matrice di covarianza.
+        \item \textbf{Funzione:} $g(x_1, x_2) = x_1 \times x_2$ (il prodotto).
+        \item \textbf{Derivata (Jacobiano):} Dobbiamo calcolare le derivate parziali e assemblarle in un vettore (riga):
+           $J = \left[ \frac{\partial g}{\partial x_1}, \frac{\partial g}{\partial x_2} \right] = [x_2, x_1]$.
+        \item \textbf{Jacobiano calcolato in $\bm{\mu}$:} $J(\bm{\mu}) = [\mu_2, \mu_1]$.
+        \item \textbf{Applichiamo il Metodo Delta (formula vettoriale):}
+           La nuova distribuzione limite è $J(\bm{\mu}) \times \begin{pmatrix} Z_1 \\ Z_2 \end{pmatrix}$.
+        \item \textbf{Risultato:} $[\mu_2, \mu_1] \times \begin{pmatrix} Z_1 \\ Z_2 \end{pmatrix} = \mu_2 Z_1 + \mu_1 Z_2$.
+    \end{enumerate}
+    Il risultato è una nuova variabile aleatoria (Gaussiana) che è una combinazione lineare delle Gaussiane originali.
+\end{spiegazione}
+
+\end{document}
